@@ -1,0 +1,126 @@
+# =============================================
+# MOA 프로젝트 통합 .gitignore
+# =============================================
+
+
+### 1. Spring Boot & Maven (Backend) ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+dependency-reduced-pom.xml
+release.properties
+pom.xml.tag
+pom.xml.next
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+
+*.pid
+*.hprof
+
+### 2. React & Node.js (Frontend) ###
+node_modules/
+node_modules
+dist/
+dist
+dist-ssr
+build/
+.vite/
+*.local
+
+
+### 3. 환경변수 & 시크릿 ###
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+application-secret.properties
+
+
+### 4. SSL / 보안 인증서 ###
+*.p12
+*.jks
+*.keystore
+**/keystore/
+
+
+### 5. 압축 & 바이너리 ###
+*.zip
+*.tar.gz
+*.rar
+*.jar
+*.war
+*.ear
+*.nar
+
+
+### 6. 로그 ###
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+
+### 7. IDE ###
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/*
+!.vscode/extensions.json
+*.code-workspace
+.metadata/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans/
+.sts4-cache/
+
+
+### 8. OS ###
+.DS_Store
+Thumbs.db
+
+
+### 9. 기타 ###
+*.tmp
+*.bak
+*.swp
+*.class
+*.ctxt
+.mtj.tmp/
+hs_err_pid*
+replay_pid*
+.jqwik-database
+.pnp
+.pnp.js
+
+
+### 10. 임시/개발용 파일 ###
+fix-*.cjs
+_w.js
+
+# SSL 인증서
+*.p12
+*.jks
+*.keystore
+
+# 압축 파일
+*.zip
+
+# 임시 스크립트
+fix-*.cjs
+_w.js
+
+# 개발 중 임시 문서
+*.txt
+deposit_plan.txt
+admin_dashboard_refactoring_plan_20251219.md
