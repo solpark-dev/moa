@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.chat.ChatKnowledgeDao">
+
+    <resultMap id="ChatKnowledgeResultMap"
+        type="com.moa.domain.ChatKnowledge">
+        <id property="id" column="ID" />
+        <result property="category" column="CATEGORY" />
+        <result property="title" column="TITLE" />
+        <result property="question" column="QUESTION" />
+        <result property="answer" column="ANSWER" />
+        <result property="keywords" column="KEYWORDS" />
+        <result property="updatedAt" column="UPDATED_AT" />
+        <result property="embedding" column="EMBEDDING" />
+    </resultMap>
+
+    <select id="searchTop" resultMap="ChatKnowledgeResultMap">
+        SELECT
+            ID,
+            CATEGORY,
+            TITLE,
+            QUESTION,
+            ANSWER,
+            KEYWORDS,
+            UPDATED_AT,
+            EMBEDDING
+        FROM CHATBOT_KNOWLEDGE
+        WHERE
+            QUESTION LIKE CONCAT('%', #{keyword}, '%')
+            OR ANSWER LIKE CONCAT('%', #{keyword}, '%')
+            OR KEYWORDS LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY UPDATED_AT DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findAllWithEmbedding"
+        resultMap="ChatKnowledgeResultMap">
+        SELECT
+            ID,
+            CATEGORY,
+            TITLE,
+            QUESTION,
+            ANSWER,
+            KEYWORDS,
+            UPDATED_AT,
+            EMBEDDING
+        FROM CHATBOT_KNOWLEDGE
+        WHERE EMBEDDING IS NOT NULL
+    </select>
+
+    <update id="updateEmbedding">
+        UPDATE CHATBOT_KNOWLEDGE
+        SET
+            EMBEDDING = #{embedding},
+            UPDATED_AT = NOW()
+        WHERE ID = #{id}
+    </update>
+
+    <select id="searchByKeyword" resultMap="ChatKnowledgeResultMap">
+        SELECT
+            ID,
+            CATEGORY,
+            TITLE,
+            QUESTION,
+            ANSWER,
+            KEYWORDS,
+            UPDATED_AT,
+            EMBEDDING
+        FROM CHATBOT_KNOWLEDGE
+        WHERE
+            MATCH(QUESTION, ANSWER, KEYWORDS)
+                AGAINST(#{keyword} IN BOOLEAN MODE)
+            OR QUESTION LIKE CONCAT('%', #{keyword}, '%')
+            OR ANSWER LIKE CONCAT('%', #{keyword}, '%')
+            OR KEYWORDS LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY UPDATED_AT DESC
+        LIMIT 20
+    </select>
+
+    <insert id="insert"
+            parameterType="com.moa.domain.ChatKnowledge"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO CHATBOT_KNOWLEDGE
+            (CATEGORY, TITLE, QUESTION, ANSWER, KEYWORDS, EMBEDDING)
+        VALUES
+            (#{category}, #{title}, #{question}, #{answer}, #{keywords}, #{embedding})
+    </insert>
+
+</mapper>

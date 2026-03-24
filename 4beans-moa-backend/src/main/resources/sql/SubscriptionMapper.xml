@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.subscription.SubscriptionDao">
+
+    <resultMap id="subscriptionResultMap" type="com.moa.dto.subscription.SubscriptionDTO">
+        <result property="subscriptionId" column="SUBSCRIPTION_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="productId" column="PRODUCT_ID"/>
+        <result property="subscriptionStatus" column="SUBSCRIPTION_STATUS"/>
+        <result property="startDate" column="START_DATE"/>
+        <result property="endDate" column="END_DATE"/>
+        <result property="cancelReason" column="CANCEL_REASON"/>
+        <result property="cancelDate" column="CANCEL_DATE"/>
+
+        <!-- JOIN 컬럼 -->
+        <result property="productName" column="PRODUCT_NAME"/>
+        <result property="productImage" column="IMAGE"/>
+        <result property="price" column="PRICE"/>
+        <result property="categoryName" column="CATEGORY_NAME"/>
+    </resultMap>
+
+    <insert id="addSubscription"
+            parameterType="Subscription"
+            useGeneratedKeys="true"
+            keyProperty="subscriptionId">
+        INSERT INTO SUBSCRIPTION
+            (USER_ID, PRODUCT_ID, SUBSCRIPTION_STATUS, START_DATE, END_DATE, CANCEL_REASON, CANCEL_DATE)
+        VALUES
+            (#{userId}, #{productId}, #{subscriptionStatus}, #{startDate}, #{endDate}, #{cancelReason}, #{cancelDate})
+    </insert>
+
+    <select id="getSubscription"
+            parameterType="int"
+            resultMap="subscriptionResultMap">
+        SELECT
+            S.SUBSCRIPTION_ID,
+            S.USER_ID,
+            S.PRODUCT_ID,
+            S.SUBSCRIPTION_STATUS,
+            S.START_DATE,
+            S.END_DATE,
+            S.CANCEL_REASON,
+            S.CANCEL_DATE,
+            P.PRODUCT_NAME,
+            P.IMAGE,
+            P.PRICE,
+            C.CATEGORY_NAME
+        FROM SUBSCRIPTION S
+        JOIN PRODUCT P ON S.PRODUCT_ID = P.PRODUCT_ID
+        LEFT JOIN CATEGORY C ON P.CATEGORY_ID = C.CATEGORY_ID
+        WHERE S.SUBSCRIPTION_ID = #{subscriptionId}
+    </select>
+
+    <select id="getSubscriptionList"
+            parameterType="String"
+            resultMap="subscriptionResultMap">
+        SELECT
+            S.SUBSCRIPTION_ID,
+            S.USER_ID,
+            S.PRODUCT_ID,
+            S.SUBSCRIPTION_STATUS,
+            S.START_DATE,
+            S.END_DATE,
+            S.CANCEL_REASON,
+            S.CANCEL_DATE,
+            P.PRODUCT_NAME,
+            P.IMAGE,
+            P.PRICE,
+            C.CATEGORY_NAME
+        FROM SUBSCRIPTION S
+        JOIN PRODUCT P ON S.PRODUCT_ID = P.PRODUCT_ID
+        LEFT JOIN CATEGORY C ON P.CATEGORY_ID = C.CATEGORY_ID
+        WHERE S.USER_ID = #{userId}
+        ORDER BY S.SUBSCRIPTION_ID DESC
+    </select>
+
+    <update id="updateSubscription"
+            parameterType="com.moa.dto.subscription.SubscriptionDTO">
+        UPDATE SUBSCRIPTION
+        SET
+            SUBSCRIPTION_STATUS = #{subscriptionStatus},
+            PRODUCT_ID = #{productId},
+            END_DATE = #{endDate},
+            CANCEL_REASON = #{cancelReason},
+            CANCEL_DATE = #{cancelDate}
+        WHERE SUBSCRIPTION_ID = #{subscriptionId}
+    </update>
+
+</mapper>

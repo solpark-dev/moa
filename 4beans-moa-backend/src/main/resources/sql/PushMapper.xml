@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moa.dao.push.PushDao">
+
+    <resultMap id="PushResultMap" type="com.moa.domain.Push">
+        <id property="pushId" column="PUSH_ID"/>
+        <result property="receiverId" column="RECEIVER_ID"/>
+        <result property="pushCode" column="PUSH_CODE"/>
+        <result property="title" column="TITLE"/>
+        <result property="content" column="CONTENT"/>
+        <result property="moduleId" column="MODULE_ID"/>
+        <result property="moduleType" column="MODULE_TYPE"/>
+        <result property="sentAt" column="SENT_AT"/>
+        <result property="readAt" column="READ_AT"/>
+        <result property="isRead" column="IS_READ"/>
+        <result property="isDeleted" column="IS_DELETED"/>
+    </resultMap>
+
+    <resultMap id="PushCodeResultMap" type="com.moa.domain.PushCode">
+        <id property="pushCodeId" column="PUSH_CODE_ID"/>
+        <result property="codeName" column="CODE_NAME"/>
+        <result property="titleTemplate" column="TITLE_TEMPLATE"/>
+        <result property="contentTemplate" column="CONTENT_TEMPLATE"/>
+        <result property="createdAt" column="CREATED_AT"/>
+    </resultMap>
+
+    <insert id="addPush" parameterType="com.moa.domain.Push" useGeneratedKeys="true" keyProperty="pushId">
+        INSERT INTO PUSH (RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, IS_READ, IS_DELETED)
+        VALUES (#{receiverId}, #{pushCode}, #{title}, #{content}, #{moduleId}, #{moduleType}, NOW(), 'N', 'N')
+    </insert>
+
+    <select id="getPushCodeByName" resultMap="PushCodeResultMap">
+        SELECT PUSH_CODE_ID, CODE_NAME, TITLE_TEMPLATE, CONTENT_TEMPLATE, CREATED_AT
+        FROM PUSH_CODE
+        WHERE CODE_NAME = #{codeName}
+    </select>
+
+    <select id="getPushList" resultMap="PushResultMap">
+        SELECT PUSH_ID, RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, READ_AT, IS_READ, IS_DELETED
+        FROM PUSH
+        ORDER BY SENT_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getPushTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM PUSH
+    </select>
+
+    <select id="getMyPushList" resultMap="PushResultMap">
+        SELECT PUSH_ID, RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, READ_AT, IS_READ, IS_DELETED
+        FROM PUSH
+        WHERE RECEIVER_ID = #{receiverId} AND IS_DELETED = 'N'
+        ORDER BY SENT_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getMyPushTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM PUSH
+        WHERE RECEIVER_ID = #{receiverId} AND IS_DELETED = 'N'
+    </select>
+
+    <select id="getPush" resultMap="PushResultMap">
+        SELECT PUSH_ID, RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, READ_AT, IS_READ, IS_DELETED
+        FROM PUSH
+        WHERE PUSH_ID = #{pushId}
+    </select>
+
+    <update id="updateRead">
+        UPDATE PUSH
+        SET IS_READ = 'Y', READ_AT = NOW()
+        WHERE PUSH_ID = #{pushId}
+    </update>
+
+    <update id="updateAllRead">
+        UPDATE PUSH
+        SET IS_READ = 'Y', READ_AT = NOW()
+        WHERE RECEIVER_ID = #{receiverId} AND IS_READ = 'N' AND IS_DELETED = 'N'
+    </update>
+
+    <update id="deletePush">
+        UPDATE PUSH
+        SET IS_DELETED = 'Y'
+        WHERE PUSH_ID = #{pushId}
+    </update>
+
+    <update id="deleteAllPushs">
+        UPDATE PUSH
+        SET IS_DELETED = 'Y'
+        WHERE RECEIVER_ID = #{receiverId} AND IS_DELETED = 'N'
+    </update>
+
+    <select id="getUnreadCount" resultType="int">
+        SELECT COUNT(*)
+        FROM PUSH
+        WHERE RECEIVER_ID = #{receiverId} AND IS_READ = 'N' AND IS_DELETED = 'N'
+    </select>
+
+    <select id="getPushCodeList" resultMap="PushCodeResultMap">
+        SELECT PUSH_CODE_ID, CODE_NAME, TITLE_TEMPLATE, CONTENT_TEMPLATE, CREATED_AT
+        FROM PUSH_CODE
+        ORDER BY PUSH_CODE_ID ASC
+    </select>
+
+    <select id="getPushCodeById" resultMap="PushCodeResultMap">
+        SELECT PUSH_CODE_ID, CODE_NAME, TITLE_TEMPLATE, CONTENT_TEMPLATE, CREATED_AT
+        FROM PUSH_CODE
+        WHERE PUSH_CODE_ID = #{pushCodeId}
+    </select>
+
+    <insert id="addPushCode" parameterType="com.moa.domain.PushCode" useGeneratedKeys="true" keyProperty="pushCodeId">
+        INSERT INTO PUSH_CODE (CODE_NAME, TITLE_TEMPLATE, CONTENT_TEMPLATE, CREATED_AT)
+        VALUES (#{codeName}, #{titleTemplate}, #{contentTemplate}, NOW())
+    </insert>
+
+    <update id="updatePushCode">
+        UPDATE PUSH_CODE
+        SET CODE_NAME = #{codeName},
+            TITLE_TEMPLATE = #{titleTemplate},
+            CONTENT_TEMPLATE = #{contentTemplate}
+        WHERE PUSH_CODE_ID = #{pushCodeId}
+    </update>
+
+    <delete id="deletePushCode">
+        DELETE FROM PUSH_CODE
+        WHERE PUSH_CODE_ID = #{pushCodeId}
+    </delete>
+
+    <select id="getPushHistory" resultMap="PushResultMap">
+        SELECT PUSH_ID, RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, READ_AT, IS_READ, IS_DELETED
+        FROM PUSH
+        <where>
+            <if test="pushCode != null and pushCode != ''">
+                AND PUSH_CODE = #{pushCode}
+            </if>
+            <if test="receiverId != null and receiverId != ''">
+                AND RECEIVER_ID LIKE CONCAT('%', #{receiverId}, '%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND SENT_AT >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND SENT_AT &lt;= CONCAT(#{endDate}, ' 23:59:59')
+            </if>
+        </where>
+        ORDER BY SENT_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getPushHistoryCount" resultType="int">
+        SELECT COUNT(*)
+        FROM PUSH
+        <where>
+            <if test="pushCode != null and pushCode != ''">
+                AND PUSH_CODE = #{pushCode}
+            </if>
+            <if test="receiverId != null and receiverId != ''">
+                AND RECEIVER_ID LIKE CONCAT('%', #{receiverId}, '%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND SENT_AT >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND SENT_AT &lt;= CONCAT(#{endDate}, ' 23:59:59')
+            </if>
+        </where>
+    </select>
+
+    <select id="searchUsersForPush" resultType="java.util.Map">
+        SELECT USER_ID as userId, NICKNAME as nickname
+        FROM USERS
+        WHERE USER_STATUS = 'ACTIVE'
+          AND ROLE != 'ADMIN'
+        <if test="keyword != null and keyword != ''">
+            AND (USER_ID LIKE CONCAT('%', #{keyword}, '%')
+                 OR NICKNAME LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY NICKNAME ASC
+        LIMIT 50
+    </select>
+
+    <select id="getAllUserIdsExceptAdmin" resultType="String">
+        SELECT USER_ID
+        FROM USERS
+        WHERE USER_STATUS = 'ACTIVE'
+          AND ROLE != 'ADMIN'
+        ORDER BY USER_ID ASC
+    </select>
+
+</mapper>

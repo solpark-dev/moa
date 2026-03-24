@@ -1,0 +1,44 @@
+INSERT INTO COMMUNITY (USER_ID, COMMUNITY_CODE_ID, TITLE, CONTENT,
+                       CREATED_AT, VIEW_COUNT,
+                       FILE_ORIGINAL, FILE_UUID,
+                       ANSWER_CONTENT, ANSWERED_AT, ANSWER_STATUS)
+SELECT
+    U.USER_ID,
+    /* 카테고리 분산 */
+    CASE
+        WHEN MOD(ROW_NUMBER() OVER (), 3) = 0 THEN 1
+        WHEN MOD(ROW_NUMBER() OVER (), 3) = 1 THEN 2
+        ELSE 3
+    END AS COMMUNITY_CODE_ID,
+
+    CONCAT('문의 제목 ', ROW_NUMBER() OVER ()),
+    CONCAT('문의 내용 ', ROW_NUMBER() OVER ()),
+    
+    /* 월별 분산 */
+    DATE_ADD('2024-01-01',
+        INTERVAL FLOOR(RAND() * 365) DAY) AS CREATED_AT,
+
+    FLOOR(RAND() * 20) AS VIEW_COUNT,
+
+    NULL, NULL,
+
+    /* 답변 상태 분산 */
+    CASE
+        WHEN RAND() < 0.6 THEN CONCAT('답변 내용 ', ROW_NUMBER() OVER ())
+        ELSE NULL
+    END AS ANSWER_CONTENT,
+
+    CASE
+        WHEN RAND() < 0.6 THEN DATE_ADD(NOW(), INTERVAL -FLOOR(RAND()*10) DAY)
+        ELSE NULL
+    END AS ANSWERED_AT,
+
+    CASE
+        WHEN RAND() < 0.6 THEN '답변완료'
+        ELSE '답변대기'
+    END AS ANSWER_STATUS
+
+FROM USERS U
+WHERE U.ROLE = 'USER'
+ORDER BY U.REG_DATE
+LIMIT 100;

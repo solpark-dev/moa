@@ -1,0 +1,80 @@
+⚠️ 확인 필요 - 보증금 계산 불일치
+프론트엔드 (UI 표시):
+
+const depositAmount = selectedProduct.price * maxMembers;
+// 예: Netflix 17,000원 × 4명 = 68,000원
+백엔드 (실제 결제):
+
+int depositAmount = party.getMonthlyFee() * party.getMaxMembers();
+// monthlyFee = product.price / maxMembers = 17,000 / 4 = 4,250원
+// depositAmount = 4,250 × 4 = 17,000원
+결론: 프론트엔드에서 68,000원으로 표시하지만, 실제 결제는 17,000원입니다!
+
+🔧 수정 필요
+프론트엔드 UI에서 보증금 표시를 백엔드 로직과 일치시켜야 합니다:
+
+Read file(s)
+
+PartyCreatePage.jsx 170 - 231
+백엔드 로직을 다시 확인해보니, 백엔드에서 paymentRequest.amount를 사용하지 않고 자체 계산합니다. 따라서 프론트엔드에서 보내는 amount는 무시됩니다.
+
+실제 보증금 계산 (백엔드):
+
+monthlyFee = product.price / maxMembers (1인당 월 분담금)
+depositAmount = monthlyFee * maxMembers = product.price (원래 구독료)
+즉, **파티장 보증금 = 원래 구독료 (product.price)**입니다.
+
+프론트엔드 UI를 백엔드 로직과 일치시키겠습니다:
+
+Read file(s)
+
+PartyCreatePage.jsx 820 - 921
+문제를 발견했습니다! UI에서 selectedProduct.price * maxMembers로 표시하고 있지만, 백엔드에서는 product.price (원래 구독료)로 계산합니다.
+
+백엔드 로직 재확인:
+
+monthlyFee = product.price / maxMembers (파티 생성 시)
+depositAmount = monthlyFee * maxMembers (보증금 결제 시)
+결과: depositAmount = product.price
+따라서 파티장 보증금 = 원래 구독료입니다. UI를 수정해야 합니다:
+
+Accepted edits to
+
+PartyCreatePage.jsx
+
+
+이제 handlePayment 함수의 depositAmount 계산도 수정해야 합니다:
+
+Accepted edits to
+
+PartyCreatePage.jsx
+
+
+Checked diagnostics
+
+PartyCreatePage.jsx
+수정 완료했습니다. 이제 PartyDetailPage.jsx의 보증금 재결제 로직도 확인해보겠습니다:
+
+Searched workspace
+PartyDetailPage에서 보증금 재결제 로직 확인
+Read file(s)
+
+PartyDetailPage.jsx 214 - 246
+PartyDetailPage.jsx에서도 party.monthlyFee * party.maxMembers로 계산하고 있네요. 이것도 백엔드 로직과 일치시켜야 합니다:
+
+party.monthlyFee = 1인당 월 분담금 (product.price / maxMembers)
+백엔드 보증금 = monthlyFee * maxMembers = product.price
+하지만 PartyDetailPage에서는 party.monthlyFee가 이미 1인당 분담금이므로, party.monthlyFee * party.maxMembers는 원래 구독료와 같습니다. 이건 맞습니다!
+
+정리하면:
+
+PartyDetailPage: party.monthlyFee * party.maxMembers = 원래 구독료 ✅
+PartyCreatePage (수정 전): selectedProduct.price * maxMembers = 원래 구독료 × 인원수 ❌
+PartyCreatePage (수정 후): selectedProduct.price = 원래 구독료 ✅
+📋 최종 점검 결과
+| 항목 | 상태 | 설명 | |------|------|------| | 파티장 보증금 결제 | ✅ 수정됨 | UI와 실제 결제 금액 일치 (원래 구독료) | | 파티장 보증금 재결제 | ✅ 정상 | monthlyFee * maxMembers = 원래 구독료 | | 파티원 가입 결제 | ✅ 정상 | 보증금 + 첫달 구독료 = monthlyFee * 2 | | 정산 로직 | ✅ 영향 없음 | Payment 테이블 기반 계산 | | 보증금 환불 | ✅ 영향 없음 | Deposit 테이블의 depositAmount 기준 |
+
+수정 사항:
+
+PartyCreatePage.jsx Step 3 UI: 보증금 표시를 selectedProduct.price로 수정
+handlePayment 함수: depositAmount를 selectedProduct.price로 수정
