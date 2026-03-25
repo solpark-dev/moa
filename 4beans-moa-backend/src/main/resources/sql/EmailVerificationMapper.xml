@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.moa.dao.user.EmailVerificationDao">
+<mapper namespace="com.moa.user.repository.EmailVerificationDao">
 
 	<resultMap id="EmailVerificationMap"
-		type="com.moa.domain.EmailVerification">
+		type="com.moa.user.domain.EmailVerification">
 		<id column="ID" property="id" />
 		<result column="USER_ID" property="userId" />
 		<result column="TOKEN" property="token" />
@@ -13,7 +13,7 @@
 	</resultMap>
 
 	<insert id="insert"
-		parameterType="com.moa.domain.EmailVerification">
+		parameterType="com.moa.user.domain.EmailVerification">
 		INSERT INTO EMAIL_VERIFICATION (
 		USER_ID,
 		TOKEN,

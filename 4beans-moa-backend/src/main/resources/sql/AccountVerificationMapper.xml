@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.openbanking.AccountVerificationMapper">
+<mapper namespace="com.moa.openbanking.repository.AccountVerificationMapper">
 
-    <resultMap id="AccountVerificationMap" type="com.moa.domain.openbanking.AccountVerification">
+    <resultMap id="AccountVerificationMap" type="com.moa.openbanking.domain.AccountVerification">
         <id property="verificationId" column="VERIFICATION_ID"/>
         <result property="userId" column="USER_ID"/>
         <result property="bankTranId" column="BANK_TRAN_ID"/>
@@ -20,7 +20,7 @@
     </resultMap>
 
     <!-- 인증 세션 저장 -->
-    <insert id="insert" parameterType="com.moa.domain.openbanking.AccountVerification"
+    <insert id="insert" parameterType="com.moa.openbanking.domain.AccountVerification"
             useGeneratedKeys="true" keyProperty="verificationId">
         INSERT INTO ACCOUNT_VERIFICATION (
             USER_ID, BANK_TRAN_ID, BANK_CODE, ACCOUNT_NUM, ACCOUNT_HOLDER,

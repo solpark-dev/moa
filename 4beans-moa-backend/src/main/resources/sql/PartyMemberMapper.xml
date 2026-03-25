@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.partymember.PartyMemberDao">
+<mapper namespace="com.moa.party.repository.PartyMemberDao">
 
 	<!-- ResultMap: PartyMember 기본 매핑 -->
-	<resultMap id="PartyMemberResultMap" type="com.moa.domain.PartyMember">
+	<resultMap id="PartyMemberResultMap" type="com.moa.party.domain.PartyMember">
 		<id property="partyMemberId" column="PARTY_MEMBER_ID"/>
 		<result property="partyId" column="PARTY_ID"/>
 		<result property="userId" column="USER_ID"/>
@@ -16,7 +16,7 @@
 	</resultMap>
 
 	<!-- ResultMap: PartyMemberResponse (JOIN) -->
-	<resultMap id="PartyMemberResponseMap" type="com.moa.dto.partymember.response.PartyMemberResponse">
+	<resultMap id="PartyMemberResponseMap" type="com.moa.party.dto.partymember.response.PartyMemberResponse">
 		<result property="partyMemberId" column="PARTY_MEMBER_ID"/>
 		<result property="partyId" column="PARTY_ID"/>
 		<result property="userId" column="USER_ID"/>
@@ -30,7 +30,7 @@
 	</resultMap>
 
 	<!-- 파티 멤버 추가 (파티 가입) -->
-	<insert id="insertPartyMember" parameterType="com.moa.domain.PartyMember" useGeneratedKeys="true" keyProperty="partyMemberId">
+	<insert id="insertPartyMember" parameterType="com.moa.party.domain.PartyMember" useGeneratedKeys="true" keyProperty="partyMemberId">
 		INSERT INTO PARTY_MEMBER (
 			PARTY_ID,
 			USER_ID,
@@ -96,7 +96,7 @@
 	</select>
 
 	<!-- 파티 멤버 전체 정보 업데이트 -->
-	<update id="updatePartyMember" parameterType="com.moa.domain.PartyMember">
+	<update id="updatePartyMember" parameterType="com.moa.party.domain.PartyMember">
 		UPDATE PARTY_MEMBER
 		SET
 			MEMBER_ROLE = #{memberRole},

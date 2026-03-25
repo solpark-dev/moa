@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.admin.AdminDao">
+<mapper namespace="com.moa.admin.repository.AdminDao">
 
 	<resultMap id="blacklistMap" type="com.moa.domain.Blacklist">
 		<id property="id" column="BLACKLIST_ID" />

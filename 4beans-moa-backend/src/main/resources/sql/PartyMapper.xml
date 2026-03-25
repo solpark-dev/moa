@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.party.PartyDao">
+<mapper namespace="com.moa.party.repository.PartyDao">
 
 	<!-- ResultMap: Party 기본 매핑 -->
-	<resultMap id="PartyResultMap" type="com.moa.domain.Party">
+	<resultMap id="PartyResultMap" type="com.moa.party.domain.Party">
 		<id property="partyId" column="PARTY_ID"/>
 		<result property="productId" column="PRODUCT_ID"/>
 		<result property="partyLeaderId" column="PARTY_LEADER_ID"/>
@@ -22,7 +22,7 @@
 	</resultMap>
 
 	<!-- ResultMap: PartyDetailResponse (JOIN) -->
-	<resultMap id="PartyDetailResponseMap" type="com.moa.dto.party.response.PartyDetailResponse">
+	<resultMap id="PartyDetailResponseMap" type="com.moa.party.dto.response.PartyDetailResponse">
 		<!-- 파티 정보 -->
 		<result property="partyId" column="PARTY_ID"/>
 		<result property="partyLeaderId" column="PARTY_LEADER_ID"/>
@@ -48,7 +48,7 @@
 	</resultMap>
 
 	<!-- ResultMap: PartyListResponse (JOIN) -->
-	<resultMap id="PartyListResponseMap" type="com.moa.dto.party.response.PartyListResponse">
+	<resultMap id="PartyListResponseMap" type="com.moa.party.dto.response.PartyListResponse">
 		<result property="partyId" column="PARTY_ID"/>
 		<result property="partyStatus" column="PARTY_STATUS"/>
 		<result property="maxMembers" column="MAX_MEMBERS"/>
@@ -68,7 +68,7 @@
 	</resultMap>
 
 	<!-- 파티 생성 -->
-	<insert id="insertParty" parameterType="com.moa.domain.Party" useGeneratedKeys="true" keyProperty="partyId">
+	<insert id="insertParty" parameterType="com.moa.party.domain.Party" useGeneratedKeys="true" keyProperty="partyId">
 		INSERT INTO PARTY (
 			PRODUCT_ID,
 			PARTY_LEADER_ID,
@@ -198,7 +198,7 @@
 	</select>
 
 	<!-- 파티 전체 정보 업데이트 -->
-	<update id="updateParty" parameterType="com.moa.domain.Party">
+	<update id="updateParty" parameterType="com.moa.party.domain.Party">
 		UPDATE PARTY
 		SET
 			PRODUCT_ID = #{productId},

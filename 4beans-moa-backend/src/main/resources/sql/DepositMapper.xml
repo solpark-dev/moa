@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.deposit.DepositDao">
+<mapper namespace="com.moa.deposit.repository.DepositDao">
 
     <!-- ====================================== -->
     <!-- ResultMap 정의 -->
     <!-- ====================================== -->
 
     <!-- Deposit 기본 ResultMap -->
-    <resultMap id="DepositResultMap" type="com.moa.domain.Deposit">
+    <resultMap id="DepositResultMap" type="com.moa.deposit.domain.Deposit">
         <id property="depositId" column="DEPOSIT_ID"/>
         <result property="partyId" column="PARTY_ID"/>
         <result property="partyMemberId" column="PARTY_MEMBER_ID"/>
@@ -26,7 +26,7 @@
     </resultMap>
 
     <!-- DepositResponse ResultMap (JOIN 포함) -->
-    <resultMap id="DepositResponseResultMap" type="com.moa.dto.deposit.response.DepositResponse">
+    <resultMap id="DepositResponseResultMap" type="com.moa.deposit.dto.response.DepositResponse">
         <id property="depositId" column="DEPOSIT_ID"/>
         <result property="partyId" column="PARTY_ID"/>
         <result property="partyMemberId" column="PARTY_MEMBER_ID"/>
@@ -51,7 +51,7 @@
     <!-- ====================================== -->
 
     <!-- 보증금 생성 -->
-    <insert id="insertDeposit" parameterType="com.moa.domain.Deposit"
+    <insert id="insertDeposit" parameterType="com.moa.deposit.domain.Deposit"
             useGeneratedKeys="true" keyProperty="depositId" keyColumn="DEPOSIT_ID">
         INSERT INTO DEPOSIT (
             PARTY_ID,
@@ -196,7 +196,7 @@
     </select>
 
     <!-- 보증금 업데이트 (환불 등) -->
-    <update id="updateDeposit" parameterType="com.moa.domain.Deposit">
+    <update id="updateDeposit" parameterType="com.moa.deposit.domain.Deposit">
         UPDATE DEPOSIT
         SET
             DEPOSIT_STATUS = #{depositStatus},

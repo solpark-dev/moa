@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.moa.dao.push.PushDao">
+<mapper namespace="com.moa.push.repository.PushDao">
 
-    <resultMap id="PushResultMap" type="com.moa.domain.Push">
+    <resultMap id="PushResultMap" type="com.moa.push.domain.Push">
         <id property="pushId" column="PUSH_ID"/>
         <result property="receiverId" column="RECEIVER_ID"/>
         <result property="pushCode" column="PUSH_CODE"/>
@@ -16,7 +16,7 @@
         <result property="isDeleted" column="IS_DELETED"/>
     </resultMap>
 
-    <resultMap id="PushCodeResultMap" type="com.moa.domain.PushCode">
+    <resultMap id="PushCodeResultMap" type="com.moa.push.domain.PushCode">
         <id property="pushCodeId" column="PUSH_CODE_ID"/>
         <result property="codeName" column="CODE_NAME"/>
         <result property="titleTemplate" column="TITLE_TEMPLATE"/>
@@ -24,7 +24,7 @@
         <result property="createdAt" column="CREATED_AT"/>
     </resultMap>
 
-    <insert id="addPush" parameterType="com.moa.domain.Push" useGeneratedKeys="true" keyProperty="pushId">
+    <insert id="addPush" parameterType="com.moa.push.domain.Push" useGeneratedKeys="true" keyProperty="pushId">
         INSERT INTO PUSH (RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, IS_READ, IS_DELETED)
         VALUES (#{receiverId}, #{pushCode}, #{title}, #{content}, #{moduleId}, #{moduleType}, NOW(), 'N', 'N')
     </insert>
@@ -109,7 +109,7 @@
         WHERE PUSH_CODE_ID = #{pushCodeId}
     </select>
 
-    <insert id="addPushCode" parameterType="com.moa.domain.PushCode" useGeneratedKeys="true" keyProperty="pushCodeId">
+    <insert id="addPushCode" parameterType="com.moa.push.domain.PushCode" useGeneratedKeys="true" keyProperty="pushCodeId">
         INSERT INTO PUSH_CODE (CODE_NAME, TITLE_TEMPLATE, CONTENT_TEMPLATE, CREATED_AT)
         VALUES (#{codeName}, #{titleTemplate}, #{contentTemplate}, NOW())
     </insert>

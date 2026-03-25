@@ -3,9 +3,9 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.subscription.SubscriptionDao">
+<mapper namespace="com.moa.subscription.repository.SubscriptionDao">
 
-    <resultMap id="subscriptionResultMap" type="com.moa.dto.subscription.SubscriptionDTO">
+    <resultMap id="subscriptionResultMap" type="com.moa.subscription.dto.SubscriptionDTO">
         <result property="subscriptionId" column="SUBSCRIPTION_ID"/>
         <result property="userId" column="USER_ID"/>
         <result property="productId" column="PRODUCT_ID"/>

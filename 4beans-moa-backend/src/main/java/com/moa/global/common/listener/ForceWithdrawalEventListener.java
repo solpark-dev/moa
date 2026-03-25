@@ -5,12 +5,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.moa.global.common.event.MonthlyPaymentFailedEvent;
-import com.moa.dao.party.PartyDao;
-import com.moa.dao.partymember.PartyMemberDao;
-import com.moa.domain.Party;
-import com.moa.domain.PartyMember;
-import com.moa.domain.enums.PartyStatus;
-import com.moa.service.deposit.DepositService;
+import com.moa.party.repository.PartyDao;
+import com.moa.party.repository.PartyMemberDao;
+import com.moa.party.domain.Party;
+import com.moa.party.domain.PartyMember;
+import com.moa.party.domain.enums.PartyStatus;
+import com.moa.deposit.service.DepositService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class ForceWithdrawalEventListener {
 				log.warn("파티원을 찾을 수 없음: partyId={}, userId={}", event.getPartyId(), event.getUserId());
 				return;
 			}
-			com.moa.domain.Deposit deposit = depositService.findByPartyIdAndUserId(event.getPartyId(),
+			com.moa.deposit.domain.Deposit deposit = depositService.findByPartyIdAndUserId(event.getPartyId(),
 					event.getUserId());
 			if (deposit != null) {
 				depositService.forfeitDeposit(deposit.getDepositId(), "4회 결제 실패로 인한 강제 탈퇴");

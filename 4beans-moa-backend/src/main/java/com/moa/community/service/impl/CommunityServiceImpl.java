@@ -1,13 +1,13 @@
 package com.moa.community.service.impl;
 
-import com.moa.domain.enums.PushCodeType;
+import com.moa.party.domain.enums.PushCodeType;
 import com.moa.community.repository.CommunityDao;
 import com.moa.community.domain.Community;
 import com.moa.community.dto.request.*;
 import com.moa.community.dto.response.*;
-import com.moa.dto.push.request.TemplatePushRequest;
+import com.moa.push.dto.request.TemplatePushRequest;
 import com.moa.community.service.CommunityService;
-import com.moa.service.push.PushService;
+import com.moa.push.service.PushService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

@@ -3,10 +3,10 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.chat.ChatKnowledgeDao">
+<mapper namespace="com.moa.chat.repository.ChatKnowledgeDao">
 
     <resultMap id="ChatKnowledgeResultMap"
-        type="com.moa.domain.ChatKnowledge">
+        type="com.moa.chat.domain.ChatKnowledge">
         <id property="id" column="ID" />
         <result property="category" column="CATEGORY" />
         <result property="title" column="TITLE" />
@@ -81,7 +81,7 @@
     </select>
 
     <insert id="insert"
-            parameterType="com.moa.domain.ChatKnowledge"
+            parameterType="com.moa.chat.domain.ChatKnowledge"
             useGeneratedKeys="true"
             keyProperty="id">
         INSERT INTO CHATBOT_KNOWLEDGE

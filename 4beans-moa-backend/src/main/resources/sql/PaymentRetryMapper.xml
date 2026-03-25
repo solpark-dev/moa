@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.payment.PaymentRetryDao">
+<mapper namespace="com.moa.payment.repository.PaymentRetryDao">
 
     <!-- ResultMap for PaymentRetryHistory -->
-    <resultMap id="PaymentRetryHistoryResultMap" type="com.moa.domain.PaymentRetryHistory">
+    <resultMap id="PaymentRetryHistoryResultMap" type="com.moa.payment.domain.PaymentRetryHistory">
         <id property="retryId" column="RETRY_ID"/>
         <result property="paymentId" column="PAYMENT_ID"/>
         <result property="partyId" column="PARTY_ID"/>
@@ -21,7 +21,7 @@
     </resultMap>
 
     <!-- Insert new retry history -->
-    <insert id="insert" parameterType="com.moa.domain.PaymentRetryHistory"
+    <insert id="insert" parameterType="com.moa.payment.domain.PaymentRetryHistory"
             useGeneratedKeys="true" keyProperty="retryId">
         INSERT INTO PAYMENT_RETRY_HISTORY (
             PAYMENT_ID,

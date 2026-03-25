@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.openbanking.TransferTransactionMapper">
+<mapper namespace="com.moa.openbanking.repository.TransferTransactionMapper">
 
-    <resultMap id="TransferTransactionMap" type="com.moa.domain.openbanking.TransferTransaction">
+    <resultMap id="TransferTransactionMap" type="com.moa.openbanking.domain.TransferTransaction">
         <id property="transactionId" column="TRANSACTION_ID"/>
         <result property="settlementId" column="SETTLEMENT_ID"/>
         <result property="bankTranId" column="BANK_TRAN_ID"/>
@@ -20,7 +20,7 @@
     </resultMap>
 
     <!-- 거래 기록 저장 -->
-    <insert id="insert" parameterType="com.moa.domain.openbanking.TransferTransaction"
+    <insert id="insert" parameterType="com.moa.openbanking.domain.TransferTransaction"
             useGeneratedKeys="true" keyProperty="transactionId">
         INSERT INTO TRANSFER_TRANSACTION (
             SETTLEMENT_ID, BANK_TRAN_ID, FINTECH_USE_NUM, TRAN_AMT,

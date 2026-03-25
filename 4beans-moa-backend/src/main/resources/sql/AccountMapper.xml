@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.account.AccountDao">
+<mapper namespace="com.moa.account.repository.AccountDao">
 
 	<resultMap id="AccountResultMap"
-		type="com.moa.domain.Account">
+		type="com.moa.account.domain.Account">
 		<id property="accountId" column="ACCOUNT_ID" />
 		<result property="userId" column="USER_ID" />
 		<result property="bankCode" column="BANK_CODE" />
@@ -20,7 +20,7 @@
 	</resultMap>
 
 	<insert id="insertAccount"
-		parameterType="com.moa.domain.Account" useGeneratedKeys="true"
+		parameterType="com.moa.account.domain.Account" useGeneratedKeys="true"
 		keyProperty="accountId" keyColumn="ACCOUNT_ID">
 		INSERT INTO ACCOUNT (
 		USER_ID, BANK_CODE, BANK_NAME, ACCOUNT_NUMBER, ACCOUNT_HOLDER, IS_VERIFIED,

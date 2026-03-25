@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.refund.RefundRetryHistoryDao">
+<mapper namespace="com.moa.payment.repository.RefundRetryHistoryDao">
 
     <!-- ResultMap 정의 -->
-    <resultMap id="RefundRetryHistoryResultMap" type="com.moa.domain.RefundRetryHistory">
+    <resultMap id="RefundRetryHistoryResultMap" type="com.moa.payment.domain.RefundRetryHistory">
         <id property="retryId" column="RETRY_ID"/>
         <result property="depositId" column="DEPOSIT_ID"/>
         <result property="tossPaymentKey" column="TOSS_PAYMENT_KEY"/>
@@ -23,7 +23,7 @@
     </resultMap>
 
     <!-- 환불 재시도 이력 삽입 -->
-    <insert id="insertRefundRetry" parameterType="com.moa.domain.RefundRetryHistory"
+    <insert id="insertRefundRetry" parameterType="com.moa.payment.domain.RefundRetryHistory"
             useGeneratedKeys="true" keyProperty="retryId" keyColumn="RETRY_ID">
         INSERT INTO REFUND_RETRY_HISTORY (
             DEPOSIT_ID,
@@ -77,7 +77,7 @@
     </select>
 
     <!-- 재시도 상태 업데이트 -->
-    <update id="updateRetryStatus" parameterType="com.moa.domain.RefundRetryHistory">
+    <update id="updateRetryStatus" parameterType="com.moa.payment.domain.RefundRetryHistory">
         UPDATE REFUND_RETRY_HISTORY
         SET
             ATTEMPT_NUMBER = #{attemptNumber},

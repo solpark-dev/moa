@@ -1,0 +1,189 @@
+package com.moa.push.controller;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import com.moa.community.dto.response.PageResponse;
+import com.moa.push.dto.request.AdminPushRequest;
+import com.moa.push.dto.request.MultiPushRequest;
+import com.moa.push.dto.request.PushCodeRequest;
+import com.moa.push.dto.request.PushRequest;
+import com.moa.push.dto.request.TemplatePushRequest;
+import com.moa.push.dto.response.PushCodeResponse;
+import com.moa.push.dto.response.PushResponse;
+import com.moa.push.service.PushService;
+import com.moa.push.service.PushSseService;
+
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/push")
+@RequiredArgsConstructor
+public class PushRestController {
+
+	private final PushService pushService;
+	private final PushSseService pushSseService;
+
+	@GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter subscribe(@AuthenticationPrincipal UserDetails userDetails, HttpServletResponse response) {
+		response.setHeader("Cache-Control", "no-cache");
+		response.setHeader("X-Accel-Buffering", "no");
+		int initial = pushService.getUnreadCount(userDetails.getUsername());
+		return pushSseService.subscribe(userDetails.getUsername(), initial);
+	}
+
+	@PostMapping
+	public ResponseEntity<Map<String, Object>> addPush(@RequestBody PushRequest request) {
+		pushService.addPush(request);
+		return ResponseEntity.ok(Map.of("success", true, "message", "푸시 알림이 발송되었습니다."));
+	}
+
+	@PostMapping("/multi")
+	public ResponseEntity<Map<String, Object>> addPushMulti(@RequestBody MultiPushRequest request) {
+		pushService.addPushMulti(request);
+		return ResponseEntity.ok(Map.of("success", true, "message", "푸시 알림이 일괄 발송되었습니다."));
+	}
+
+	@PostMapping("/template")
+	public ResponseEntity<Map<String, Object>> addTemplatePush(@RequestBody TemplatePushRequest request) {
+		pushService.addTemplatePush(request);
+		return ResponseEntity.ok(Map.of("success", true, "message", "템플릿 푸시 알림이 발송되었습니다."));
+	}
+
+	@GetMapping("/{pushId}")
+	public ResponseEntity<PushResponse> getPush(@PathVariable Integer pushId) {
+		PushResponse responseBody = pushService.getPush(pushId);
+		return ResponseEntity.ok(responseBody);
+	}
+
+	@GetMapping("/list")
+	public ResponseEntity<PageResponse<PushResponse>> getPushList(@RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		PageResponse<PushResponse> responseBody = pushService.getPushList(page, size);
+		return ResponseEntity.ok(responseBody);
+	}
+
+	@GetMapping("/my")
+	public ResponseEntity<PageResponse<PushResponse>> getMyPushList(@AuthenticationPrincipal UserDetails userDetails,
+			@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+		PageResponse<PushResponse> responseBody = pushService.getMyPushList(userDetails.getUsername(), page, size);
+		return ResponseEntity.ok(responseBody);
+	}
+
+	@GetMapping("/unread-count")
+	public ResponseEntity<Map<String, Object>> getUnreadCount(@AuthenticationPrincipal UserDetails userDetails) {
+		int count = pushService.getUnreadCount(userDetails.getUsername());
+		return ResponseEntity.ok(Map.of("success", true, "count", count));
+	}
+
+	@PatchMapping("/{pushId}/read")
+	public ResponseEntity<Map<String, Object>> updateRead(@PathVariable Integer pushId) {
+		pushService.updateRead(pushId);
+		return ResponseEntity.ok(Map.of("success", true, "message", "읽음 처리되었습니다."));
+	}
+
+	@PatchMapping("/read-all")
+	public ResponseEntity<Map<String, Object>> updateAllRead(@AuthenticationPrincipal UserDetails userDetails) {
+		pushService.updateAllRead(userDetails.getUsername());
+		return ResponseEntity.ok(Map.of("success", true, "message", "전체 읽음 처리되었습니다."));
+	}
+
+	@DeleteMapping("/{pushId}")
+	public ResponseEntity<Map<String, Object>> deletePush(@PathVariable Integer pushId) {
+		pushService.deletePush(pushId);
+		return ResponseEntity.ok(Map.of("success", true, "message", "삭제되었습니다."));
+	}
+
+	@DeleteMapping("/all")
+	public ResponseEntity<Map<String, Object>> deleteAllPushs(@AuthenticationPrincipal UserDetails userDetails) {
+		pushService.deleteAllPushs(userDetails.getUsername());
+		return ResponseEntity.ok(Map.of("success", true, "message", "전체 삭제되었습니다."));
+	}
+
+	@GetMapping("/admin/codes")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<List<PushCodeResponse>> getPushCodeList() {
+		List<PushCodeResponse> list = pushService.getPushCodeList();
+		return ResponseEntity.ok(list);
+	}
+
+	@GetMapping("/admin/codes/{pushCodeId}")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<PushCodeResponse> getPushCode(@PathVariable Integer pushCodeId) {
+		PushCodeResponse responseBody = pushService.getPushCode(pushCodeId);
+		return ResponseEntity.ok(responseBody);
+	}
+
+	@PostMapping("/admin/codes")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<Map<String, Object>> addPushCode(@RequestBody PushCodeRequest request) {
+		pushService.addPushCode(request);
+		return ResponseEntity.ok(Map.of("success", true, "message", "푸시 템플릿이 추가되었습니다."));
+	}
+
+	@PutMapping("/admin/codes/{pushCodeId}")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<Map<String, Object>> updatePushCode(@PathVariable Integer pushCodeId,
+			@RequestBody PushCodeRequest request) {
+		pushService.updatePushCode(pushCodeId, request);
+		return ResponseEntity.ok(Map.of("success", true, "message", "푸시 템플릿이 수정되었습니다."));
+	}
+
+	@DeleteMapping("/admin/codes/{pushCodeId}")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<Map<String, Object>> deletePushCode(@PathVariable Integer pushCodeId) {
+		pushService.deletePushCode(pushCodeId);
+		return ResponseEntity.ok(Map.of("success", true, "message", "푸시 템플릿이 삭제되었습니다."));
+	}
+
+	@GetMapping("/admin/history")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<PageResponse<PushResponse>> getPushHistory(@RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "20") int size, @RequestParam(required = false) String pushCode,
+			@RequestParam(required = false) String receiverId, @RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String endDate) {
+		PageResponse<PushResponse> responseBody = pushService.getPushHistory(page, size, pushCode, receiverId,
+				startDate, endDate);
+		return ResponseEntity.ok(responseBody);
+	}
+
+	@PostMapping("/admin/send")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<Map<String, Object>> sendAdminPush(@RequestBody AdminPushRequest request) {
+		int count = pushService.sendAdminPush(request);
+		return ResponseEntity.ok(Map.of("success", true, "message", count + "명에게 푸시 알림이 발송되었습니다.", "count", count));
+	}
+
+	@PostMapping("/admin/send-all")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<Map<String, Object>> sendPushToAllUsers(@RequestBody AdminPushRequest request) {
+		int count = pushService.sendPushToAllUsers(request);
+		return ResponseEntity
+				.ok(Map.of("success", true, "message", "전체 " + count + "명에게 푸시 알림이 발송되었습니다.", "count", count));
+	}
+
+	@GetMapping("/admin/search")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<List<Map<String, String>>> searchUsers(@RequestParam(required = false) String keyword) {
+		List<Map<String, String>> users = pushService.searchUsersForPush(keyword);
+		return ResponseEntity.ok(users);
+	}
+}

@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.settlement.SettlementDao">
+<mapper namespace="com.moa.settlement.repository.SettlementDao">
 
-    <resultMap id="SettlementResultMap" type="com.moa.domain.Settlement">
+    <resultMap id="SettlementResultMap" type="com.moa.settlement.domain.Settlement">
         <id property="settlementId" column="SETTLEMENT_ID"/>
         <result property="partyId" column="PARTY_ID"/>
         <result property="partyLeaderId" column="PARTY_LEADER_ID"/>
@@ -21,7 +21,7 @@
         <result property="regDate" column="REG_DATE"/>
     </resultMap>
 
-    <resultMap id="SettlementResponseResultMap" type="com.moa.dto.settlement.response.SettlementResponse">
+    <resultMap id="SettlementResponseResultMap" type="com.moa.settlement.dto.response.SettlementResponse">
         <id property="settlementId" column="SETTLEMENT_ID"/>
         <result property="partyId" column="PARTY_ID"/>
         <result property="partyLeaderId" column="PARTY_LEADER_ID"/>
@@ -32,7 +32,7 @@
         <result property="settlementDate" column="SETTLEMENT_DATE"/>
     </resultMap>
 
-    <insert id="insertSettlement" parameterType="com.moa.domain.Settlement" useGeneratedKeys="true" keyProperty="settlementId" keyColumn="SETTLEMENT_ID">
+    <insert id="insertSettlement" parameterType="com.moa.settlement.domain.Settlement" useGeneratedKeys="true" keyProperty="settlementId" keyColumn="SETTLEMENT_ID">
         INSERT INTO SETTLEMENT (
             PARTY_ID, PARTY_LEADER_ID, ACCOUNT_ID, SETTLEMENT_MONTH,
             SETTLEMENT_TYPE, TOTAL_AMOUNT, COMMISSION_RATE, COMMISSION_AMOUNT,

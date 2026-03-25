@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.user.UserCardDao">
+<mapper namespace="com.moa.user.repository.UserCardDao">
 
-    <resultMap id="UserCardResultMap" type="com.moa.domain.UserCard">
+    <resultMap id="UserCardResultMap" type="com.moa.user.domain.UserCard">
         <id property="userId" column="USER_ID"/>
         <result property="billingKey" column="BILLING_KEY"/>
         <result property="cardCompany" column="CARD_COMPANY"/>
@@ -12,7 +12,7 @@
         <result property="regDate" column="REG_DATE"/>
     </resultMap>
 
-    <insert id="insertUserCard" parameterType="com.moa.domain.UserCard">
+    <insert id="insertUserCard" parameterType="com.moa.user.domain.UserCard">
         INSERT INTO USER_CARD (
             USER_ID, BILLING_KEY, CARD_COMPANY, CARD_NUMBER, REG_DATE
         ) VALUES (
@@ -28,7 +28,7 @@
         DELETE FROM USER_CARD WHERE USER_ID = #{userId}
     </delete>
 
-    <update id="updateUserCard" parameterType="com.moa.domain.UserCard">
+    <update id="updateUserCard" parameterType="com.moa.user.domain.UserCard">
         UPDATE USER_CARD
         SET
             BILLING_KEY = #{billingKey},

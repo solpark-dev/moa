@@ -17,7 +17,7 @@ public class LogAspect {
 
 	private static final long SLOW_EXECUTION_THRESHOLD_MS = 3000;
 
-	@Around("execution(* com.moa.service..*(..))")
+	@Around("execution(* com.moa..*Service*.*(..))")
 	public Object logServiceExecution(ProceedingJoinPoint pjp) throws Throwable {
 		MethodSignature signature = (MethodSignature) pjp.getSignature();
 		String className = signature.getDeclaringType().getSimpleName();
@@ -51,8 +51,8 @@ public class LogAspect {
 		}
 	}
 
-	@Around("execution(* com.moa.service.payment..*(..)) || " + "execution(* com.moa.service.settlement..*(..)) || "
-			+ "execution(* com.moa.service.deposit..*(..))")
+	@Around("execution(* com.moa.payment.service..*(..)) || " + "execution(* com.moa.settlement.service..*(..)) || "
+			+ "execution(* com.moa.deposit.service..*(..))")
 	public Object logPaymentExecution(ProceedingJoinPoint pjp) throws Throwable {
 		MethodSignature signature = (MethodSignature) pjp.getSignature();
 		String className = signature.getDeclaringType().getSimpleName();

@@ -3,10 +3,10 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.user.OtpBackupCodeDao">
+<mapper namespace="com.moa.user.repository.OtpBackupCodeDao">
 
 	<resultMap id="OtpBackupCodeMap"
-		type="com.moa.domain.OtpBackupCode">
+		type="com.moa.user.domain.OtpBackupCode">
 		<id column="ID" property="id" />
 		<result column="USER_ID" property="userId" />
 		<result column="CODE_HASH" property="codeHash" />
