@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.moa.common.exception.ApiResponse;
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.common.exception.ApiResponse;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.dao.account.AccountDao;
 import com.moa.dao.user.UserCardDao;
 import com.moa.domain.Account;

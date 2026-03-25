@@ -1,6 +1,6 @@
 package com.moa.dto.auth;
 
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.common.exception.ErrorCode;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

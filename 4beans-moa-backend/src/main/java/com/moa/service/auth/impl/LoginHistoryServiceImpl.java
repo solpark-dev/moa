@@ -10,8 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.dao.auth.LoginHistoryDao;
 import com.moa.domain.LoginHistory;
 import com.moa.dto.community.response.PageResponse;

@@ -12,9 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.moa.auth.provider.JwtProvider;
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.auth.provider.JwtProvider;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.dao.user.EmailVerificationDao;
 import com.moa.dao.user.UserDao;
 import com.moa.domain.EmailVerification;

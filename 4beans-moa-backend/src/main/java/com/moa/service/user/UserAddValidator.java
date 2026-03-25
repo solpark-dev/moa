@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
 
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.dao.user.UserDao;
 import com.moa.dto.user.request.UserCreateRequest;
 

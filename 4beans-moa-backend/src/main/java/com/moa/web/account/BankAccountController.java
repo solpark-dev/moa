@@ -1,7 +1,7 @@
 package com.moa.web.account;
 
-import com.moa.common.exception.ApiResponse;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.common.exception.ApiResponse;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.domain.Account;
 import com.moa.dto.openbanking.InquiryReceiveResponse;
 import com.moa.dto.openbanking.InquiryVerifyResponse;

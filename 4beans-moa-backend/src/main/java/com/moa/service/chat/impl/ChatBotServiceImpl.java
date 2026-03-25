@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.moa.common.prompt.ChatFallbackReplies;
+import com.moa.global.common.prompt.ChatFallbackReplies;
 import com.moa.dao.chat.ChatKnowledgeDao;
 import com.moa.domain.ChatKnowledge;
 import com.moa.domain.ChatRoute;

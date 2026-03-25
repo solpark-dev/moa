@@ -26,12 +26,12 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.moa.auth.provider.JwtProvider;
-import com.moa.common.exception.ApiResponse;
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
-import com.moa.config.GoogleOAuthProperties;
-import com.moa.config.KakaoOAuthProperties;
+import com.moa.global.auth.provider.JwtProvider;
+import com.moa.global.common.exception.ApiResponse;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
+import com.moa.global.config.GoogleOAuthProperties;
+import com.moa.global.config.KakaoOAuthProperties;
 import com.moa.domain.OAuthAccount;
 import com.moa.service.auth.LoginHistoryService;
 import com.moa.service.oauth.OAuthAccountService;

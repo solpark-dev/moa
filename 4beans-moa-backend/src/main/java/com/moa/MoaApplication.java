@@ -3,7 +3,7 @@ package com.moa;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.moa.common.util.EncryptUtil;
+import com.moa.global.common.util.EncryptUtil;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling

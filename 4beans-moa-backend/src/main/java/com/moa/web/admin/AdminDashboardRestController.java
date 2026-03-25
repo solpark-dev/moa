@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.moa.common.exception.ApiResponse;
+import com.moa.global.common.exception.ApiResponse;
 import com.moa.dto.admin.request.MonthlyGoalRequest;
 import com.moa.dto.admin.response.DashboardStatsResponse;
 import com.moa.dto.admin.response.MonthlyGoalResponse;

@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.moa.common.event.SettlementCompletedEvent;
+import com.moa.global.common.event.SettlementCompletedEvent;
 import com.moa.dao.party.PartyDao;
 import com.moa.dao.settlement.SettlementDao;
 import com.moa.domain.Party;

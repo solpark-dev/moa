@@ -15,10 +15,10 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
-import com.moa.common.exception.TossPaymentException;
-import com.moa.config.TossPaymentConfig;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
+import com.moa.global.common.exception.TossPaymentException;
+import com.moa.global.config.TossPaymentConfig;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

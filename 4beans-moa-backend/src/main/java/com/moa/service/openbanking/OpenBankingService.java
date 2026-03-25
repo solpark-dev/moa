@@ -18,9 +18,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
-import com.moa.config.OpenBankingConfig;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
+import com.moa.global.config.OpenBankingConfig;
 import com.moa.dao.account.AccountDao;
 import com.moa.domain.Account;
 import com.moa.domain.enums.PushCodeType;

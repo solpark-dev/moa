@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.moa.common.exception.ApiResponse;
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.common.exception.ApiResponse;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.dto.party.request.PartyCreateRequest;
 import com.moa.dto.party.response.PartyDetailResponse;
 import com.moa.dto.party.response.PartyListResponse;

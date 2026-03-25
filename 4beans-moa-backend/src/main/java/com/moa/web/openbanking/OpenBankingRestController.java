@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.moa.common.exception.ApiResponse;
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.common.exception.ApiResponse;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.service.openbanking.OpenBankingService;
 
 import lombok.RequiredArgsConstructor;

@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.moa.common.event.MonthlyPaymentCompletedEvent;
-import com.moa.common.event.MonthlyPaymentFailedEvent;
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.common.event.MonthlyPaymentCompletedEvent;
+import com.moa.global.common.event.MonthlyPaymentFailedEvent;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.dao.party.PartyDao;
 import com.moa.dao.partymember.PartyMemberDao;
 import com.moa.dao.payment.PaymentDao;
@@ -180,7 +180,7 @@ public class PaymentServiceImpl implements PaymentService {
 		String errorCode = e.getErrorCode().getCode();
 		String errorMessage = e.getMessage();
 
-		if (e instanceof com.moa.common.exception.TossPaymentException pe) {
+		if (e instanceof com.moa.global.common.exception.TossPaymentException pe) {
 			errorCode = pe.getTossErrorCode();
 			errorMessage = pe.getMessage();
 		}
@@ -276,7 +276,7 @@ public class PaymentServiceImpl implements PaymentService {
 		try {
 			tossPaymentService.cancelPayment(payment.getTossPaymentKey(), reason, null);
 			paymentDao.updatePaymentStatus(payment.getPaymentId(), "REFUNDED");
-		} catch (com.moa.common.exception.TossPaymentException e) {
+		} catch (com.moa.global.common.exception.TossPaymentException e) {
 			log.error("Toss refund failed: code={}, message={}", e.getTossErrorCode(), e.getMessage());
 			throw new BusinessException(ErrorCode.PAYMENT_FAILED, e.getMessage());
 		} catch (Exception e) {

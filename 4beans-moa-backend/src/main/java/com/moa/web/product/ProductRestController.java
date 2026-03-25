@@ -2,7 +2,7 @@ package com.moa.web.product;
 
 import com.moa.dto.product.ProductDTO;
 import com.moa.service.product.ProductService;
-import com.moa.common.exception.ApiResponse;
+import com.moa.global.common.exception.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;

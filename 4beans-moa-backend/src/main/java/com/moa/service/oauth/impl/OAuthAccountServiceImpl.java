@@ -6,8 +6,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.dao.oauth.OAuthAccountDao;
 import com.moa.domain.OAuthAccount;
 import com.moa.service.oauth.OAuthAccountService;

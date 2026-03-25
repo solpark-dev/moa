@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.moa.common.exception.ApiResponse;
+import com.moa.global.common.exception.ApiResponse;
 import com.moa.dto.blacklist.AddBlacklistRequest;
 import com.moa.dto.blacklist.DeleteBlacklistRequest;
 import com.moa.dto.community.response.PageResponse;

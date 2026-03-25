@@ -8,9 +8,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.moa.common.event.RefundCompletedEvent;
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.common.event.RefundCompletedEvent;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.dao.deposit.DepositDao;
 import com.moa.dao.party.PartyDao;
 import com.moa.dao.product.ProductDao;
@@ -129,7 +129,7 @@ public class DepositServiceImpl implements DepositService {
                     reason,
                     deposit.getDepositAmount());
             log.info("Toss 결제 취소 성공: paymentKey={}", deposit.getTossPaymentKey());
-        } catch (com.moa.common.exception.TossPaymentException e) {
+        } catch (com.moa.global.common.exception.TossPaymentException e) {
             log.error("Toss 결제 취소 실패: depositId={}, code={}, message={}",
                     depositId, e.getTossErrorCode(), e.getMessage());
             refundRetryService.recordFailure(deposit, e, reason);

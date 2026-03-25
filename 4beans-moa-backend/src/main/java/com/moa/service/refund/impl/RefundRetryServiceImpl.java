@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.dao.deposit.DepositDao;
 import com.moa.dao.refund.RefundRetryHistoryDao;
 import com.moa.domain.Deposit;
@@ -197,7 +197,7 @@ public class RefundRetryServiceImpl implements RefundRetryService {
 	}
 
 	private String classifyError(Exception e) {
-		if (e instanceof com.moa.common.exception.TossPaymentException tpe) {
+		if (e instanceof com.moa.global.common.exception.TossPaymentException tpe) {
 			return tpe.getTossErrorCode();
 		}
 
@@ -238,7 +238,7 @@ public class RefundRetryServiceImpl implements RefundRetryService {
 		String errorCode = e.getClass().getSimpleName();
 		String errorMessage = e.getMessage();
 
-		if (e instanceof com.moa.common.exception.TossPaymentException tpe) {
+		if (e instanceof com.moa.global.common.exception.TossPaymentException tpe) {
 			errorCode = tpe.getTossErrorCode();
 			errorMessage = tpe.getMessage();
 		}

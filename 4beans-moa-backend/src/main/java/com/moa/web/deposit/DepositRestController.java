@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.moa.common.exception.ApiResponse;
+import com.moa.global.common.exception.ApiResponse;
 import com.moa.dto.deposit.response.DepositResponse;
 import com.moa.service.deposit.DepositService;
 
@@ -82,8 +82,8 @@ public class DepositRestController {
     public ApiResponse<List<DepositResponse>> getMyDeposits() {
         String userId = getCurrentUserId();
         if (userId == null) {
-            throw new com.moa.common.exception.BusinessException(
-                com.moa.common.exception.ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+            throw new com.moa.global.common.exception.BusinessException(
+                com.moa.global.common.exception.ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
         }
 
         List<DepositResponse> response = depositService.getMyDeposits(userId);

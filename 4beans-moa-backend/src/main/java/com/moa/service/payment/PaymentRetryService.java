@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.moa.common.exception.BusinessException;
+import com.moa.global.common.exception.BusinessException;
 import com.moa.domain.Payment;
 import com.moa.domain.PaymentRetryHistory;
 

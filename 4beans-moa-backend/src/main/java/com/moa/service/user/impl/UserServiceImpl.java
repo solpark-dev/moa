@@ -22,10 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.moa.auth.provider.JwtProvider;
-import com.moa.common.event.UserDeletedEvent;
-import com.moa.common.exception.BusinessException;
-import com.moa.common.exception.ErrorCode;
+import com.moa.global.auth.provider.JwtProvider;
+import com.moa.global.common.event.UserDeletedEvent;
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.dao.admin.AdminDao;
 import com.moa.dao.oauth.OAuthAccountDao;
 import com.moa.dao.user.EmailVerificationDao;
