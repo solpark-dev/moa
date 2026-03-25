@@ -14,13 +14,13 @@ import com.moa.global.common.exception.ErrorCode;
 import com.moa.global.common.util.AESUtil; // Import AESUtil
 import com.moa.dao.party.PartyDao;
 import com.moa.dao.partymember.PartyMemberDao;
-import com.moa.dao.product.ProductDao;
+import com.moa.product.repository.ProductDao;
 import com.moa.dao.user.UserDao;
 import com.moa.dao.user.UserCardDao;
 import com.moa.domain.Deposit;
 import com.moa.domain.Party;
 import com.moa.domain.PartyMember;
-import com.moa.domain.Product;
+import com.moa.product.domain.Product;
 import com.moa.domain.User;
 import com.moa.domain.UserCard;
 import com.moa.domain.enums.MemberStatus;

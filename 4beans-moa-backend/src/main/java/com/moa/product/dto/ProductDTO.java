@@ -1,6 +1,6 @@
-package com.moa.dto.product;
+package com.moa.product.dto;
 
-import com.moa.domain.Product;
+import com.moa.product.domain.Product;
 import lombok.Data;
 
 @Data

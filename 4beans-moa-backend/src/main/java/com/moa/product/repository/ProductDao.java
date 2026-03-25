@@ -1,10 +1,10 @@
-package com.moa.dao.product;
+package com.moa.product.repository;
 
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.moa.domain.Product;
+import com.moa.product.domain.Product;
 
 @Mapper
 public interface ProductDao {

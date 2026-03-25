@@ -8,9 +8,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.moa.dao.party.PartyDao;
-import com.moa.dao.product.ProductDao;
+import com.moa.product.repository.ProductDao;
 import com.moa.domain.Party;
-import com.moa.domain.Product;
+import com.moa.product.domain.Product;
 import com.moa.domain.enums.PartyStatus;
 import com.moa.domain.enums.PushCodeType;
 import com.moa.dto.push.request.TemplatePushRequest;

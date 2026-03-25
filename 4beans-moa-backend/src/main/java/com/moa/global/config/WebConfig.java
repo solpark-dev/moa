@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@MapperScan(basePackages = "com.moa.dao")
+@MapperScan(basePackages = "com.moa")
 public class WebConfig implements WebMvcConfigurer {
 
 	@Value("${app.upload.user.profile-dir}")

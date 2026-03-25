@@ -3,9 +3,9 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.moa.dao.product.ProductDao">
+<mapper namespace="com.moa.product.repository.ProductDao">
 
-    <resultMap id="productResultMap" type="Product">
+    <resultMap id="productResultMap" type="com.moa.product.domain.Product">
         <result property="productId" column="PRODUCT_ID"/>
         <result property="categoryId" column="CATEGORY_ID"/>
         <result property="productName" column="PRODUCT_NAME"/>
@@ -15,7 +15,7 @@
         <result property="categoryName" column="CATEGORY_NAME"/>
     </resultMap>
 
-    <insert id="addProduct" parameterType="Product" useGeneratedKeys="true" keyProperty="productId">
+    <insert id="addProduct" parameterType="com.moa.product.domain.Product" useGeneratedKeys="true" keyProperty="productId">
         INSERT INTO PRODUCT (CATEGORY_ID, PRODUCT_NAME, PRODUCT_STATUS, PRICE, IMAGE)
         VALUES (#{categoryId}, #{productName}, #{productStatus}, #{price}, #{image})
     </insert>
@@ -37,7 +37,7 @@ ORDER BY
     p.PRICE ASC;  
     </select>
 
-    <update id="updateProduct" parameterType="Product">
+    <update id="updateProduct" parameterType="com.moa.product.domain.Product">
         UPDATE PRODUCT
         SET CATEGORY_ID = #{categoryId},
             PRODUCT_NAME = #{productName},

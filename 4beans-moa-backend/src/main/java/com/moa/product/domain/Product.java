@@ -1,4 +1,4 @@
-package com.moa.domain;
+package com.moa.product.domain;
 
 import lombok.Data;
 

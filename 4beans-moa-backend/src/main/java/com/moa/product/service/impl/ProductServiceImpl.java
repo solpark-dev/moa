@@ -1,9 +1,9 @@
-package com.moa.service.product.impl;
+package com.moa.product.service.impl;
 
-import com.moa.dao.product.ProductDao;
-import com.moa.domain.Product;
-import com.moa.dto.product.ProductDTO;
-import com.moa.service.product.ProductService;
+import com.moa.product.repository.ProductDao;
+import com.moa.product.domain.Product;
+import com.moa.product.dto.ProductDTO;
+import com.moa.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;

@@ -1,6 +1,6 @@
-package com.moa.service.product;
+package com.moa.product.service;
 
-import com.moa.dto.product.ProductDTO;
+import com.moa.product.dto.ProductDTO;
 import java.util.List;
 
 public interface ProductService {
