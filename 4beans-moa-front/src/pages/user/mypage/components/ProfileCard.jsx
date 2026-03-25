@@ -8,11 +8,11 @@ const BTN =
 
 // 테마별 스타일
 const profileCardThemeStyles = {
-  pop: {
+  light: {
     buttonHover: "hover:bg-slate-50",
   },
-  christmas: {
-    buttonHover: "hover:bg-red-50",
+  dark: {
+    buttonHover: "hover:bg-gray-700",
   },
 };
 
@@ -24,7 +24,7 @@ export function ProfileCard({
   profileImageUrl,
 }) {
   const { theme } = useThemeStore();
-  const themeStyle = profileCardThemeStyles[theme] || profileCardThemeStyles.pop;
+  const themeStyle = profileCardThemeStyles[theme] || profileCardThemeStyles.light;
 
   const name = user?.nickname || "USER";
   const idText = shortId || user?.userId || "";

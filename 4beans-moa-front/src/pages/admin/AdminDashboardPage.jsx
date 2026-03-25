@@ -32,7 +32,7 @@ import {
 import Chart from "react-apexcharts";
 import { useThemeStore } from "@/store/themeStore";
 
-// Removed theme imports to enforce classic theme
+// Removed theme imports to enforce light theme
 
 
 // Removed local AnimatedGradient and GridPattern in favor of global theme
@@ -47,7 +47,7 @@ const PeriodFilter = ({ selected, onChange, theme }) => {
     ];
 
     const isDark = theme === 'dark';
-    const primaryColor = theme === 'christmas' ? '#c41e3a' : theme === 'pop' ? '#ec4899' : '#635bff';
+    const primaryColor = '#635bff';
 
     return (
         <div className={`flex items-center gap-2 ${isDark ? 'bg-[#1E293B] border-gray-700' : 'bg-white border-gray-100'} border p-1 rounded-xl shadow-sm`}>
@@ -371,7 +371,7 @@ export default function AdminDashboardPage() {
     const { stats, loading, error } = useAdminDashboard();
     const { theme } = useThemeStore();
     const isDark = theme === 'dark';
-    const primaryColor = theme === 'christmas' ? '#c41e3a' : theme === 'pop' ? '#ec4899' : '#635bff';
+    const primaryColor = '#635bff';
 
     const [period, setPeriod] = useState("7days");
     const [searchQuery, setSearchQuery] = useState("");
@@ -620,7 +620,7 @@ export default function AdminDashboardPage() {
                             </div>
                             <div>
                                 <h1 className={`text-2xl md:text-3xl font-black ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                    {theme === 'christmas' ? '🎄 관리자 대시보드' : '📊 관리자 대시보드'}
+                                    📊 관리자 대시보드
                                 </h1>
                                 <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>서비스 현황을 한눈에 확인하세요</p>
                             </div>

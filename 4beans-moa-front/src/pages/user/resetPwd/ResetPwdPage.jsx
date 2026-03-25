@@ -29,7 +29,7 @@ export default function ResetPwdPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pt-20 pb-20 space-y-8">
         <div className="text-center">
           <PageTitle
-            title={theme === 'christmas' ? '🎄 비밀번호 재설정' : '비밀번호 재설정'}
+            title="비밀번호 재설정"
             subtitle="PASS 본인 인증 후 새 비밀번호를 설정해 주세요"
           />
         </div>

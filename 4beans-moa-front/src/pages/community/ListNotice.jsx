@@ -9,13 +9,7 @@ import { Search } from 'lucide-react';
 
 // 테마별 스타일
 const communityThemeStyles = {
-    pop: {
-        // Neo/Pop 스타일 - 핑크, 시안 계열
-        button: 'bg-pink-500 hover:bg-pink-600 text-white',
-        searchIconHover: 'hover:text-pink-500',
-        focusRing: 'focus:ring-pink-500',
-    },
-    classic: {
+    light: {
         button: 'bg-[#635bff] hover:bg-[#5851e8] text-white',
         searchIconHover: 'hover:text-[#635bff]',
         focusRing: 'focus:ring-[#635bff]',
@@ -25,18 +19,13 @@ const communityThemeStyles = {
         searchIconHover: 'hover:text-[#635bff]',
         focusRing: 'focus:ring-[#635bff]',
     },
-    christmas: {
-        button: 'bg-[#c41e3a] hover:bg-red-700 text-white',
-        searchIconHover: 'hover:text-[#c41e3a]',
-        focusRing: 'focus:ring-[#c41e3a]',
-    },
 };
 
 const ListNotice = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const { theme } = useThemeStore();
-    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.pop;
+    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.light;
     const [notices, setNotices] = useState([]);
     const [filteredNotices, setFilteredNotices] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);

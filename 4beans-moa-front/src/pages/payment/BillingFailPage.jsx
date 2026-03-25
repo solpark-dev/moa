@@ -9,7 +9,7 @@ export default function BillingFailPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { theme } = useThemeStore();
-    const currentTheme = themeConfig[theme] || themeConfig.pop;
+    const currentTheme = themeConfig[theme] || themeConfig.light;
 
     const [errorInfo, setErrorInfo] = useState({
         code: "",

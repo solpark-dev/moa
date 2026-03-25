@@ -11,15 +11,15 @@ import { Button } from "@/components/ui/button";
 // Theme-based styles
 const getDialogStyles = (theme) => {
   switch (theme) {
-    case 'christmas':
+    case 'light':
       return {
-        container: "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(196,30,58,0.15)]",
-        title: "text-[#c41e3a]",
-        desc: "text-gray-600",
-        tabActive: "bg-white text-[#c41e3a] border-[#c41e3a]",
+        container: "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(99,91,255,0.1)]",
+        title: "text-[#635bff]",
+        desc: "text-gray-500",
+        tabActive: "bg-white text-[#635bff] border-[#635bff]",
         tabInactive: "text-gray-500 border-gray-200",
-        input: "border border-gray-200 shadow-[4px_4px_12px_rgba(196,30,58,0.08)]",
-        button: "bg-[#c41e3a] hover:bg-[#a51830]",
+        input: "border border-gray-200 shadow-[4px_4px_12px_rgba(99,91,255,0.08)]",
+        button: "bg-[#635bff] hover:bg-[#5851e8]",
       };
     case 'dark':
       return {
@@ -29,26 +29,6 @@ const getDialogStyles = (theme) => {
         tabActive: "bg-[#0F172A] text-white border-[#635bff]",
         tabInactive: "text-gray-500 border-gray-700",
         input: "border border-gray-700 bg-[#0F172A] text-white shadow-[4px_4px_12px_rgba(0,0,0,0.2)]",
-        button: "bg-[#635bff] hover:bg-[#5851e8]",
-      };
-    case 'pop':
-      return {
-        container: "bg-white border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.1)]",
-        title: "text-black",
-        desc: "text-gray-600",
-        tabActive: "bg-pink-500 text-white border-pink-500",
-        tabInactive: "text-gray-500 border-gray-200",
-        input: "border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.08)]",
-        button: "bg-pink-500 hover:bg-pink-600 border border-gray-200",
-      };
-    case 'classic':
-      return {
-        container: "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(99,91,255,0.1)]",
-        title: "text-[#635bff]",
-        desc: "text-gray-500",
-        tabActive: "bg-white text-[#635bff] border-[#635bff]",
-        tabInactive: "text-gray-500 border-gray-200",
-        input: "border border-gray-200 shadow-[4px_4px_12px_rgba(99,91,255,0.08)]",
         button: "bg-[#635bff] hover:bg-[#5851e8]",
       };
     default:

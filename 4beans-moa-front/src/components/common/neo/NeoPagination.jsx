@@ -3,20 +3,12 @@ import { useThemeStore } from '@/store/themeStore';
 
 // 테마별 페이지네이션 스타일
 const paginationThemeStyles = {
-    pop: {
-        activeBg: 'bg-pink-500',
-        activeText: 'text-white',
-    },
-    classic: {
+    light: {
         activeBg: 'bg-[#635bff]',
         activeText: 'text-white',
     },
     dark: {
         activeBg: 'bg-[#635bff]',
-        activeText: 'text-white',
-    },
-    christmas: {
-        activeBg: 'bg-[#c41e3a]',
         activeText: 'text-white',
     },
 };
@@ -31,7 +23,7 @@ const paginationThemeStyles = {
  */
 const NeoPagination = ({ currentPage, totalPages, onPageChange, maxVisible = 5 }) => {
     const { theme } = useThemeStore();
-    const themeStyle = paginationThemeStyles[theme] || paginationThemeStyles.pop;
+    const themeStyle = paginationThemeStyles[theme] || paginationThemeStyles.light;
     if (totalPages <= 0) return null;
 
     const getPageNumbers = () => {

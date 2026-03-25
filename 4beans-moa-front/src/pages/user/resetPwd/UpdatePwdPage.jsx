@@ -84,7 +84,7 @@ export default function UpdatePwdPage() {
             </div>
             <h2 className={`text-3xl sm:text-4xl font-black leading-tight flex items-center gap-3 ${themeClasses.text.primary}`}>
               <KeyRound className={`w-7 h-7 text-[var(--theme-primary)]`} />
-              {theme === 'christmas' ? '🎄 비밀번호 변경' : '비밀번호 변경'}
+              비밀번호 변경
             </h2>
             <p className={`text-sm sm:text-base ${themeClasses.text.muted} leading-relaxed`}>
               안전하게 사용하려면 현재 비밀번호를 확인하고 새 비밀번호를 설정해 주세요.

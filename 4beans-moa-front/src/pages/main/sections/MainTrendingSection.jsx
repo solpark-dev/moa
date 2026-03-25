@@ -20,7 +20,7 @@ import { getProductIconUrl } from "@/utils/imageUtils";
 
 // 테마별 Trending 섹션 스타일
 const trendingThemeStyles = {
-  pop: {
+  light: {
     stickerBg: "bg-pink-500",
     recruitingBg: "bg-cyan-400",
     priceColor: "text-pink-500",
@@ -38,16 +38,6 @@ const trendingThemeStyles = {
     percentColor: "text-[#00d4ff]",
     emoji: "⏰",
     cardBgColors: ["bg-[#635bff]", "bg-[#00d4ff]", "bg-[#4fd1c5]"],
-  },
-  christmas: {
-    stickerBg: "bg-[#c41e3a]",
-    recruitingBg: "bg-[#1a5f2a]",
-    recruitingText: "text-white",
-    priceColor: "text-[#c41e3a]",
-    progressGradient: "bg-gradient-to-r from-[#1a5f2a] to-[#c41e3a]",
-    percentColor: "text-[#c41e3a]",
-    emoji: "🎅",
-    cardBgColors: ["bg-[#c41e3a]", "bg-[#1a5f2a]", "bg-[#c41e3a]"],
   },
 };
 
@@ -102,7 +92,7 @@ export default function MainTrendingSection() {
   const partiesLoading = useMainStore((s) => s.partiesLoading);
   const partiesError = useMainStore((s) => s.partiesError);
   const { theme } = useThemeStore();
-  const themeStyle = trendingThemeStyles[theme] || trendingThemeStyles.pop;
+  const themeStyle = trendingThemeStyles[theme] || trendingThemeStyles.light;
   const isDark = theme === "dark";
 
   // 마감 임박 파티 6개 선택 (모집률 높은 순) - 실제 마감임박 파티만 표시
@@ -173,7 +163,7 @@ export default function MainTrendingSection() {
           <div>
             <Sticker color={themeStyle.stickerBg} rotate={-1} className="inline-block px-4 py-2 rounded-xl mb-4">
               <span className="font-black text-white">
-                {theme === "christmas" ? "🎅 마감 임박 🎄" : `마감 임박 ${themeStyle.emoji}`}
+                {`마감 임박 ${themeStyle.emoji}`}
               </span>
             </Sticker>
             <h2 className={`text-4xl md:text-5xl font-black ${isDark ? 'text-white' : ''}`}>서두르세요!</h2>
@@ -263,7 +253,7 @@ export default function MainTrendingSection() {
                           className="px-2 py-1 rounded-lg"
                         >
                           <span className={`text-xs font-black ${isRecruiting && themeStyle.recruitingText ? themeStyle.recruitingText : ""}`}>
-                            {isRecruiting ? (theme === "christmas" ? "🎄 모집중" : "모집중 🙋") : "마감"}
+                            {isRecruiting ? "모집중 🙋" : "마감"}
                           </span>
                         </Sticker>
                       </div>

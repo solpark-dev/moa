@@ -9,15 +9,7 @@ import { Search } from 'lucide-react';
 
 // 테마별 스타일
 const communityThemeStyles = {
-    pop: {
-        // Neo/Pop 스타일 - 핑크, 시안 계열
-        button: 'bg-pink-500 hover:bg-pink-600 text-white',
-        searchIconHover: 'hover:text-pink-500',
-        categoryButtonActive: 'bg-pink-500 text-white',
-        categoryButtonInactive: 'bg-white text-black hover:bg-pink-50',
-        focusRing: 'focus:ring-pink-500',
-    },
-    classic: {
+    light: {
         button: 'bg-[#635bff] hover:bg-indigo-600 text-white',
         searchIconHover: 'hover:text-[#635bff]',
         categoryButtonActive: 'bg-[#635bff] text-white',
@@ -31,20 +23,13 @@ const communityThemeStyles = {
         categoryButtonInactive: 'bg-gray-700 text-gray-200 hover:bg-gray-600',
         focusRing: 'focus:ring-[#635bff]',
     },
-    christmas: {
-        button: 'bg-[#c41e3a] hover:bg-red-700 text-white',
-        searchIconHover: 'hover:text-[#c41e3a]',
-        categoryButtonActive: 'bg-[#c41e3a] text-white',
-        categoryButtonInactive: 'bg-white text-black hover:bg-red-50',
-        focusRing: 'focus:ring-[#c41e3a]',
-    },
 };
 
 const ListFaq = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const { theme } = useThemeStore();
-    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.pop;
+    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.light;
     const [faqs, setFaqs] = useState([]);
     const [filteredFaqs, setFilteredFaqs] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -190,7 +175,7 @@ const ListFaq = () => {
                                 onClick={() => handleCategoryChange(category)}
                                 className={`
                                     px-4 py-2 font-black text-sm rounded-lg
-                                    ${theme === 'pop' ? 'border border-gray-200' : theme === 'dark' ? 'border border-gray-600' : 'border border-gray-200'}
+                                    ${theme === 'dark' ? 'border border-gray-600' : 'border border-gray-200'}
                                     transition-all duration-200
                                     ${activeCategory === category
                                         ? `${themeStyle.categoryButtonActive} shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`

@@ -18,7 +18,7 @@ import { useThemeStore } from '@/store/themeStore';
 
 // 테마별 스타일
 const addProductThemeStyles = {
-    pop: {
+    light: {
         primary: 'indigo',
         focusRing: 'focus:ring-indigo-500',
         dragBorder: 'border-indigo-500',
@@ -33,26 +33,11 @@ const addProductThemeStyles = {
         buttonShadow: 'shadow-indigo-200 hover:shadow-indigo-300',
         hoverBorder: 'hover:border-indigo-400',
     },
-    christmas: {
-        primary: 'red',
-        focusRing: 'focus:ring-[#c41e3a]',
-        dragBorder: 'border-[#c41e3a]',
-        dragBg: 'bg-red-50',
-        dragOverlay: 'bg-[#c41e3a]/10',
-        dragShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        iconBg: 'bg-red-100',
-        iconColor: 'text-[#c41e3a]',
-        textAccent: 'text-[#c41e3a]',
-        textDark: 'text-[#c41e3a]',
-        buttonBg: 'bg-[#c41e3a] hover:bg-red-700',
-        buttonShadow: 'shadow-red-200 hover:shadow-red-300',
-        hoverBorder: 'hover:border-[#c41e3a]',
-    },
 };
 
 const AddProduct = () => {
     const { theme } = useThemeStore();
-    const themeStyle = addProductThemeStyles[theme] || addProductThemeStyles.pop;
+    const themeStyle = addProductThemeStyles[theme] || addProductThemeStyles.light;
     const navigate = useNavigate();
 
     const {

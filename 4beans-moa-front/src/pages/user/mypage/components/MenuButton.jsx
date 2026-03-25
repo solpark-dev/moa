@@ -3,23 +3,23 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const menuButtonThemeStyles = {
-  pop: {
-    activeBg: "bg-indigo-600",
-    activeBorder: "border-black",
-    activeShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
-    inactiveBorder: "border-black",
-    inactiveShadow: "shadow-[4px_4px_0px_0px_rgba(0,0,0,0.7)]",
-    destructiveBorder: "border-black",
-    indicatorBg: "bg-indigo-500",
-  },
-  christmas: {
-    activeBg: "bg-[#c41e3a]",
+  light: {
+    activeBg: "bg-[#635bff]",
     activeBorder: "border-gray-200",
-    activeShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    activeShadow: "shadow-[4px_4px_12px_rgba(99,91,255,0.2)]",
     inactiveBorder: "border-gray-200",
     inactiveShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
     destructiveBorder: "border-gray-200",
-    indicatorBg: "bg-[#c41e3a]",
+    indicatorBg: "bg-[#635bff]",
+  },
+  dark: {
+    activeBg: "bg-[#635bff]",
+    activeBorder: "border-gray-600",
+    activeShadow: "shadow-[4px_4px_12px_rgba(99,91,255,0.3)]",
+    inactiveBorder: "border-gray-600",
+    inactiveShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.3)]",
+    destructiveBorder: "border-gray-600",
+    indicatorBg: "bg-[#635bff]",
   },
 };
 
@@ -31,7 +31,7 @@ export function MenuButton({
   active = false,
 }) {
   const { theme } = useThemeStore();
-  const themeStyle = menuButtonThemeStyles[theme] || menuButtonThemeStyles.pop;
+  const themeStyle = menuButtonThemeStyles[theme] || menuButtonThemeStyles.light;
   const isDestructive = variant === "destructive";
 
   return (

@@ -7,16 +7,7 @@ const NoticeItem = ({ notice, index, formatDate, onClick }) => {
 
     // Theme-based colors
     const communityThemeStyles = {
-        pop: {
-            // Neo/Pop 스타일 - 핑크, 시안 계열
-            cardBg: 'bg-white',
-            cardHover: 'hover:bg-pink-50',
-            textColor: 'text-black',
-            indexColor: 'text-gray-400',
-            dateColor: 'text-gray-500',
-            viewBadge: 'bg-pink-500',
-        },
-        classic: {
+        light: {
             cardBg: 'bg-white',
             cardHover: 'hover:bg-indigo-50',
             textColor: 'text-black',
@@ -32,17 +23,9 @@ const NoticeItem = ({ notice, index, formatDate, onClick }) => {
             dateColor: 'text-gray-400',
             viewBadge: 'bg-[#635bff]',
         },
-        christmas: {
-            cardBg: 'bg-white',
-            cardHover: 'hover:bg-red-50',
-            textColor: 'text-black',
-            indexColor: 'text-gray-400',
-            dateColor: 'text-gray-500',
-            viewBadge: 'bg-[#c41e3a]',
-        },
     };
 
-    const themeColors = communityThemeStyles[theme] || communityThemeStyles.pop;
+    const themeColors = communityThemeStyles[theme] || communityThemeStyles.light;
 
     return (
         <div className="mb-3">
@@ -72,7 +55,7 @@ const NoticeItem = ({ notice, index, formatDate, onClick }) => {
 
                     {/* 조회수 */}
                     <div className="col-span-2 flex justify-center">
-                        <span className={`px-3 py-1 ${themeColors.viewBadge} text-white rounded-lg ${theme === 'pop' ? 'border border-gray-200' : ''} text-sm font-black`}>
+                        <span className={`px-3 py-1 ${themeColors.viewBadge} text-white rounded-lg text-sm font-black`}>
                             {notice.viewCount || 0}
                         </span>
                     </div>

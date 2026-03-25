@@ -3,7 +3,6 @@ import { Routes, Route, useLocation } from "react-router-dom";
 
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
-import RequireAuth from "@/routes/RequireAuth";
 import { useGlobalLinkHandler } from "@/hooks/common/useGlobalLinkHandler";
 
 import ProtectedRoute from "@/routes/ProtectedRoute";
@@ -14,8 +13,6 @@ import MainPage from "./pages/main/MainPage";
 import PartyListPage from "./pages/party/PartyListPage";
 import PartyCreatePage from "./pages/party/PartyCreatePage";
 import PartyDetailPage from "./pages/party/PartyDetailPage";
-import PartyListPageO from "./pages/party/PartyListPageO";
-import PartyListPageZO3 from "./pages/party/PartyListPageZO3";
 
 import AddUserPage from "./pages/user/register/AddUserPage";
 import LoginPage from "./pages/user/login/LoginPage";
@@ -71,7 +68,6 @@ import { useAuthStore } from "./store/authStore";
 import { useThemeStore } from "./store/themeStore";
 import { themeConfig } from "./config/themeConfig";
 import { NeoBackground } from "./components/common/neo";
-import { SnowPlowProvider } from "./components/christmas/SnowPlow";
 
 // Inner App component that uses SnowPlow context
 function AppContent() {
@@ -79,7 +75,7 @@ function AppContent() {
   const location = useLocation();
   const { user } = useAuthStore();
   const { theme, setTheme } = useThemeStore();
-  const currentTheme = themeConfig[theme] || themeConfig.pop;
+  const currentTheme = themeConfig[theme] || themeConfig.light;
 
   // Pineapple easter egg state
   const [pineappleEnabled, setPineappleEnabled] = useState(false);
@@ -89,7 +85,7 @@ function AppContent() {
 
   // CSS Variables Injection
   useEffect(() => {
-    const currentThemeConfig = themeConfig[theme] || themeConfig.pop;
+    const currentThemeConfig = themeConfig[theme] || themeConfig.light;
     const cssVars = currentThemeConfig.cssVars;
     if (cssVars) {
       Object.entries(cssVars).forEach(([key, value]) => {
@@ -104,10 +100,8 @@ function AppContent() {
       if (e.ctrlKey && e.shiftKey) {
         // e.code를 사용하여 Shift 키 조합에서도 정확히 감지
         const themeMap = {
-          'Digit1': 'pop',
-          'Digit2': 'classic',
-          'Digit3': 'dark',
-          'Digit4': 'christmas',
+          'Digit1': 'light',
+          'Digit2': 'dark',
         };
         const newTheme = themeMap[e.code];
         if (newTheme) {
@@ -127,16 +121,8 @@ function AppContent() {
 
   // 테마별 배경색 설정 (NeoBackground가 보이도록 투명)
   const getBgClass = () => {
-    switch (theme) {
-      case "dark":
-        return "bg-[#0B1120] text-white";
-      case "christmas":
-        return "bg-transparent text-black";
-      case "pop":
-        return "bg-transparent text-black";
-      default:
-        return "bg-transparent text-black";
-    }
+    if (theme === "dark") return "bg-[#0B1120] text-white";
+    return "bg-transparent text-black";
   };
 
   return (
@@ -166,8 +152,6 @@ function AppContent() {
           <Route path="/party" element={<PartyListPage />} />
           <Route path="/party/create" element={<PartyCreatePage />} />
           <Route path="/party/:id" element={<PartyDetailPage />} />
-          <Route path="/party-test/o" element={<PartyListPageO />} />
-          <Route path="/party-test/zo3" element={<PartyListPageZO3 />} />
 
           <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
           <Route path="/oauth/phone-connect" element={<PhoneConnectPage />} />
@@ -178,14 +162,6 @@ function AppContent() {
           <Route path="/register/social" element={<SocialRegisterPage />} />
           <Route path="/reset-password" element={<ResetPwdPage />} />
           <Route path="/email-verified" element={<EmailVerifiedPage />} />
-          <Route
-            path="/mypage"
-            element={
-              <RequireAuth>
-                <MyPage />
-              </RequireAuth>
-            }
-          />
           <Route
             path="/user/register/social"
             element={<SocialRegisterPage />}
@@ -272,12 +248,6 @@ function AppContent() {
                 <ChartComparisonPage />
               </AdminAuthGuard>
             }
-          />
-          <Route path="/admin/users" element={<AdminUserListPage />} />
-          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-          <Route
-            path="/admin/chart-comparison"
-            element={<ChartComparisonPage />}
           />
           <Route
             path="/admin/users/:userId"
@@ -372,13 +342,8 @@ function AppContent() {
   );
 }
 
-// Main App wrapper with SnowPlowProvider
 export default function App() {
-  return (
-    <SnowPlowProvider>
-      <AppContent />
-    </SnowPlowProvider>
-  );
+  return <AppContent />;
 }
 
 

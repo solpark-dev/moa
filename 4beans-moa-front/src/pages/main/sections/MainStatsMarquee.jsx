@@ -4,17 +4,13 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 Stats Marquee 스타일
 const statsMarqueeThemeStyles = {
-  pop: {
+  light: {
     bg: "bg-pink-500",
     border: "border-pink-400",
   },
   dark: {
     bg: "bg-[#635bff]",
     border: "border-[#5851e8]",
-  },
-  christmas: {
-    bg: "bg-[#c41e3a]",
-    border: "border-[#a51830]",
   },
 };
 
@@ -41,7 +37,7 @@ function Marquee({ children, direction = "left", speed = 20 }) {
 // ============================================
 export default function MainStatsMarquee() {
   const { theme } = useThemeStore();
-  const themeStyle = statsMarqueeThemeStyles[theme] || statsMarqueeThemeStyles.pop;
+  const themeStyle = statsMarqueeThemeStyles[theme] || statsMarqueeThemeStyles.light;
 
   return (
     <div className={`${themeStyle.bg} text-white py-4 border-y ${themeStyle.border}`}>
@@ -49,11 +45,11 @@ export default function MainStatsMarquee() {
         <div className="flex items-center gap-12 px-4">
           {[...Array(4)].map((_, i) => (
             <span key={i} className="flex items-center gap-12 text-xl font-black uppercase">
-              <span>{theme === "christmas" ? "🎄 10K+ 사용자" : "10K+ 사용자"}</span>
+              <span>10K+ 사용자</span>
               <span>•</span>
-              <span>{theme === "christmas" ? "🎁 75% 절약" : "75% 절약"}</span>
+              <span>75% 절약</span>
               <span>•</span>
-              <span>{theme === "christmas" ? "🎅 4.9 만족도" : "4.9 만족도"}</span>
+              <span>4.9 만족도</span>
               <span>•</span>
             </span>
           ))}

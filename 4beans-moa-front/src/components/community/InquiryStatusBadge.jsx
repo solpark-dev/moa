@@ -3,12 +3,7 @@ import { useThemeStore } from '@/store/themeStore';
 
 // 테마별 문의 상태 뱃지 스타일
 const communityThemeStyles = {
-    pop: {
-        // Neo/Pop 스타일 - 핑크, 시안 계열
-        completed: 'bg-cyan-500 text-white',
-        pending: 'bg-gray-200 text-gray-600',
-    },
-    classic: {
+    light: {
         completed: 'bg-emerald-500 text-white',
         pending: 'bg-gray-200 text-gray-600',
     },
@@ -16,15 +11,11 @@ const communityThemeStyles = {
         completed: 'bg-emerald-500 text-white',
         pending: 'bg-gray-600 text-gray-300',
     },
-    christmas: {
-        completed: 'bg-[#1a5f2a] text-white',
-        pending: 'bg-[#c41e3a] text-white',
-    },
 };
 
 const InquiryStatusBadge = ({ status }) => {
     const { theme } = useThemeStore();
-    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.pop;
+    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.light;
 
     if (status === '답변완료') {
         return (

@@ -3,14 +3,10 @@ import { Button } from "@/components/ui/button";
 // Theme-based button styles
 const getButtonStyles = (theme) => {
   switch (theme) {
-    case 'christmas':
-      return "border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(196,30,58,0.1)]";
+    case 'light':
+      return "border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(99,91,255,0.1)]";
     case 'dark':
       return "border border-gray-700 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.3)]";
-    case 'pop':
-      return "border border-gray-200 rounded-2xl shadow-[0_4px_12px_rgba(236,72,153,0.1)]";
-    case 'classic':
-      return "border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(99,91,255,0.1)]";
     default:
       return "border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]";
   }

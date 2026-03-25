@@ -13,38 +13,6 @@ export default function PaymentHistoryList() {
 
   const getThemeColors = () => {
     switch (theme) {
-      case 'pop':
-        return {
-          accent: 'text-pink-600',
-          accentHover: 'group-hover:text-pink-600',
-          borderHover: 'hover:border-pink-300',
-          iconBg: 'bg-gradient-to-br from-pink-50 to-cyan-50',
-          spinnerBorder: 'border-pink-500',
-          cardBg: 'bg-white',
-          cardBorder: 'border-slate-200',
-          textPrimary: 'text-slate-900',
-          textSecondary: 'text-slate-600',
-          textMuted: 'text-slate-500',
-          borderColor: 'border-slate-100',
-          emptyBg: 'bg-slate-100',
-          emptyIcon: 'text-slate-400',
-        };
-      case 'christmas':
-        return {
-          accent: 'text-[#c41e3a]',
-          accentHover: 'group-hover:text-[#c41e3a]',
-          borderHover: 'hover:border-[#c41e3a]/30',
-          iconBg: 'bg-gradient-to-br from-red-50 to-green-50',
-          spinnerBorder: 'border-[#c41e3a]',
-          cardBg: 'bg-white',
-          cardBorder: 'border-slate-200',
-          textPrimary: 'text-slate-900',
-          textSecondary: 'text-slate-600',
-          textMuted: 'text-slate-500',
-          borderColor: 'border-slate-100',
-          emptyBg: 'bg-slate-100',
-          emptyIcon: 'text-slate-400',
-        };
       case 'dark':
         return {
           accent: 'text-[#635bff]',

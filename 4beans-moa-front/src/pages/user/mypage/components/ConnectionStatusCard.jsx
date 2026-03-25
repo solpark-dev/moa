@@ -7,19 +7,7 @@ const ROW = "flex items-center justify-between py-3";
 
 // 테마별 스타일
 const connectionThemeStyles = {
-  pop: {
-    sectionTitle: "text-sm font-bold text-black",
-    sectionBorder: "border-t-2 border-black",
-    dividerBorder: "border-t border-black/20",
-    labelText: "text-sm text-slate-600 font-bold",
-    valueText: "text-sm font-black text-black",
-    badgeBg: "border border-gray-200 bg-white text-black",
-    btn: "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]",
-    btnDanger: "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-red-600 font-black text-sm active:translate-y-[1px]",
-    buttonHover: "hover:bg-slate-50",
-    otpBox: "border border-gray-200 bg-white",
-  },
-  christmas: {
+  light: {
     sectionTitle: "text-sm font-bold text-black",
     sectionBorder: "border-t border-gray-200",
     dividerBorder: "border-t border-gray-200",
@@ -28,7 +16,7 @@ const connectionThemeStyles = {
     badgeBg: "border border-gray-200 bg-white text-black",
     btn: "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]",
     btnDanger: "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-red-600 font-black text-sm active:translate-y-[1px]",
-    buttonHover: "hover:bg-red-50",
+    buttonHover: "hover:bg-slate-50",
     otpBox: "border border-gray-200 bg-white",
   },
   dark: {
@@ -43,18 +31,6 @@ const connectionThemeStyles = {
     buttonHover: "hover:bg-[#635bff]/10",
     otpBox: "border border-gray-700 bg-[#0F172A]",
   },
-  classic: {
-    sectionTitle: "text-sm font-bold text-black",
-    sectionBorder: "border-t border-gray-200",
-    dividerBorder: "border-t border-gray-200",
-    labelText: "text-sm text-slate-600 font-bold",
-    valueText: "text-sm font-black text-black",
-    badgeBg: "border border-gray-200 bg-white text-black",
-    btn: "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]",
-    btnDanger: "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-red-600 font-black text-sm active:translate-y-[1px]",
-    buttonHover: "hover:bg-slate-50",
-    otpBox: "border border-gray-200 bg-white",
-  },
 };
 
 export function ConnectionStatusCard({
@@ -66,7 +42,7 @@ export function ConnectionStatusCard({
   actions,
 }) {
   const { theme } = useThemeStore();
-  const themeStyle = connectionThemeStyles[theme] || connectionThemeStyles.pop;
+  const themeStyle = connectionThemeStyles[theme] || connectionThemeStyles.light;
   const phone = user?.phone || "-";
 
   const toggleGoogle = () => {

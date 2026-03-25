@@ -14,17 +14,17 @@ import { useThemeStore } from '@/store/themeStore';
 
 // 테마별 스타일
 const deleteProductThemeStyles = {
-    pop: {
+    light: {
         confirmButton: 'bg-indigo-600 hover:bg-indigo-700',
     },
-    christmas: {
-        confirmButton: 'bg-[#c41e3a] hover:bg-red-700',
+    dark: {
+        confirmButton: 'bg-indigo-600 hover:bg-indigo-700',
     },
 };
 
 const DeleteProduct = () => {
     const { theme } = useThemeStore();
-    const themeStyle = deleteProductThemeStyles[theme] || deleteProductThemeStyles.pop;
+    const themeStyle = deleteProductThemeStyles[theme] || deleteProductThemeStyles.light;
     const { id } = useParams();
     const navigate = useNavigate();
 

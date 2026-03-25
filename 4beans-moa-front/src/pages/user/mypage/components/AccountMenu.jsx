@@ -6,25 +6,15 @@ const WRAP = "p-6";
 
 // 테마별 스타일
 const accountMenuThemeStyles = {
-  pop: {
+  light: {
     item: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]",
     active: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-slate-100 text-black font-black text-sm",
     itemHover: "hover:bg-slate-50",
-  },
-  christmas: {
-    item: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]",
-    active: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-slate-100 text-black font-black text-sm",
-    itemHover: "hover:bg-red-50",
   },
   dark: {
     item: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-700 bg-[#0F172A] text-gray-200 font-black text-sm active:translate-y-[1px]",
     active: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-[#635bff] bg-[#635bff]/20 text-gray-200 font-black text-sm",
     itemHover: "hover:bg-[#635bff]/10",
-  },
-  classic: {
-    item: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]",
-    active: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-slate-100 text-black font-black text-sm",
-    itemHover: "hover:bg-slate-50",
   },
 };
 
@@ -37,7 +27,7 @@ export function AccountMenu({
   onOpenDeleteUser,
 }) {
   const { theme } = useThemeStore();
-  const themeStyle = accountMenuThemeStyles[theme] || accountMenuThemeStyles.pop;
+  const themeStyle = accountMenuThemeStyles[theme] || accountMenuThemeStyles.light;
   const ITEM = themeStyle.item;
   const ACTIVE = themeStyle.active;
   

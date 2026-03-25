@@ -3,14 +3,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const infoCardThemeStyles = {
-  pop: {
-    cardBg: "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
-    headerBorder: "border-b border-black",
-    titleText: "text-gray-900",
-    labelText: "text-gray-700",
-    valueText: "text-slate-900",
-  },
-  christmas: {
+  light: {
     cardBg: "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
     headerBorder: "border-b border-gray-200",
     titleText: "text-gray-900",
@@ -24,18 +17,11 @@ const infoCardThemeStyles = {
     labelText: "text-gray-400",
     valueText: "text-gray-200",
   },
-  classic: {
-    cardBg: "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
-    headerBorder: "border-b border-gray-200",
-    titleText: "text-gray-900",
-    labelText: "text-gray-700",
-    valueText: "text-slate-900",
-  },
 };
 
 export function InfoCard({ title, icon, children }) {
   const { theme } = useThemeStore();
-  const themeStyle = infoCardThemeStyles[theme] || infoCardThemeStyles.pop;
+  const themeStyle = infoCardThemeStyles[theme] || infoCardThemeStyles.light;
 
   return (
     <Card className={`${themeStyle.cardBg} h-full rounded-3xl`}>
@@ -51,7 +37,7 @@ export function InfoCard({ title, icon, children }) {
 
 export function InfoRow({ label, value, valueClass }) {
   const { theme } = useThemeStore();
-  const themeStyle = infoCardThemeStyles[theme] || infoCardThemeStyles.pop;
+  const themeStyle = infoCardThemeStyles[theme] || infoCardThemeStyles.light;
   const finalValueClass = valueClass || themeStyle.valueText;
 
   return (

@@ -5,12 +5,7 @@ import { useThemeStore } from '@/store/themeStore';
 
 // 테마별 스타일
 const communityThemeStyles = {
-    pop: {
-        // Neo/Pop 스타일 - 핑크, 시안 계열
-        categoryBadge: 'bg-pink-500 text-white',
-        hoverBg: 'hover:bg-pink-50',
-    },
-    classic: {
+    light: {
         categoryBadge: 'bg-[#635bff] text-white',
         hoverBg: 'hover:bg-indigo-50',
     },
@@ -18,15 +13,11 @@ const communityThemeStyles = {
         categoryBadge: 'bg-[#635bff] text-white',
         hoverBg: 'hover:bg-gray-700',
     },
-    christmas: {
-        categoryBadge: 'bg-[#c41e3a] text-white',
-        hoverBg: 'hover:bg-red-50',
-    },
 };
 
 const InquiryItem = ({ inquiry, onClick }) => {
     const { theme } = useThemeStore();
-    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.pop;
+    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.light;
 
     return (
         <div

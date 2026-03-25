@@ -4,13 +4,9 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 HowItWorks 섹션 스타일
 const howItWorksThemeStyles = {
-  pop: {
+  light: {
     stepColors: ["bg-cyan-400", "bg-pink-500", "bg-lime-400"],
     emojis: ["🔍", "💳", "🎬"],
-  },
-  christmas: {
-    stepColors: ["bg-[#1a5f2a]", "bg-[#c41e3a]", "bg-[#1a5f2a]"],
-    emojis: ["🎄", "🎁", "🎅"],
   },
 };
 
@@ -36,7 +32,7 @@ function Sticker({ children, color = "bg-white", rotate = 0, className = "", isD
 
 export default function MainHowItWorksSection() {
   const { theme } = useThemeStore();
-  const themeStyle = howItWorksThemeStyles[theme] || howItWorksThemeStyles.pop;
+  const themeStyle = howItWorksThemeStyles[theme] || howItWorksThemeStyles.light;
   const isDark = theme === "dark";
 
   const steps = [

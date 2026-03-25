@@ -5,7 +5,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 Comparison 섹션 스타일
 const comparisonThemeStyles = {
-  pop: {
+  light: {
     cardBg: "bg-gradient-to-br from-pink-50 to-cyan-50",
     iconBg: "bg-pink-500",
     priceColor: "text-pink-500",
@@ -23,15 +23,6 @@ const comparisonThemeStyles = {
     avatarColors: ["bg-[#635bff]", "bg-[#00d4ff]", "bg-[#4fd1c5]", "bg-gray-500"],
     emoji: "🎉",
   },
-  christmas: {
-    cardBg: "bg-gradient-to-br from-red-50 to-green-50",
-    iconBg: "bg-[#c41e3a]",
-    priceColor: "text-[#c41e3a]",
-    savingBg: "bg-[#1a5f2a]/10",
-    savingText: "text-[#1a5f2a]",
-    avatarColors: ["bg-[#c41e3a]", "bg-[#1a5f2a]", "bg-[#c41e3a]", "bg-[#1a5f2a]"],
-    emoji: "🎄",
-  },
 };
 
 // ============================================
@@ -41,7 +32,7 @@ export default function MainComparisonSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { theme } = useThemeStore();
-  const themeStyle = comparisonThemeStyles[theme] || comparisonThemeStyles.pop;
+  const themeStyle = comparisonThemeStyles[theme] || comparisonThemeStyles.light;
   const isDark = theme === "dark";
 
   return (
@@ -92,7 +83,7 @@ export default function MainComparisonSection() {
             <p className={`text-4xl font-black ${themeStyle.priceColor}`}>월 4,250원</p>
             <p className="text-sm font-bold mt-2">
               <span className={`${themeStyle.savingText} ${themeStyle.savingBg} px-2 py-1 rounded-full border ${isDark ? 'border-gray-600' : 'border-gray-200'}`}>
-                {theme === "christmas" ? "🎁 -75% 절약!" : "-75% 절약!"}
+                -75% 절약!
               </span>
             </p>
           </BouncyCard>

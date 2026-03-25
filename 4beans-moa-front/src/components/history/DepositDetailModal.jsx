@@ -4,16 +4,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const depositModalThemeStyles = {
-  pop: {
-    gradientBg: 'bg-gradient-to-br from-pink-50 to-cyan-50',
-    iconBg: 'bg-pink-100',
-    iconColor: 'text-pink-600',
-    iconColorSecondary: 'text-cyan-600',
-    border: 'border border-gray-200',
-    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-    hoverBg: 'hover:bg-pink-50',
-  },
-  classic: {
+  light: {
     gradientBg: 'bg-gradient-to-br from-indigo-50 to-purple-50',
     iconBg: 'bg-indigo-100',
     iconColor: 'text-[#635bff]',
@@ -31,20 +22,11 @@ const depositModalThemeStyles = {
     shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
     hoverBg: 'hover:bg-gray-700',
   },
-  christmas: {
-    gradientBg: 'bg-gradient-to-br from-red-50 to-green-50',
-    iconBg: 'bg-red-100',
-    iconColor: 'text-[#c41e3a]',
-    iconColorSecondary: 'text-green-800',
-    border: 'border border-gray-200',
-    shadow: 'shadow-[4px_4px_12px_rgba(196,30,58,0.15)]',
-    hoverBg: 'hover:bg-red-50',
-  },
 };
 
 export default function DepositDetailModal({ isOpen, onClose, deposit }) {
   const { theme } = useThemeStore();
-  const themeStyle = depositModalThemeStyles[theme] || depositModalThemeStyles.pop;
+  const themeStyle = depositModalThemeStyles[theme] || depositModalThemeStyles.light;
   if (!deposit) return null;
 
   const getStatusLabel = (status) => {
@@ -61,7 +43,7 @@ export default function DepositDetailModal({ isOpen, onClose, deposit }) {
   };
 
   const getStatusStyle = (status, currentTheme) => {
-    const themeAccent = currentTheme === 'pop' ? 'bg-pink-500' : currentTheme === 'christmas' ? 'bg-[#c41e3a]' : 'bg-[#635bff]';
+    const themeAccent = 'bg-[#635bff]';
     switch (status) {
       case "PAID":
         return `${themeAccent} text-white`;
@@ -199,9 +181,9 @@ export default function DepositDetailModal({ isOpen, onClose, deposit }) {
                 )}
 
                 {(deposit.depositStatus === "PAID" || deposit.status === "PAID") && (
-                  <div className={`bg-${theme === 'christmas' ? 'red' : 'blue'}-50 p-4 rounded-xl border border-${theme === 'christmas' ? 'red' : 'blue'}-100 flex items-start gap-3`}>
+                  <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-start gap-3">
                     <ShieldCheck className={`w-5 h-5 ${themeStyle.iconColor} flex-shrink-0 mt-0.5`} />
-                    <p className={`text-sm text-${theme === 'christmas' ? 'red' : 'blue'}-700`}>
+                    <p className="text-sm text-blue-700">
                       안전하게 보관중인 보증금입니다. 파티 종료 시 전액 환불됩니다.
                     </p>
                   </div>

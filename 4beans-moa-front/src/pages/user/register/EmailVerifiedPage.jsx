@@ -37,10 +37,7 @@ export default function EmailVerifiedPage() {
             <CardTitle
               className={`text-center text-xl font-bold ${themeClasses.text.primary}`}
             >
-              {status === "success" &&
-                (theme === "christmas"
-                  ? "🎄 이메일 인증 성공 🎉"
-                  : "이메일 인증 성공 🎉")}
+              {status === "success" && "이메일 인증 성공 🎉"}
               {status === "error" && "인증 실패 ⚠️"}
             </CardTitle>
           </CardHeader>

@@ -4,17 +4,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const settlementModalThemeStyles = {
-  pop: {
-    gradientBg: 'bg-gradient-to-br from-pink-50 to-lime-50',
-    iconBg: 'bg-emerald-100',
-    iconColor: 'text-emerald-600',
-    iconColorSecondary: 'text-pink-600',
-    iconColorTertiary: 'text-cyan-600',
-    border: 'border border-gray-200',
-    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-    hoverBg: 'hover:bg-pink-50',
-  },
-  classic: {
+  light: {
     gradientBg: 'bg-gradient-to-br from-indigo-50 to-purple-50',
     iconBg: 'bg-emerald-100',
     iconColor: 'text-emerald-600',
@@ -34,21 +24,11 @@ const settlementModalThemeStyles = {
     shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
     hoverBg: 'hover:bg-gray-700',
   },
-  christmas: {
-    gradientBg: 'bg-gradient-to-br from-red-50 to-green-50',
-    iconBg: 'bg-green-100',
-    iconColor: 'text-green-800',
-    iconColorSecondary: 'text-[#c41e3a]',
-    iconColorTertiary: 'text-green-800',
-    border: 'border border-gray-200',
-    shadow: 'shadow-[4px_4px_12px_rgba(196,30,58,0.15)]',
-    hoverBg: 'hover:bg-red-50',
-  },
 };
 
 export default function SettlementDetailModal({ isOpen, onClose, settlement }) {
   const { theme } = useThemeStore();
-  const themeStyle = settlementModalThemeStyles[theme] || settlementModalThemeStyles.pop;
+  const themeStyle = settlementModalThemeStyles[theme] || settlementModalThemeStyles.light;
   if (!settlement) return null;
 
   const getStatusLabel = (status) => {
@@ -67,7 +47,7 @@ export default function SettlementDetailModal({ isOpen, onClose, settlement }) {
   };
 
   const getStatusStyle = (status, currentTheme) => {
-    const themeAccent = currentTheme === 'pop' ? 'bg-pink-500' : currentTheme === 'christmas' ? 'bg-[#c41e3a]' : 'bg-[#635bff]';
+    const themeAccent = 'bg-[#635bff]';
     switch (status) {
       case "COMPLETED":
         return "bg-emerald-500 text-white";
@@ -180,12 +160,12 @@ export default function SettlementDetailModal({ isOpen, onClose, settlement }) {
                   </div>
 
                   {settlement.totalAmount && (
-                    <div className={`flex items-center justify-between p-4 bg-${theme === 'christmas' ? 'green' : 'blue'}-50 rounded-xl border border-${theme === 'christmas' ? 'green' : 'blue'}-100`}>
+                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
                       <span className="text-slate-600 font-medium flex items-center gap-2">
                         <DollarSign className="w-4 h-4" />
                         총 결제금액
                       </span>
-                      <span className={`font-bold text-${theme === 'christmas' ? 'green' : 'blue'}-600`}>
+                      <span className="font-bold text-blue-600">
                         {settlement.totalAmount.toLocaleString()}원
                       </span>
                     </div>
@@ -202,9 +182,9 @@ export default function SettlementDetailModal({ isOpen, onClose, settlement }) {
                 </div>
 
                 {/* Info Message */}
-                <div className={`bg-${theme === 'christmas' ? 'red' : 'purple'}-50 p-4 rounded-xl border border-${theme === 'christmas' ? 'red' : 'purple'}-100 flex items-start gap-3`}>
+                <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 flex items-start gap-3">
                   <TrendingUp className={`w-5 h-5 ${themeStyle.iconColorSecondary} flex-shrink-0 mt-0.5`} />
-                  <p className={`text-sm text-${theme === 'christmas' ? 'red' : 'purple'}-700`}>
+                  <p className="text-sm text-purple-700">
                     파티에서 발생한 정산 금액입니다. 등록된 정산 계좌로 입금됩니다.
                   </p>
                 </div>

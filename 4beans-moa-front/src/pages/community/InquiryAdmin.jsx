@@ -12,14 +12,7 @@ import { ImageIcon } from 'lucide-react';
 
 // 테마별 스타일
 const communityThemeStyles = {
-    pop: {
-        // Neo/Pop 스타일 - 핑크, 시안 계열
-        categoryBadge: 'bg-pink-100 text-pink-700',
-        answerButton: 'bg-cyan-500 hover:bg-cyan-600 text-white',
-        redirectButton: 'bg-pink-500 hover:bg-pink-600 text-white',
-        hoverBg: 'hover:bg-pink-50',
-    },
-    classic: {
+    light: {
         categoryBadge: 'bg-indigo-100 text-indigo-700',
         answerButton: 'bg-emerald-500 hover:bg-emerald-600 text-white',
         redirectButton: 'bg-[#635bff] hover:bg-indigo-600 text-white',
@@ -31,19 +24,13 @@ const communityThemeStyles = {
         redirectButton: 'bg-[#635bff] hover:bg-indigo-600 text-white',
         hoverBg: 'hover:bg-gray-700',
     },
-    christmas: {
-        categoryBadge: 'bg-[#c41e3a] text-white',
-        answerButton: 'bg-[#1a5f2a] hover:bg-green-700 text-white',
-        redirectButton: 'bg-[#c41e3a] hover:bg-red-700 text-white',
-        hoverBg: 'hover:bg-red-50',
-    },
 };
 
 const InquiryAdmin = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const { theme } = useThemeStore();
-    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.pop;
+    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.light;
     const [inquiries, setInquiries] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);

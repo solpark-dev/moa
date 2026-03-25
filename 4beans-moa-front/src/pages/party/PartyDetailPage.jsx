@@ -42,17 +42,7 @@ import {
 
 // Party 페이지 테마 스타일 (PartyListPage와 통일)
 const partyThemeStyles = {
-  pop: {
-    accent: 'text-pink-500',
-    accentBg: 'bg-pink-500',
-    hoverAccentBg: 'hover:bg-pink-600',
-    badge: 'bg-pink-50 text-pink-600',
-    buttonShadow: 'shadow-pink-500/25',
-    accentColor: '#ec4899',
-    gradientFrom: 'from-pink-500',
-    gradientTo: 'to-pink-500', // 단색으로 변경 (그라데이션 없음)
-  },
-  classic: {
+  light: {
     accent: 'text-[#635bff]',
     accentBg: 'bg-[#635bff]',
     hoverAccentBg: 'hover:bg-[#5851e8]',
@@ -72,20 +62,6 @@ const partyThemeStyles = {
     gradientFrom: 'from-[#635bff]',
     gradientTo: 'to-[#00d4ff]',
   },
-  christmas: {
-    accent: 'text-[#c41e3a]',
-    accentBg: 'bg-[#c41e3a]',
-    hoverAccentBg: 'hover:bg-[#a91b32]',
-    greenAccent: 'text-[#1a5f2a]',
-    greenBg: 'bg-[#1a5f2a]',
-    badge: 'bg-red-50 text-[#c41e3a]',
-    greenBadge: 'bg-green-50 text-[#1a5f2a]',
-    buttonShadow: 'shadow-[#c41e3a]/25',
-    cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-    accentColor: '#c41e3a',
-    gradientFrom: 'from-[#c41e3a]',
-    gradientTo: 'to-[#a91b32]',
-  },
 };
 
 export default function PartyDetailPage() {
@@ -95,19 +71,11 @@ export default function PartyDetailPage() {
 
   // Theme (PartyListPage와 동일한 방식 사용)
   const { theme, setTheme } = useThemeStore();
-  const currentTheme = themeConfig[theme] || themeConfig.classic;
-  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.classic;
+  const currentTheme = themeConfig[theme] || themeConfig.light;
+  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.light;
 
   // 테마별 악센트 색상
-  const getAccentColor = () => {
-    switch (theme) {
-      case "christmas": return "#c41e3a"; // 헤더와 동일한 빨간색
-      case "pop": return "#ec4899";
-      case "dark": return "#635bff";
-      default: return "#635bff";
-    }
-  };
-  const accentColor = getAccentColor();
+  const accentColor = "#635bff";
 
   // Zustand Store
   const {

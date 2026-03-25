@@ -15,7 +15,7 @@ import { useThemeStore } from '@/store/themeStore';
 
 // 테마별 스타일
 const updateProductThemeStyles = {
-    pop: {
+    light: {
         primary: 'indigo',
         focusRing: 'focus:ring-indigo-500',
         dragBorder: 'border-indigo-500',
@@ -32,28 +32,11 @@ const updateProductThemeStyles = {
         hoverBorder: 'hover:border-indigo-400',
         spinnerBorder: 'border-indigo-500',
     },
-    christmas: {
-        primary: 'red',
-        focusRing: 'focus:ring-[#c41e3a]',
-        dragBorder: 'border-[#c41e3a]',
-        dragBg: 'bg-red-50',
-        dragOverlay: 'bg-[#c41e3a]/10',
-        dragShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        iconBg: 'bg-red-100',
-        iconColor: 'text-[#c41e3a]',
-        iconColorAlt: 'text-[#c41e3a]',
-        textAccent: 'text-[#c41e3a]',
-        textDark: 'text-[#c41e3a]',
-        buttonBg: 'bg-[#c41e3a] hover:bg-red-700',
-        buttonShadow: 'shadow-red-200 hover:shadow-red-300',
-        hoverBorder: 'hover:border-[#c41e3a]',
-        spinnerBorder: 'border-[#c41e3a]',
-    },
 };
 
 const UpdateProduct = () => {
     const { theme } = useThemeStore();
-    const themeStyle = updateProductThemeStyles[theme] || updateProductThemeStyles.pop;
+    const themeStyle = updateProductThemeStyles[theme] || updateProductThemeStyles.light;
     const { id } = useParams();
     const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
@@ -67,13 +50,9 @@ const UpdateProduct = () => {
 
     const getAccentColor = () => {
         switch (theme) {
-            case 'classic':
+            case 'light':
             case 'dark':
                 return '#635bff';
-            case 'pop':
-                return '#ec4899';
-            case 'christmas':
-                return '#c41e3a';
             default:
                 return '#635bff';
         }

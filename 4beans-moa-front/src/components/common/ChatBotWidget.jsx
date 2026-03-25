@@ -13,7 +13,7 @@ import { MessageCircle, ChevronUp, X, Bot, User, Send } from "lucide-react";
 
 // Theme color configurations for chatbot
 const themeColors = {
-  classic: {
+  light: {
     primary: "bg-[#635bff] hover:bg-[#5851e8]",
     header: "bg-[#635bff]",
     accent: "#635bff",
@@ -22,16 +22,6 @@ const themeColors = {
     primary: "bg-[#635bff] hover:bg-[#5851e8]",
     header: "bg-[#635bff]",
     accent: "#635bff",
-  },
-  pop: {
-    primary: "bg-pink-500 hover:bg-pink-600 border border-gray-200",
-    header: "bg-pink-500",
-    accent: "#ec4899",
-  },
-  christmas: {
-    primary: "bg-[#c41e3a] hover:bg-[#a51830]",
-    header: "bg-[#c41e3a]",
-    accent: "#c41e3a",
   },
 };
 
@@ -51,7 +41,7 @@ const ChatBotWidget = () => {
 
   const bottomRef = useRef(null);
 
-  const colors = themeColors[theme] || themeColors.classic;
+  const colors = themeColors[theme] || themeColors.light;
 
   // Hide chatbot on admin routes
   const isAdminRoute = location.pathname.startsWith('/admin');
@@ -95,11 +85,7 @@ const ChatBotWidget = () => {
             onClick={scrollToTop}
             className={`w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 ${theme === "dark"
               ? "bg-gray-800 text-white border border-gray-600 hover:bg-gray-700"
-              : theme === "pop"
-                ? "bg-white text-pink-500 border border-gray-200 hover:bg-pink-50"
-                : theme === "christmas"
-                  ? "bg-white text-[#c41e3a] border border-gray-200 hover:bg-red-50"
-                  : "bg-white text-[#635bff] border border-gray-200 hover:bg-indigo-50"
+              : "bg-white text-[#635bff] border border-gray-200 hover:bg-indigo-50"
               }`}
             title="맨 위로 이동"
           >

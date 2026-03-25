@@ -124,11 +124,7 @@ export default function MyWalletPage() {
             onClick={() => navigate("/mypage")}
             className={`flex items-center gap-2 mb-6 transition-colors group ${theme === "dark"
               ? "text-gray-400 hover:text-[#635bff]"
-              : theme === "pop"
-                ? "text-black hover:text-pink-500"
-                : theme === "christmas"
-                  ? "text-gray-500 hover:text-[#c41e3a]"
-                  : "text-gray-400 hover:text-[#635bff]"
+              : "text-gray-400 hover:text-[#635bff]"
               }`}
           >
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
@@ -140,13 +136,9 @@ export default function MyWalletPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 ${theme === "pop"
-              ? "bg-pink-100 text-pink-600 border border-pink-200"
-              : theme === "dark"
-                ? "bg-[#635bff]/20 text-[#635bff] border border-[#635bff]/30"
-                : theme === "christmas"
-                  ? "bg-[#c41e3a]/10 text-[#c41e3a] border border-[#c41e3a]/20"
-                  : "bg-[#635bff]/10 text-[#635bff]"
+            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 ${theme === "dark"
+              ? "bg-[#635bff]/20 text-[#635bff] border border-[#635bff]/30"
+              : "bg-[#635bff]/10 text-[#635bff]"
               }`}>
               <Sparkles className="w-4 h-4" />
               금융 관리
@@ -167,13 +159,9 @@ export default function MyWalletPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           onClick={() => goHistory("deposit")}
-          className={`group relative rounded-2xl p-6 text-white cursor-pointer overflow-hidden hover:scale-[1.02] transition-all duration-300 ${theme === "christmas"
-            ? "bg-gradient-to-br from-[#b91c1c] via-[#dc2626] to-[#ef4444] shadow-xl shadow-red-500/30"
-            : theme === "pop"
-              ? "bg-gradient-to-br from-pink-500 via-pink-600 to-yellow-400 shadow-xl shadow-pink-500/20"
-              : theme === "dark"
-                ? "bg-gradient-to-br from-[#635bff] via-[#4f46e5] to-[#00d4ff] shadow-xl shadow-[#635bff]/30"
-                : "bg-gradient-to-br from-[#635bff] via-[#5851e8] to-[#00d4ff] shadow-xl shadow-[#635bff]/20"
+          className={`group relative rounded-2xl p-6 text-white cursor-pointer overflow-hidden hover:scale-[1.02] transition-all duration-300 ${theme === "dark"
+            ? "bg-gradient-to-br from-[#635bff] via-[#4f46e5] to-[#00d4ff] shadow-xl shadow-[#635bff]/30"
+            : "bg-gradient-to-br from-[#635bff] via-[#5851e8] to-[#00d4ff] shadow-xl shadow-[#635bff]/20"
             }`}
         >
           <div className="relative z-10">
@@ -197,10 +185,8 @@ export default function MyWalletPage() {
             </div>
           </div>
           {/* Background Decoration */}
-          <div className={`absolute -right-8 -bottom-12 w-40 h-40 rounded-full opacity-20 blur-3xl group-hover:opacity-30 transition-opacity ${theme === "christmas" ? "bg-white" : theme === "pop" ? "bg-yellow-300" : "bg-[#00d4ff]"
-            }`}></div>
-          <div className={`absolute -left-8 -top-12 w-32 h-32 rounded-full opacity-10 blur-3xl ${theme === "christmas" ? "bg-yellow-300" : "bg-white"
-            }`}></div>
+          <div className="absolute -right-8 -bottom-12 w-40 h-40 rounded-full opacity-20 blur-3xl group-hover:opacity-30 transition-opacity bg-[#00d4ff]"></div>
+          <div className="absolute -left-8 -top-12 w-32 h-32 rounded-full opacity-10 blur-3xl bg-white"></div>
         </motion.div>
 
         {/* Account & Card Grid - Side by side on larger screens */}
@@ -231,13 +217,9 @@ export default function MyWalletPage() {
 
             <div
               onClick={handleAccountClick}
-              className={`group rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg ${theme === "pop"
-                ? "bg-white shadow-sm hover:shadow-md hover:bg-pink-50"
-                : theme === "dark"
-                  ? "bg-[#1E293B] hover:shadow-[#635bff]/10"
-                  : theme === "christmas"
-                    ? "bg-white shadow-sm hover:shadow-md"
-                    : "bg-white shadow-sm hover:shadow-md"
+              className={`group rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg ${theme === "dark"
+                ? "bg-[#1E293B] hover:shadow-[#635bff]/10"
+                : "bg-white shadow-sm hover:shadow-md"
                 }`}
             >
               {account ? (
@@ -289,46 +271,21 @@ export default function MyWalletPage() {
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
-                  <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
-                    ? "text-gray-400 group-hover:text-[#635bff]"
-                    : theme === "pop"
-                      ? "text-gray-400 group-hover:text-pink-500"
-                      : theme === "christmas"
-                        ? "text-gray-400 group-hover:text-[#c41e3a]"
-                        : "text-gray-400 group-hover:text-[#635bff]"
-                    }`} />
+                  <ChevronRight className="w-5 h-5 transition-colors text-gray-400 group-hover:text-[#635bff]" />
                 </div>
               ) : (
                 <div className={`flex items-center gap-4 transition-colors ${currentTheme.subtext}`}>
                   <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all ${theme === "dark"
                     ? "bg-gray-700 group-hover:bg-[#635bff]/20"
-                    : theme === "pop"
-                      ? "bg-gray-100 group-hover:bg-pink-100"
-                      : theme === "christmas"
-                        ? "bg-gray-100 group-hover:bg-[#c41e3a]/10"
-                        : "bg-gray-100 group-hover:bg-[#635bff]/10"
+                    : "bg-gray-100 group-hover:bg-[#635bff]/10"
                     }`}>
-                    <Plus className={`w-6 h-6 transition-colors ${theme === "dark"
-                      ? "text-gray-400 group-hover:text-[#635bff]"
-                      : theme === "pop"
-                        ? "text-gray-400 group-hover:text-pink-500"
-                        : theme === "christmas"
-                          ? "text-gray-400 group-hover:text-[#c41e3a]"
-                          : "text-gray-400 group-hover:text-[#635bff]"
-                      }`} />
+                    <Plus className="w-6 h-6 transition-colors text-gray-400 group-hover:text-[#635bff]" />
                   </div>
                   <div className="flex-1">
                     <div className={`font-bold text-lg ${currentTheme.text}`}>계좌 등록하기</div>
                     <div className={`text-sm ${currentTheme.subtext}`}>클릭하여 등록</div>
                   </div>
-                  <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
-                    ? "text-gray-400 group-hover:text-[#635bff]"
-                    : theme === "pop"
-                      ? "text-gray-400 group-hover:text-pink-500"
-                      : theme === "christmas"
-                        ? "text-gray-400 group-hover:text-[#c41e3a]"
-                        : "text-gray-400 group-hover:text-[#635bff]"
-                    }`} />
+                  <ChevronRight className="w-5 h-5 transition-colors text-gray-400 group-hover:text-[#635bff]" />
                 </div>
               )}
             </div>
@@ -360,13 +317,9 @@ export default function MyWalletPage() {
 
             <div
               onClick={handleCardClick}
-              className={`group rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg ${theme === "pop"
-                ? "bg-white shadow-sm hover:shadow-md hover:bg-pink-50"
-                : theme === "dark"
-                  ? "bg-[#1E293B] hover:shadow-[#635bff]/10"
-                  : theme === "christmas"
-                    ? "bg-white shadow-sm hover:shadow-md"
-                    : "bg-white shadow-sm hover:shadow-md"
+              className={`group rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg ${theme === "dark"
+                ? "bg-[#1E293B] hover:shadow-[#635bff]/10"
+                : "bg-white shadow-sm hover:shadow-md"
                 }`}
             >
               {card ? (
@@ -418,46 +371,21 @@ export default function MyWalletPage() {
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
-                  <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
-                    ? "text-gray-400 group-hover:text-[#635bff]"
-                    : theme === "pop"
-                      ? "text-gray-400 group-hover:text-pink-500"
-                      : theme === "christmas"
-                        ? "text-gray-400 group-hover:text-[#c41e3a]"
-                        : "text-gray-400 group-hover:text-[#635bff]"
-                    }`} />
+                  <ChevronRight className="w-5 h-5 transition-colors text-gray-400 group-hover:text-[#635bff]" />
                 </div>
               ) : (
                 <div className={`flex items-center gap-4 transition-colors ${currentTheme.subtext}`}>
                   <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all ${theme === "dark"
                     ? "bg-gray-700 group-hover:bg-[#635bff]/20"
-                    : theme === "pop"
-                      ? "bg-gray-100 group-hover:bg-pink-100"
-                      : theme === "christmas"
-                        ? "bg-gray-100 group-hover:bg-[#c41e3a]/10"
-                        : "bg-gray-100 group-hover:bg-[#635bff]/10"
+                    : "bg-gray-100 group-hover:bg-[#635bff]/10"
                     }`}>
-                    <Plus className={`w-6 h-6 transition-colors ${theme === "dark"
-                      ? "text-gray-400 group-hover:text-[#635bff]"
-                      : theme === "pop"
-                        ? "text-gray-400 group-hover:text-pink-500"
-                        : theme === "christmas"
-                          ? "text-gray-400 group-hover:text-[#c41e3a]"
-                          : "text-gray-400 group-hover:text-[#635bff]"
-                      }`} />
+                    <Plus className="w-6 h-6 transition-colors text-gray-400 group-hover:text-[#635bff]" />
                   </div>
                   <div className="flex-1">
                     <div className={`font-bold text-lg ${currentTheme.text}`}>카드 등록하기</div>
                     <div className={`text-sm ${currentTheme.subtext}`}>클릭하여 등록</div>
                   </div>
-                  <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
-                    ? "text-gray-400 group-hover:text-[#635bff]"
-                    : theme === "pop"
-                      ? "text-gray-400 group-hover:text-pink-500"
-                      : theme === "christmas"
-                        ? "text-gray-400 group-hover:text-[#c41e3a]"
-                        : "text-gray-400 group-hover:text-[#635bff]"
-                    }`} />
+                  <ChevronRight className="w-5 h-5 transition-colors text-gray-400 group-hover:text-[#635bff]" />
                 </div>
               )}
             </div>
@@ -473,11 +401,7 @@ export default function MyWalletPage() {
         >
           <div className={`rounded-2xl p-4 ${theme === "dark"
             ? "bg-[#635bff]/10"
-            : theme === "pop"
-              ? "bg-pink-100"
-              : theme === "christmas"
-                ? "bg-[#c41e3a]/5"
-                : "bg-gradient-to-br from-[#635bff]/5 to-[#635bff]/10"
+            : "bg-gradient-to-br from-[#635bff]/5 to-[#635bff]/10"
             }`}>
             <ShieldCheck className="w-5 h-5 mb-2" style={{ color: currentTheme.accent }} />
             <p className={`text-xs mb-1 ${currentTheme.subtext}`}>안전 보증금</p>
@@ -485,11 +409,7 @@ export default function MyWalletPage() {
           </div>
           <div className={`rounded-2xl p-4 ${theme === "dark"
             ? "bg-[#635bff]/10"
-            : theme === "pop"
-              ? "bg-yellow-100"
-              : theme === "christmas"
-                ? "bg-[#0a6638]/5"
-                : "bg-gradient-to-br from-[#635bff]/5 to-[#635bff]/10"
+            : "bg-gradient-to-br from-[#635bff]/5 to-[#635bff]/10"
             }`}>
             <Zap className="w-5 h-5 mb-2" style={{ color: currentTheme.accent }} />
             <p className={`text-xs mb-1 ${currentTheme.subtext}`}>자동 결제</p>

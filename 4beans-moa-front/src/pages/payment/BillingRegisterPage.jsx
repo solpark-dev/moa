@@ -53,13 +53,9 @@ export default function BillingRegisterPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`rounded-2xl shadow-lg p-10 ${theme === "pop"
-              ? "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-              : theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : theme === "christmas"
-                  ? "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                  : "bg-white/90 backdrop-blur-sm shadow-[#635bff]/10 border border-gray-100"
+          className={`rounded-2xl shadow-lg p-10 ${theme === "dark"
+              ? "bg-[#1E293B] border border-gray-700"
+              : "bg-white/90 backdrop-blur-sm shadow-[#635bff]/10 border border-gray-100"
             }`}
         >
           <div className="text-center">
@@ -68,7 +64,7 @@ export default function BillingRegisterPage() {
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               className="mx-auto mb-6 w-16 h-16 flex items-center justify-center"
             >
-              <Loader2 className={`w-12 h-12 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+              <Loader2 className="w-12 h-12 text-[#635bff]" />
             </motion.div>
             <h2 className={`text-2xl font-bold mb-2 ${currentTheme.text}`}>
               {localStorage.getItem("billingRegistrationReason") === "party_join"
@@ -80,30 +76,25 @@ export default function BillingRegisterPage() {
                 ? "파티 가입 완료를 위해 카드를 등록해주세요"
                 : "월 구독료 자동 결제를 위해 카드를 등록합니다"}
             </p>
-            <div className={`rounded-xl p-4 text-left ${theme === "pop"
-                ? "bg-pink-100 border-2 border-black"
-                : theme === "dark"
-                  ? "bg-[#635bff]/10 border border-[#635bff]/20"
-                  : theme === "christmas"
-                    ? "bg-red-50 border border-gray-200"
-                    : "bg-[#635bff]/5 border border-[#635bff]/10"
+            <div className={`rounded-xl p-4 text-left ${theme === "dark"
+                ? "bg-[#635bff]/10 border border-[#635bff]/20"
+                : "bg-[#635bff]/5 border border-[#635bff]/10"
               }`}>
-              <div className={`flex items-center gap-2 font-semibold mb-3 ${theme === "pop" ? "text-black" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"
-                }`}>
+              <div className="flex items-center gap-2 font-semibold mb-3 text-[#635bff]">
                 <Info className="w-4 h-4" />
                 안내사항
               </div>
               <ul className={`text-sm space-y-2 ${currentTheme.subtext}`}>
                 <li className="flex items-start gap-2">
-                  <CreditCard className={`w-4 h-4 mt-0.5 flex-shrink-0 ${theme === "pop" ? "text-cyan-500" : theme === "christmas" ? "text-green-800" : "text-[#00d4ff]"}`} />
+                  <CreditCard className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#00d4ff]" />
                   매월 자동으로 구독료가 결제됩니다
                 </li>
                 <li className="flex items-start gap-2">
-                  <CreditCard className={`w-4 h-4 mt-0.5 flex-shrink-0 ${theme === "pop" ? "text-cyan-500" : theme === "christmas" ? "text-green-800" : "text-[#00d4ff]"}`} />
+                  <CreditCard className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#00d4ff]" />
                   결제일은 파티 설정에 따라 다릅니다
                 </li>
                 <li className="flex items-start gap-2">
-                  <CreditCard className={`w-4 h-4 mt-0.5 flex-shrink-0 ${theme === "pop" ? "text-cyan-500" : theme === "christmas" ? "text-green-800" : "text-[#00d4ff]"}`} />
+                  <CreditCard className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#00d4ff]" />
                   언제든지 카드 변경이 가능합니다
                 </li>
               </ul>

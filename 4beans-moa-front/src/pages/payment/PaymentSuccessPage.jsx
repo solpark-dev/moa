@@ -16,8 +16,6 @@ export default function PaymentSuccessPage() {
     // 테마별 악센트 색상
     const getAccentColor = () => {
         switch (theme) {
-            case "christmas": return "#c41e3a";
-            case "pop": return "#ec4899";
             case "dark": return "#635bff";
             default: return "#635bff";
         }
@@ -141,13 +139,9 @@ export default function PaymentSuccessPage() {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`p-10 rounded-2xl text-center relative z-10 max-w-md w-full mx-4 ${theme === "pop"
-                    ? "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                    : theme === "dark"
-                        ? "bg-[#1E293B] border border-gray-700 shadow-lg"
-                        : theme === "christmas"
-                            ? "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                            : "bg-white/90 backdrop-blur-sm shadow-lg shadow-[#635bff]/10 border border-gray-100"
+                className={`p-10 rounded-2xl text-center relative z-10 max-w-md w-full mx-4 ${theme === "dark"
+                    ? "bg-[#1E293B] border border-gray-700 shadow-lg"
+                    : "bg-white/90 backdrop-blur-sm shadow-lg shadow-[#635bff]/10 border border-gray-100"
                     }`}
             >
                 {status === "processing" && (
@@ -193,12 +187,7 @@ export default function PaymentSuccessPage() {
                             whileHover={{ scale: 1.02, y: -1 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => navigate("/")}
-                            className={`inline-flex items-center gap-2 px-6 py-3 text-white rounded-full font-semibold shadow-lg transition-colors duration-200 ${theme === "pop"
-                                ? "bg-pink-500 hover:bg-pink-600 shadow-pink-500/25"
-                                : theme === "christmas"
-                                    ? "bg-[#c41e3a] hover:bg-[#a51830] shadow-[#c41e3a]/25"
-                                    : "bg-[#635bff] hover:bg-[#5851e8] shadow-[#635bff]/25"
-                                }`}
+                            className="inline-flex items-center gap-2 px-6 py-3 text-white rounded-full font-semibold shadow-lg transition-colors duration-200 bg-[#635bff] hover:bg-[#5851e8] shadow-[#635bff]/25"
                         >
                             <Home className="w-5 h-5" />
                             메인으로 돌아가기

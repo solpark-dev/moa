@@ -15,12 +15,8 @@ export default function ServiceTypeFilter({ selectedProductId, onSelect }) {
 
     const getSelectStyle = () => {
         switch (theme) {
-            case 'pop':
-                return 'bg-white text-black border border-gray-200 hover:bg-gray-50 focus:ring-pink-500/20';
             case 'dark':
                 return 'bg-[#0F172A] text-white border border-gray-700 hover:bg-gray-800 focus:ring-[#635bff]/20';
-            case 'christmas':
-                return 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#c41e3a]/20';
             default:
                 return 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#635bff]/20';
         }

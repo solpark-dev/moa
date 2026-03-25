@@ -39,8 +39,8 @@ function Sticker({ children, color = "bg-transparent", className = "" }) {
   return <div className={`${color} ${className}`}>{children}</div>;
 }
 
-function NavPill({ to, icon: Icon, children, active, theme = "classic" }) {
-  const style = navPillStyles[theme] || navPillStyles.classic;
+function NavPill({ to, icon: Icon, children, active, theme = "light" }) {
+  const style = navPillStyles[theme] || navPillStyles.light;
 
   return (
     <Link
@@ -76,7 +76,7 @@ export default function HeaderView({
 }) {
   const location = useLocation();
   const { theme: currentTheme } = useThemeStore();
-  const themeStyle = headerThemes[currentTheme] || headerThemes.classic;
+  const themeStyle = headerThemes[currentTheme] || headerThemes.light;
 
   // Scroll detection for floating header background
   const [isScrolled, setIsScrolled] = useState(false);
@@ -322,8 +322,6 @@ export default function HeaderView({
                     className={`${
                       currentTheme === "dark"
                         ? "data-[state=checked]:bg-[#635bff] data-[state=unchecked]:bg-gray-600"
-                        : currentTheme === "christmas"
-                        ? "data-[state=checked]:bg-[#c41e3a] data-[state=unchecked]:bg-gray-300"
                         : "data-[state=checked]:bg-black data-[state=unchecked]:bg-slate-300"
                     }`}
                   />
@@ -422,7 +420,7 @@ export default function HeaderView({
                         className={`${themeStyle.menuBg} ${
                           themeStyle.menuBorder
                         } ${
-                          currentTheme === "pop" ? "" : "shadow-lg"
+                          "shadow-lg"
                         } w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200`}
                       >
                         <Menu className={`w-6 h-6 ${themeStyle.menuText}`} />
@@ -541,8 +539,6 @@ export default function HeaderView({
                               className={`${
                                 currentTheme === "dark"
                                   ? "data-[state=checked]:bg-[#635bff] data-[state=unchecked]:bg-gray-600"
-                                  : currentTheme === "christmas"
-                                  ? "data-[state=checked]:bg-[#c41e3a] data-[state=unchecked]:bg-gray-300"
                                   : "data-[state=checked]:bg-black data-[state=unchecked]:bg-slate-300"
                               }`}
                             />
@@ -614,7 +610,7 @@ export default function HeaderView({
               <Link to="/login">
                 <div
                   className={`${themeStyle.menuBg} ${themeStyle.menuBorder} ${
-                    currentTheme === "pop" ? "" : "shadow-lg"
+                    "shadow-lg"
                   } px-5 py-2 rounded-2xl transition-all duration-200`}
                 >
                   <span className={`font-black ${themeStyle.menuText}`}>

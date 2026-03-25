@@ -14,21 +14,7 @@ import { withdrawUser } from "@/api/userApi";
 
 // 테마별 스타일
 const dialogThemeStyles = {
-  pop: {
-    content: "bg-white border border-gray-200",
-    title: "text-black",
-    description: "text-gray-600",
-    label: "text-black",
-    radioBox: "border-gray-200 bg-white",
-    radioBoxSelected: "border-pink-500 bg-pink-50",
-    radioAccent: "accent-pink-500",
-    textarea: "bg-white border-gray-200 text-black",
-    warningBg: "bg-amber-50 border-amber-200",
-    warningText: "text-amber-800",
-    primaryBtn: "bg-pink-500 hover:bg-pink-600 text-white",
-    secondaryBtn: "bg-white border-gray-200 text-black hover:bg-slate-50",
-  },
-  classic: {
+  light: {
     content: "bg-white border border-gray-200",
     title: "text-black",
     description: "text-gray-600",
@@ -56,20 +42,6 @@ const dialogThemeStyles = {
     primaryBtn: "bg-red-600 hover:bg-red-700 text-white",
     secondaryBtn: "bg-[#0F172A] border-gray-700 text-gray-200 hover:bg-gray-800",
   },
-  christmas: {
-    content: "bg-white border border-gray-200",
-    title: "text-black",
-    description: "text-gray-600",
-    label: "text-black",
-    radioBox: "border-gray-200 bg-white",
-    radioBoxSelected: "border-[#c41e3a] bg-[#c41e3a]/5",
-    radioAccent: "accent-[#c41e3a]",
-    textarea: "bg-white border-gray-200 text-black",
-    warningBg: "bg-amber-50 border-amber-200",
-    warningText: "text-amber-800",
-    primaryBtn: "bg-[#c41e3a] hover:bg-red-700 text-white",
-    secondaryBtn: "bg-white border-gray-200 text-black hover:bg-red-50",
-  },
 };
 
 const REASONS = [
@@ -81,7 +53,7 @@ const REASONS = [
 
 export function DeleteUserDialog({ open, onOpenChange }) {
   const { theme } = useThemeStore();
-  const themeStyle = dialogThemeStyles[theme] || dialogThemeStyles.pop;
+  const themeStyle = dialogThemeStyles[theme] || dialogThemeStyles.light;
 
   const [deleteReason, setDeleteReason] = useState("");
   const [deleteDetail, setDeleteDetail] = useState("");

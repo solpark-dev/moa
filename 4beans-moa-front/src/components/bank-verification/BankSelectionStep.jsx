@@ -14,7 +14,7 @@ import { requestVerification } from '@/api/bankAccountApi';
  * Step 1: 은행 및 계좌 정보 입력
  * CSS 변수 기반 테마 적용
  */
-export default function BankSelectionStep({ theme = 'classic' }) {
+export default function BankSelectionStep({ theme = 'light' }) {
     const {
         formData,
         setFormData,

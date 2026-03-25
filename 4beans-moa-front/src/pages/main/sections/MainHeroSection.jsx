@@ -18,7 +18,7 @@ import { getProductIconUrl } from "@/utils/imageUtils";
 // 테마별 히어로 섹션 스타일
 // ============================================
 const heroThemeStyles = {
-  pop: {
+  light: {
     confettiColors: ["bg-pink-400", "bg-cyan-400", "bg-lime-400", "bg-yellow-400", "bg-pink-500", "bg-blue-400", "bg-purple-400", "bg-cyan-300", "bg-orange-400", "bg-lime-300"],
     badgeBg: "bg-white",
     badgeText: "text-pink-500",
@@ -50,29 +50,13 @@ const heroThemeStyles = {
     subtext: "text-gray-400",
     searchResultHover: "hover:bg-[#2D3B4F]",
   },
-  christmas: {
-    confettiColors: ["bg-[#c41e3a]", "bg-[#1a5f2a]", "bg-white", "bg-red-300", "bg-green-300", "bg-[#c41e3a]", "bg-[#1a5f2a]", "bg-white", "bg-red-200", "bg-green-200"],
-    badgeBg: "bg-white",
-    badgeText: "text-[#c41e3a]",
-    headlineAccent1: "text-[#1a5f2a]",
-    headlineAccent2: "text-[#c41e3a]",
-    primaryBtn: "bg-[#c41e3a] text-white",
-    primaryBtnHover: "hover:bg-[#a51830] hover:shadow-[6px_6px_16px_rgba(196,30,58,0.2)]",
-    secondaryBtn: "bg-[#1a5f2a] text-white",
-    secondaryBtnHover: "hover:bg-[#145222] hover:shadow-[6px_6px_16px_rgba(26,95,42,0.2)]",
-    stickerLeft: "bg-[#1a5f2a]",
-    stickerRight: "bg-[#c41e3a]",
-    hotPartyBadge: "bg-[#c41e3a]",
-    subtext: "text-gray-700",
-    searchResultHover: "hover:bg-red-50",
-  },
 };
 
 // ============================================
 // Confetti Component - 둥둥 떠다니는 종이 조각
 // ============================================
 const Confetti = ({ themeStyle }) => {
-  const colors = themeStyle?.confettiColors || heroThemeStyles.default.confettiColors;
+  const colors = themeStyle?.confettiColors || heroThemeStyles.light.confettiColors;
 
   const confettiPieces = [
     { color: colors[0], size: "w-4 h-4", left: "5%", delay: 0, duration: 8, rotate: 45 },
@@ -116,7 +100,7 @@ export default function MainHeroSection({ parties, products = [] }) {
 
   // 테마 설정
   const { theme } = useThemeStore();
-  const themeStyle = heroThemeStyles[theme] || heroThemeStyles.pop;
+  const themeStyle = heroThemeStyles[theme] || heroThemeStyles.light;
   const isDark = theme === "dark";
 
   // 로그인 상태 확인
@@ -248,7 +232,7 @@ export default function MainHeroSection({ parties, products = [] }) {
             transition={{ duration: 4, repeat: Infinity }}
           >
             <NeoCard color={themeStyle.stickerLeft} rotate={-8} className="px-2 py-1 md:px-3 rounded-lg">
-              <span className="font-bold text-xs md:text-sm">{theme === "christmas" ? "🎄" : "NEW!"}</span>
+              <span className="font-bold text-xs md:text-sm">NEW!</span>
             </NeoCard>
           </motion.div>
         </motion.div>
@@ -265,7 +249,7 @@ export default function MainHeroSection({ parties, products = [] }) {
             transition={{ duration: 3, repeat: Infinity }}
           >
             <NeoCard color={themeStyle.stickerRight} rotate={12} className="px-3 py-1 md:px-4 md:py-2 rounded-xl">
-              <span className={`font-black text-sm md:text-lg ${theme === "christmas" ? "text-white" : ""}`}>{theme === "christmas" ? "🎅 75% OFF!" : "75% OFF!"}</span>
+              <span className="font-black text-sm md:text-lg">75% OFF!</span>
             </NeoCard>
           </motion.div>
         </motion.div>
@@ -285,7 +269,7 @@ export default function MainHeroSection({ parties, products = [] }) {
             <NeoCard color={themeStyle.badgeBg} rotate={1} className="inline-block px-3 py-1.5 sm:px-5 sm:py-2 rounded-lg sm:rounded-xl mb-4 sm:mb-8">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Sparkles size={14} className={`${themeStyle.badgeText} sm:w-4 sm:h-4`} />
-                <span className="font-bold text-xs sm:text-sm md:text-base">{theme === "christmas" ? "🎁 구독료, 크리스마스 특별 할인!" : "구독료, 이제 똑똑하게 나눠요"}</span>
+                <span className="font-bold text-xs sm:text-sm md:text-base">구독료, 이제 똑똑하게 나눠요</span>
               </div>
             </NeoCard>
           </motion.div>
@@ -299,13 +283,13 @@ export default function MainHeroSection({ parties, products = [] }) {
             <span className="block transform -rotate-1">SHARE</span>
             <span
               className="block transform rotate-1 [text-shadow:2px_2px_0px_rgba(0,0,0,1)] sm:[text-shadow:3px_3px_0px_rgba(0,0,0,1)] md:[text-shadow:4px_4px_0px_rgba(0,0,0,1)]"
-              style={theme !== "pop" ? { textShadow: 'none' } : {}}
+              style={{ textShadow: 'none' }}
             >
               <span className={themeStyle.headlineAccent1}>YOUR</span>
             </span>
             <span
               className={`block transform -rotate-1 ${themeStyle.headlineAccent2} [text-shadow:2px_2px_0px_rgba(0,0,0,1)] sm:[text-shadow:3px_3px_0px_rgba(0,0,0,1)] md:[text-shadow:4px_4px_0px_rgba(0,0,0,1)]`}
-              style={theme !== "pop" ? { textShadow: 'none' } : {}}
+              style={{ textShadow: 'none' }}
             >
               OTT!
             </span>
@@ -373,7 +357,7 @@ export default function MainHeroSection({ parties, products = [] }) {
           className="text-center mb-8 md:mb-12 z-20"
         >
           <NeoCard color={themeStyle.hotPartyBadge} rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-4">
-            <span className={`text-xl font-black ${theme === "christmas" ? "text-white" : ""}`}>{theme === "christmas" ? "🎄 HOT PARTY! 🎅" : "HOT PARTY! 🔥"}</span>
+            <span className="text-xl font-black">HOT PARTY! 🔥</span>
           </NeoCard>
           <h2 className={`text-3xl md:text-4xl lg:text-5xl font-black ${isDark ? 'text-white' : ''}`}>
             지금 인기 있는 파티
@@ -448,7 +432,7 @@ export default function MainHeroSection({ parties, products = [] }) {
               whileTap={{ scale: 0.95 }}
               className={`px-6 py-3 ${themeStyle.primaryBtn} font-black rounded-full border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] ${themeStyle.primaryBtnHover} transition-all`}
             >
-              {theme === "christmas" ? "🎄 파티 전체보기" : "🍿 파티 전체보기"}
+              🍿 파티 전체보기
             </motion.div>
           </Link>
         </motion.div>
@@ -460,8 +444,8 @@ export default function MainHeroSection({ parties, products = [] }) {
 // 서비스 카드 컴포넌트
 function ServiceCard({ card, theme, themeStyle, user, navigate }) {
   const accentColor = themeStyle?.headlineAccent2 || "text-pink-500";
-  const badgeBg = theme === "christmas" ? "bg-[#1a5f2a]" : "bg-lime-400";
-  const badgeText = theme === "christmas" ? "text-white" : "text-black";
+  const badgeBg = "bg-lime-400";
+  const badgeText = "text-black";
   const isDark = theme === "dark";
   const cardBg = isDark ? "bg-[#1E293B]" : "bg-white";
   const subTextColor = isDark ? "text-gray-400" : "text-gray-500";

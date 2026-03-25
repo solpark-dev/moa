@@ -35,13 +35,9 @@ export default function CompletionStep() {
             const duration = 2000;
             const end = Date.now() + duration;
 
-            const colors = theme === 'christmas'
-                ? ['#c41e3a', '#2d5a27', '#ffffff', '#f5c542']
-                : theme === 'dark'
-                    ? ['#635bff', '#00d4ff', '#4ade80', '#ffffff']
-                    : theme === 'pop'
-                        ? ['#ec4899', '#f97316', '#22c55e', '#3b82f6']
-                        : ['#f97316', '#fb923c', '#fdba74', '#22c55e', '#4ade80'];
+            const colors = theme === 'dark'
+                ? ['#635bff', '#00d4ff', '#4ade80', '#ffffff']
+                : ['#f97316', '#fb923c', '#fdba74', '#22c55e', '#4ade80'];
 
             (function frame() {
                 confetti({

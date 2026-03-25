@@ -19,19 +19,7 @@ import { useAuthStore } from "@/store/authStore";
 
 // 테마별 스타일
 const dialogThemeStyles = {
-  pop: {
-    content: "bg-white border border-gray-200",
-    title: "text-black",
-    label: "text-black",
-    input: "bg-white border-gray-200 text-black",
-    inputReadonly: "bg-slate-100 border-gray-200 text-gray-700",
-    switchBg: "data-[state=checked]:bg-pink-500",
-    primaryBtn: "bg-pink-500 hover:bg-pink-600 text-white",
-    secondaryBtn: "bg-white border-gray-200 text-black hover:bg-slate-50",
-    sectionBg: "bg-slate-100 border-gray-200",
-    mutedText: "text-gray-600",
-  },
-  classic: {
+  light: {
     content: "bg-white border border-gray-200",
     title: "text-black",
     label: "text-black",
@@ -55,23 +43,11 @@ const dialogThemeStyles = {
     sectionBg: "bg-[#0F172A] border-gray-700",
     mutedText: "text-gray-400",
   },
-  christmas: {
-    content: "bg-white border border-gray-200",
-    title: "text-black",
-    label: "text-black",
-    input: "bg-white border-gray-200 text-black",
-    inputReadonly: "bg-slate-100 border-gray-200 text-gray-700",
-    switchBg: "data-[state=checked]:bg-[#c41e3a]",
-    primaryBtn: "bg-[#c41e3a] hover:bg-red-700 text-white",
-    secondaryBtn: "bg-white border-gray-200 text-black hover:bg-red-50",
-    sectionBg: "bg-slate-100 border-gray-200",
-    mutedText: "text-gray-600",
-  },
 };
 
 export function UpdateUserDialog({ open, onOpenChange }) {
   const { theme } = useThemeStore();
-  const themeStyle = dialogThemeStyles[theme] || dialogThemeStyles.pop;
+  const themeStyle = dialogThemeStyles[theme] || dialogThemeStyles.light;
   const { user, setUser } = useAuthStore();
   
   const fileRef = useRef(null);

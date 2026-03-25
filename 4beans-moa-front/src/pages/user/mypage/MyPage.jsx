@@ -12,23 +12,12 @@ import { Separator } from "@/components/ui/separator";
 
 // 테마별 스타일
 const myPageThemeStyles = {
-  pop: {
-    // Neo/Pop 스타일 - 핑크, 시안 계열
-    accent: "text-pink-500",
-    accentBg: "bg-pink-500",
-    buttonBg: "bg-pink-500 hover:bg-pink-600",
-    accentText: "text-pink-500",
-    cyanText: "text-cyan-500",
-    bg: "bg-transparent",
-    cardBg: "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
-    text: "text-slate-900",
-  },
-  christmas: {
-    accent: "text-[#c41e3a]",
-    accentBg: "bg-[#c41e3a]",
-    buttonBg: "bg-[#c41e3a] hover:bg-red-700",
-    accentText: "text-[#c41e3a]",
-    cyanText: "text-[#1a5f2a]",
+  light: {
+    accent: "text-[#635bff]",
+    accentBg: "bg-[#635bff]",
+    buttonBg: "bg-[#635bff] hover:bg-[#5851e8]",
+    accentText: "text-[#635bff]",
+    cyanText: "text-[#00d4ff]",
     bg: "bg-transparent",
     cardBg: "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
     text: "text-slate-900",
@@ -42,16 +31,6 @@ const myPageThemeStyles = {
     bg: "bg-transparent",
     cardBg: "bg-[#1E293B]/90 backdrop-blur-sm border border-gray-700 shadow-lg",
     text: "text-white",
-  },
-  classic: {
-    accent: "text-[#635bff]",
-    accentBg: "bg-[#635bff]",
-    buttonBg: "bg-[#635bff] hover:bg-[#5851e8]",
-    accentText: "text-[#635bff]",
-    cyanText: "text-[#00d4ff]",
-    bg: "bg-transparent",
-    cardBg: "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
-    text: "text-slate-900",
   },
 };
 
@@ -71,7 +50,7 @@ const HERO_WRAPPER = "relative mt-6 sm:mt-10 overflow-hidden";
 
 export default function MyPage() {
   const { theme } = useThemeStore();
-  const themeStyle = myPageThemeStyles[theme] || myPageThemeStyles.pop;
+  const themeStyle = myPageThemeStyles[theme] || myPageThemeStyles.light;
   const { state, actions } = useMyPage();
 
   const {

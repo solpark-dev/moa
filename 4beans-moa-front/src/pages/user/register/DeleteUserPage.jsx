@@ -99,7 +99,7 @@ export default function DeleteUserPage() {
       <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
 
       {/* Grid Pattern (non-dark themes) */}
-      {theme !== 'dark' && theme !== 'christmas' && (
+      {theme !== 'dark' && (
         <div
           className="fixed inset-0 pointer-events-none opacity-[0.035]"
           style={{
@@ -141,7 +141,7 @@ export default function DeleteUserPage() {
             >
               <span className={`inline-flex items-center gap-2 font-black ${themeClasses.text.primary}`}>
                 <AlertTriangle className="w-5 h-5" />
-                {theme === 'christmas' ? '🎄 회원 탈퇴' : '회원 탈퇴'}
+                회원 탈퇴
               </span>
             </Sticker>
 
@@ -153,11 +153,11 @@ export default function DeleteUserPage() {
             >
               <span className="block">DELETE</span>
               <span className="block">
-                <span className={`text-[var(--theme-primary)] ${theme === 'pop' ? 'drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]' : ''}`}>
+                <span className={`text-[var(--theme-primary)] `}>
                   YOUR
                 </span>
               </span>
-              <span className={`block text-[var(--theme-primary)] ${theme === 'pop' ? 'drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]' : ''}`}>
+              <span className={`block text-[var(--theme-primary)] `}>
                 ACCOUNT!
               </span>
             </motion.h1>

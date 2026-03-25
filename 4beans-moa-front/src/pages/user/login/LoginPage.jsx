@@ -55,7 +55,7 @@ export default function LoginPage() {
           <Card className={`${themeClasses.card.elevated} overflow-hidden`}>
             <CardHeader className={`px-6 sm:px-10 pt-8 sm:pt-10 pb-4 border-b border-[var(--theme-border-light)]`}>
               <CardTitle className={`text-xl sm:text-2xl font-black tracking-tight text-[var(--theme-primary)] text-center`}>
-                {theme === 'christmas' ? '🎄 로그인' : '로그인'}
+                로그인
               </CardTitle>
             </CardHeader>
 

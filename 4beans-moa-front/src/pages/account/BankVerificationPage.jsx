@@ -71,7 +71,7 @@ export default function BankVerificationPage() {
     const stepLabels = ['계좌 입력', '확인 중', '인증', '완료'];
 
     return (
-        <div className={`min-h-[calc(100vh-160px)] py-8 px-4 transition-colors duration-300 ${theme === "dark" ? "bg-[#0B1120]" : theme === "pop" ? "bg-slate-50" : "bg-gradient-to-b from-slate-50 to-white"
+        <div className={`min-h-[calc(100vh-160px)] py-8 px-4 transition-colors duration-300 ${theme === "dark" ? "bg-[#0B1120]" : "bg-gradient-to-b from-slate-50 to-white"
             }`}>
             {/* Theme Switcher */}
             <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
@@ -82,11 +82,7 @@ export default function BankVerificationPage() {
                     onClick={() => navigate(-1)}
                     className={`flex items-center gap-2 mb-6 transition-colors group ${theme === "dark"
                         ? "text-gray-400 hover:text-[#635bff]"
-                        : theme === "pop"
-                            ? "text-black hover:text-pink-500"
-                            : theme === "christmas"
-                                ? "text-gray-500 hover:text-[#c41e3a]"
-                                : "text-gray-400 hover:text-[#635bff]"
+                        : "text-gray-400 hover:text-[#635bff]"
                         }`}
                 >
                     <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
@@ -105,11 +101,7 @@ export default function BankVerificationPage() {
                                         ${index + 1 <= getStepNumber()
                                             ? theme === "dark"
                                                 ? "bg-[#635bff] text-white"
-                                                : theme === "pop"
-                                                    ? "bg-pink-500 text-white"
-                                                    : theme === "christmas"
-                                                        ? "bg-[#c41e3a] text-white"
-                                                        : "bg-[#635bff] text-white"
+                                                : "bg-[#635bff] text-white"
                                             : theme === "dark"
                                                 ? "bg-gray-700 text-gray-400"
                                                 : "bg-slate-200 text-slate-500"
@@ -129,11 +121,7 @@ export default function BankVerificationPage() {
                                     ${index + 1 <= getStepNumber()
                                         ? theme === "dark"
                                             ? "text-[#635bff] font-medium"
-                                            : theme === "pop"
-                                                ? "text-pink-600 font-medium"
-                                                : theme === "christmas"
-                                                    ? "text-[#c41e3a] font-medium"
-                                                    : "text-[#635bff] font-medium"
+                                            : "text-[#635bff] font-medium"
                                         : theme === "dark"
                                             ? "text-gray-500"
                                             : "text-slate-400"
@@ -150,11 +138,7 @@ export default function BankVerificationPage() {
                         <motion.div
                             className={`absolute top-0 left-0 h-full rounded-full ${theme === "dark"
                                 ? "bg-[#635bff]"
-                                : theme === "pop"
-                                    ? "bg-pink-500"
-                                    : theme === "christmas"
-                                        ? "bg-[#c41e3a]"
-                                        : "bg-[#635bff]"
+                                : "bg-[#635bff]"
                                 }`}
                             initial={{ width: '0%' }}
                             animate={{ width: `${((getStepNumber() - 1) / 3) * 100}%` }}

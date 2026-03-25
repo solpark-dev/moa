@@ -25,7 +25,7 @@ export default function FindIdPage() {
 
       <div className="flex flex-col items-center pt-28 pb-20">
         <PageTitle
-          title={theme === 'christmas' ? '🎄 아이디 찾기' : '아이디 찾기'}
+          title="아이디 찾기"
           subtitle="가입 시 등록한 휴대폰 번호로 본인 인증 후 이메일을 확인하세요."
         />
 

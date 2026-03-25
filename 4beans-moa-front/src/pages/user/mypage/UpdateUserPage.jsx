@@ -19,13 +19,13 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const updateUserThemeStyles = {
-  pop: {
+  light: {
     sticker: {
       border: "border border-gray-200",
       shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
     },
     button: {
-      primaryBg: "bg-pink-500",
+      primaryBg: "bg-[#635bff]",
       primaryText: "text-white",
       secondaryBg: "bg-white",
       secondaryText: "text-black",
@@ -39,42 +39,42 @@ const updateUserThemeStyles = {
       focusRing: "focus-visible:ring-0",
     },
     accent: {
-      cyan: "bg-cyan-400",
-      pink: "bg-pink-500",
-      lime: "bg-lime-400",
+      cyan: "bg-[#635bff]",
+      pink: "bg-[#635bff]",
+      lime: "bg-indigo-100",
     },
     titleAccent: {
-      cyan: "text-cyan-400",
-      pink: "text-pink-500",
+      cyan: "text-[#635bff]",
+      pink: "text-[#635bff]",
     },
   },
-  christmas: {
+  dark: {
     sticker: {
-      border: "border border-gray-200",
-      shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+      border: "border border-gray-700",
+      shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.3)]",
     },
     button: {
-      primaryBg: "bg-[#c41e3a]",
+      primaryBg: "bg-[#635bff]",
       primaryText: "text-white",
-      secondaryBg: "bg-white",
-      secondaryText: "text-black",
-      border: "border border-gray-200",
-      shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
-      hover: "hover:bg-red-50",
+      secondaryBg: "bg-gray-800",
+      secondaryText: "text-white",
+      border: "border border-gray-700",
+      shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.3)]",
+      hover: "hover:bg-gray-700",
     },
     input: {
-      border: "border border-gray-200",
-      shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+      border: "border border-gray-700",
+      shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.3)]",
       focusRing: "focus-visible:ring-0",
     },
     accent: {
-      cyan: "bg-[#1a5f2a]",
-      pink: "bg-[#c41e3a]",
-      lime: "bg-[#1a5f2a]",
+      cyan: "bg-[#635bff]",
+      pink: "bg-[#635bff]",
+      lime: "bg-[#635bff]/20",
     },
     titleAccent: {
-      cyan: "text-[#1a5f2a]",
-      pink: "text-[#c41e3a]",
+      cyan: "text-[#635bff]",
+      pink: "text-[#635bff]",
     },
   },
 };
@@ -87,7 +87,7 @@ function Sticker({
   withShadow = true,
   theme,
 }) {
-  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.pop;
+  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.light;
   return (
     <motion.div
       whileHover={withShadow ? { scale: 1.01 } : undefined}
@@ -114,7 +114,7 @@ function PopButton({
   variant = "primary",
   ...props
 }) {
-  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.pop;
+  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.light;
   const colorClass = variant === "primary"
     ? `${themeStyle.button.primaryBg} ${themeStyle.button.primaryText}`
     : variant === "secondary"
@@ -143,7 +143,7 @@ function PopButton({
 
 export default function UpdateUserPage() {
   const { theme } = useThemeStore();
-  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.pop;
+  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.light;
 
   const {
     fileRef,

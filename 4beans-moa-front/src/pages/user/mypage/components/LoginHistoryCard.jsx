@@ -3,19 +3,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const loginHistoryThemeStyles = {
-  pop: {
-    titleText: "text-black",
-    titleBar: "h-[2px] bg-black",
-    subtitleText: "text-slate-700",
-    tableBorder: "border border-gray-200",
-    headerBg: "bg-white",
-    headerBorder: "border-b-2 border-black",
-    headerText: "text-black",
-    rowBorder: "border-b border-black/10",
-    cellText: "text-slate-800",
-    emptyText: "text-slate-700",
-  },
-  christmas: {
+  light: {
     titleText: "text-black",
     titleBar: "h-[2px] bg-gray-200",
     subtitleText: "text-slate-700",
@@ -39,24 +27,12 @@ const loginHistoryThemeStyles = {
     cellText: "text-gray-300",
     emptyText: "text-gray-400",
   },
-  classic: {
-    titleText: "text-black",
-    titleBar: "h-[2px] bg-gray-200",
-    subtitleText: "text-slate-700",
-    tableBorder: "border border-gray-200",
-    headerBg: "bg-white",
-    headerBorder: "border-b border-gray-200",
-    headerText: "text-black",
-    rowBorder: "border-b border-gray-200",
-    cellText: "text-slate-800",
-    emptyText: "text-slate-700",
-  },
 };
 
 export function LoginHistoryCard({ loginHistory, onBack }) {
   const { theme } = useThemeStore();
   const themeStyle =
-    loginHistoryThemeStyles[theme] || loginHistoryThemeStyles.pop;
+    loginHistoryThemeStyles[theme] || loginHistoryThemeStyles.light;
   const items =
     loginHistory?.items ||
     loginHistory?.data?.items ||

@@ -5,14 +5,12 @@ import { persist, createJSONStorage } from "zustand/middleware";
 export const useThemeStore = create(
   persist(
     (set, get) => ({
-      // Current theme: 'classic' | 'dark' | 'pop' | 'christmas'
-      // 기본 테마는 pop
-      theme: "pop",
+      // Current theme: 'light' | 'dark'
+      theme: "light",
 
       // Set theme
       setTheme: (theme) => {
         set({ theme });
-        // Also update legacy localStorage key for backward compatibility
         localStorage.setItem("partyListTheme", theme);
       },
 
@@ -21,7 +19,7 @@ export const useThemeStore = create(
 
       // Cycle through themes
       cycleTheme: () => {
-        const themes = ["classic", "dark", "pop", "christmas"];
+        const themes = ["light", "dark"];
         const currentIndex = themes.indexOf(get().theme);
         const nextIndex = (currentIndex + 1) % themes.length;
         get().setTheme(themes[nextIndex]);

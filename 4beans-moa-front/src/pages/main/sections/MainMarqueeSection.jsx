@@ -5,14 +5,11 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 마키 스타일
 const marqueeThemeStyles = {
-  pop: {
+  light: {
     starColors: ["text-pink-400 fill-pink-400", "text-cyan-400 fill-cyan-400", "text-lime-400 fill-lime-400", "text-yellow-400 fill-yellow-400"],
   },
   dark: {
     starColors: ["text-[#635bff] fill-[#635bff]", "text-[#00d4ff] fill-[#00d4ff]", "text-[#4fd1c5] fill-[#4fd1c5]", "text-gray-400 fill-gray-400"],
-  },
-  christmas: {
-    starColors: ["text-[#c41e3a] fill-[#c41e3a]", "text-[#1a5f2a] fill-[#1a5f2a]", "text-white fill-white", "text-[#c41e3a] fill-[#c41e3a]"],
   },
 };
 
@@ -39,7 +36,7 @@ function Marquee({ children, direction = "left", speed = 20 }) {
 // ============================================
 export default function MainMarqueeSection() {
   const { theme } = useThemeStore();
-  const themeStyle = marqueeThemeStyles[theme] || marqueeThemeStyles.pop;
+  const themeStyle = marqueeThemeStyles[theme] || marqueeThemeStyles.light;
 
   return (
     <div className="bg-black text-white py-4 border-y border-gray-800">

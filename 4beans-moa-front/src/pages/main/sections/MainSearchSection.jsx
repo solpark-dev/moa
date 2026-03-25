@@ -7,13 +7,9 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 Search 섹션 스타일
 const searchThemeStyles = {
-  pop: {
+  light: {
     linkText: "text-pink-500",
     tagHover: "hover:bg-pink-100 hover:border-pink-500",
-  },
-  christmas: {
-    linkText: "text-[#c41e3a]",
-    tagHover: "hover:bg-red-50 hover:border-[#c41e3a]",
   },
 };
 
@@ -100,7 +96,7 @@ const getServiceColor = (name) => {
 
 export default function MainSearchSection({ products = [] }) {
   const { theme } = useThemeStore();
-  const themeStyle = searchThemeStyles[theme] || searchThemeStyles.pop;
+  const themeStyle = searchThemeStyles[theme] || searchThemeStyles.light;
   const isDark = theme === "dark";
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);

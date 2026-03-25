@@ -12,13 +12,7 @@ import { useThemeStore } from '@/store/themeStore';
 
 // 테마별 스타일
 const communityThemeStyles = {
-  pop: {
-    // Neo/Pop 스타일 - 핑크, 시안 계열
-    categoryBadge: 'bg-pink-500 text-white',
-    focusRing: 'focus:ring-pink-500',
-    submitButton: 'bg-pink-500 hover:bg-pink-600 text-white',
-  },
-  classic: {
+  light: {
     categoryBadge: 'bg-[#635bff] text-white',
     focusRing: 'focus:ring-[#635bff]',
     submitButton: 'bg-[#635bff] hover:bg-indigo-600 text-white',
@@ -28,17 +22,12 @@ const communityThemeStyles = {
     focusRing: 'focus:ring-[#635bff]',
     submitButton: 'bg-[#635bff] hover:bg-indigo-600 text-white',
   },
-  christmas: {
-    categoryBadge: 'bg-[#c41e3a] text-white',
-    focusRing: 'focus:ring-[#c41e3a]',
-    submitButton: 'bg-[#c41e3a] hover:bg-red-700 text-white',
-  },
 };
 
 const InquiryAnswerModalContent = ({ inquiry, onClose, onAnswerSubmit }) => {
   const [answerContent, setAnswerContent] = useState(inquiry?.answerContent || '');
   const { theme } = useThemeStore();
-  const themeStyle = communityThemeStyles[theme] || communityThemeStyles.pop;
+  const themeStyle = communityThemeStyles[theme] || communityThemeStyles.light;
 
   const handleSubmit = async () => {
     if (!answerContent.trim()) {

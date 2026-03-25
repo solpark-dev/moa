@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 // Theme-based field styles
 const getFieldStyles = (theme) => {
   switch (theme) {
-    case 'christmas':
+    case 'light':
       return {
-        field: "bg-white border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(196,30,58,0.08)] text-sm text-slate-900",
-        focus: "focus-visible:ring-[#c41e3a] focus-visible:border-[#c41e3a]",
-        label: "text-gray-600",
-        button: "bg-[#c41e3a] hover:bg-[#a51830] border-[#c41e3a]",
-        link: "text-[#c41e3a] border-[#c41e3a]/40",
-        checkbox: "text-[#c41e3a]",
+        field: "bg-white border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(99,91,255,0.08)] text-sm text-slate-900",
+        focus: "focus-visible:ring-[#635bff] focus-visible:border-[#635bff]",
+        label: "text-gray-500",
+        button: "bg-[#635bff] hover:bg-[#5851e8] border-gray-200",
+        link: "text-[#635bff] border-[#635bff]/40",
+        checkbox: "text-[#635bff]",
       };
     case 'dark':
       return {
@@ -20,24 +20,6 @@ const getFieldStyles = (theme) => {
         focus: "focus-visible:ring-[#635bff] focus-visible:border-[#635bff]",
         label: "text-gray-400",
         button: "bg-[#635bff] hover:bg-[#5851e8] border-[#635bff]",
-        link: "text-[#635bff] border-[#635bff]/40",
-        checkbox: "text-[#635bff]",
-      };
-    case 'pop':
-      return {
-        field: "bg-white border border-gray-200 rounded-2xl shadow-[0_4px_12px_rgba(236,72,153,0.08)] text-sm text-black",
-        focus: "focus-visible:ring-pink-500 focus-visible:border-pink-300",
-        label: "text-gray-600",
-        button: "bg-pink-500 hover:bg-pink-600 border border-gray-200",
-        link: "text-pink-500 border-pink-300/40",
-        checkbox: "text-pink-500",
-      };
-    case 'classic':
-      return {
-        field: "bg-white border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(99,91,255,0.08)] text-sm text-slate-900",
-        focus: "focus-visible:ring-[#635bff] focus-visible:border-[#635bff]",
-        label: "text-gray-500",
-        button: "bg-[#635bff] hover:bg-[#5851e8] border-gray-200",
         link: "text-[#635bff] border-[#635bff]/40",
         checkbox: "text-[#635bff]",
       };

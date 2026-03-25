@@ -12,17 +12,7 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
 
     // Theme-based colors
     const communityThemeStyles = {
-        pop: {
-            // Neo/Pop 스타일 - 핑크, 시안 계열
-            focusRing: 'focus:ring-pink-500',
-            fileButton: 'file:bg-pink-500',
-            removeButton: 'bg-pink-500 hover:bg-pink-600',
-            submitButton: 'bg-pink-500',
-            cardBg: 'bg-white',
-            textColor: 'text-black',
-            inputBg: 'bg-white border-gray-200',
-        },
-        classic: {
+        light: {
             focusRing: 'focus:ring-[#635bff]',
             fileButton: 'file:bg-[#635bff]',
             removeButton: 'bg-[#635bff] hover:bg-indigo-600',
@@ -40,18 +30,9 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
             textColor: 'text-gray-200',
             inputBg: 'bg-[#0F172A] border-gray-700',
         },
-        christmas: {
-            focusRing: 'focus:ring-[#c41e3a]',
-            fileButton: 'file:bg-[#1a5f2a]',
-            removeButton: 'bg-[#c41e3a] hover:bg-red-700',
-            submitButton: 'bg-[#c41e3a]',
-            cardBg: 'bg-white',
-            textColor: 'text-black',
-            inputBg: 'bg-white border-gray-200',
-        },
     };
 
-    const themeColors = communityThemeStyles[theme] || communityThemeStyles.pop;
+    const themeColors = communityThemeStyles[theme] || communityThemeStyles.light;
 
     const handleChange = (e) => {
         const { name, value } = e.target;

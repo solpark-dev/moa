@@ -19,26 +19,6 @@ const getProductThemeStyles = {
         blurCircle1: 'bg-purple-200',
         blurCircle2: 'bg-pink-200',
     },
-    christmas: {
-        spinnerBorder: 'border-[#c41e3a]',
-        cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        sparklesIcon: 'text-[#c41e3a]',
-        benefitIcon1: 'bg-red-50 text-[#c41e3a]',
-        focusRing: 'focus:ring-[#c41e3a]',
-        headerBg: 'bg-red-50',
-        blurCircle1: 'bg-red-200',
-        blurCircle2: 'bg-green-200',
-    },
-    pop: {
-        spinnerBorder: 'border-pink-500',
-        cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        sparklesIcon: 'text-pink-500',
-        benefitIcon1: 'bg-pink-50 text-pink-500',
-        focusRing: 'focus:ring-pink-500',
-        headerBg: 'bg-pink-50',
-        blurCircle1: 'bg-pink-200',
-        blurCircle2: 'bg-cyan-200',
-    },
 };
 
 const GetProduct = () => {
@@ -46,10 +26,7 @@ const GetProduct = () => {
     const themeStyle = getProductThemeStyles[theme] || getProductThemeStyles.default;
 
     // 테마별 accent 색상
-    const accent = theme === 'christmas' ? '#c41e3a'
-        : theme === 'pop' ? '#ec4899'
-        : theme === 'dark' ? '#635bff'
-        : '#635bff';
+    const accent = theme === 'dark' ? '#635bff' : '#635bff';
 
     const { id } = useParams();
     const navigate = useNavigate();

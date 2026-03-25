@@ -12,15 +12,7 @@ const CommunityLayout = ({ children }) => {
 
     // Theme-based colors
     const communityThemeStyles = {
-        pop: {
-            // Neo/Pop 스타일 - 핑크, 시안 계열
-            primary: 'bg-pink-500',
-            secondary: 'bg-cyan-500',
-            tertiary: 'bg-lime-400',
-            activeTab: 'bg-pink-500',
-            inactiveTabHover: 'hover:bg-pink-50',
-        },
-        classic: {
+        light: {
             primary: 'bg-[#635bff]',
             secondary: 'bg-indigo-500',
             tertiary: 'bg-purple-400',
@@ -34,16 +26,9 @@ const CommunityLayout = ({ children }) => {
             activeTab: 'bg-[#635bff]',
             inactiveTabHover: 'hover:bg-gray-700',
         },
-        christmas: {
-            primary: 'bg-[#c41e3a]',
-            secondary: 'bg-[#1a5f2a]',
-            tertiary: 'bg-white',
-            activeTab: 'bg-[#c41e3a]',
-            inactiveTabHover: 'hover:bg-red-50',
-        },
     };
 
-    const themeColors = communityThemeStyles[theme] || communityThemeStyles.pop;
+    const themeColors = communityThemeStyles[theme] || communityThemeStyles.light;
 
     const isActiveTab = (path) => {
         if (path === '/community/inquiry') {
@@ -100,7 +85,7 @@ const CommunityLayout = ({ children }) => {
                                     onClick={() => tab.onClick ? tab.onClick() : navigate(tab.path)}
                                     className={`
                                         px-6 py-3 font-black text-lg rounded-xl
-                                        ${theme === 'pop' ? 'border border-gray-200' : theme === 'dark' ? 'border border-gray-600' : 'border border-gray-200'}
+                                        ${theme === 'dark' ? 'border border-gray-600' : 'border border-gray-200'}
                                         transition-all duration-200
                                         ${isActive
                                             ? `${themeColors.activeTab} ${theme === 'dark' ? 'text-white' : 'text-white'} shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`

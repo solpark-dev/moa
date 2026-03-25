@@ -66,7 +66,7 @@ export default function AddUserPage({ socialInfo }) {
         <div>
           <Sticker rotate={-2} className="inline-block px-5 py-2 mb-6">
             <span className="font-black text-lg">
-              {theme === 'christmas' ? '🎄 MoA 회원가입 ❄️' : 'MoA 회원가입 ✨'}
+              MoA 회원가입 ✨
             </span>
           </Sticker>
 
@@ -98,7 +98,7 @@ export default function AddUserPage({ socialInfo }) {
           <Card className={`${themeClasses.card.elevated} rounded-3xl`}>
             <CardHeader>
               <CardTitle className={`text-2xl font-black ${themeClasses.text.primary}`}>
-                {theme === 'christmas' ? '🎁 기본 정보 입력' : '기본 정보 입력'}
+                기본 정보 입력
               </CardTitle>
               <CardDescription className={themeClasses.text.muted}>
                 필수 정보만 입력하면 바로 시작할 수 있어요
@@ -226,7 +226,7 @@ export default function AddUserPage({ socialInfo }) {
 
             <CardFooter>
               <Button type="submit" className={`w-full text-lg font-black ${themeClasses.button.primary}`}>
-                {isSocialSignup ? "간편가입 완료하기" : theme === 'christmas' ? "🎄 회원가입 완료하기" : "회원가입 완료하기"}
+                {isSocialSignup ? "간편가입 완료하기" : "회원가입 완료하기"}
               </Button>
             </CardFooter>
           </Card>

@@ -9,18 +9,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const backupCodeThemeStyles = {
-  pop: {
-    content: "bg-white border border-gray-200",
-    title: "text-black",
-    description: "text-slate-600",
-    codeBg: "bg-slate-50 border-slate-200",
-    codeText: "text-slate-800",
-    codeIndex: "text-slate-400",
-    emptyText: "text-slate-400",
-    primaryButton: "bg-pink-500 hover:bg-pink-600",
-    secondaryButton: "bg-white border-gray-200 text-black hover:bg-slate-50",
-  },
-  classic: {
+  light: {
     content: "bg-white border border-gray-200",
     title: "text-black",
     description: "text-slate-600",
@@ -42,22 +31,11 @@ const backupCodeThemeStyles = {
     primaryButton: "bg-[#635bff] hover:bg-[#5851e8]",
     secondaryButton: "bg-[#0F172A] border-gray-700 text-gray-200 hover:bg-gray-800",
   },
-  christmas: {
-    content: "bg-white border border-gray-200",
-    title: "text-black",
-    description: "text-slate-600",
-    codeBg: "bg-slate-50 border-slate-200",
-    codeText: "text-slate-800",
-    codeIndex: "text-slate-400",
-    emptyText: "text-slate-400",
-    primaryButton: "bg-[#c41e3a] hover:bg-red-700",
-    secondaryButton: "bg-white border-gray-200 text-black hover:bg-red-50",
-  },
 };
 
 export function BackupCodeDialog({ backup }) {
   const { theme } = useThemeStore();
-  const themeStyle = backupCodeThemeStyles[theme] || backupCodeThemeStyles.pop;
+  const themeStyle = backupCodeThemeStyles[theme] || backupCodeThemeStyles.light;
   return (
     <Dialog
       open={backup.open}

@@ -1,10 +1,9 @@
 import { motion } from "framer-motion";
 import { useThemeStore } from "@/store/themeStore";
-import { ChristmasBackground } from "@/config/themeConfig";
 
 // 테마별 배경 orbs 스타일
 const backgroundThemeStyles = {
-  classic: {
+  light: {
     orb1: "rgba(99, 91, 255, 0.12)", // Purple
     orb1Fade: "rgba(99, 91, 255, 0.04)",
     orb2: "rgba(0, 212, 255, 0.1)", // Cyan
@@ -26,28 +25,6 @@ const backgroundThemeStyles = {
     orb4Fade: "rgba(79, 209, 197, 0.03)",
     bgColor: "bg-[#0B1120]",
   },
-  pop: {
-    orb1: "rgba(236, 72, 153, 0.15)", // Pink
-    orb1Fade: "rgba(236, 72, 153, 0.05)",
-    orb2: "rgba(6, 182, 212, 0.12)", // Cyan
-    orb2Fade: "rgba(6, 182, 212, 0.05)",
-    orb3: "rgba(163, 230, 53, 0.1)", // Lime
-    orb3Fade: "rgba(163, 230, 53, 0.04)",
-    orb4: "rgba(236, 72, 153, 0.1)", // Pink
-    orb4Fade: "rgba(236, 72, 153, 0.04)",
-    bgColor: "bg-slate-50",
-  },
-  christmas: {
-    orb1: "rgba(196, 30, 58, 0.15)", // Christmas Red
-    orb1Fade: "rgba(196, 30, 58, 0.05)",
-    orb2: "rgba(26, 95, 42, 0.12)", // Christmas Green
-    orb2Fade: "rgba(26, 95, 42, 0.05)",
-    orb3: "rgba(196, 30, 58, 0.1)", // Red
-    orb3Fade: "rgba(196, 30, 58, 0.04)",
-    orb4: "rgba(26, 95, 42, 0.1)", // Green
-    orb4Fade: "rgba(26, 95, 42, 0.04)",
-    bgColor: "bg-transparent",
-  },
 };
 
 /**
@@ -55,13 +32,10 @@ const backgroundThemeStyles = {
  */
 const NeoBackground = () => {
   const { theme } = useThemeStore();
-  const themeStyle = backgroundThemeStyles[theme] || backgroundThemeStyles.pop;
+  const themeStyle = backgroundThemeStyles[theme] || backgroundThemeStyles.light;
 
   return (
     <>
-      {/* Christmas 테마일 때 눈 내리는 배경 */}
-      {theme === 'christmas' && <ChristmasBackground />}
-
       {/* Animated Gradient Orbs Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         {/* Primary Orb */}

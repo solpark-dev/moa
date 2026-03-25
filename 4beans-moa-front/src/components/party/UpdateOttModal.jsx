@@ -17,16 +17,6 @@ export default function UpdateOttModal({ isOpen, onClose, partyId, currentOttId 
 
     const getThemeColors = () => {
         switch (theme) {
-            case 'pop':
-                return {
-                    focusRing: 'focus:ring-pink-500',
-                    buttonBg: 'bg-pink-500 hover:bg-pink-600',
-                };
-            case 'christmas':
-                return {
-                    focusRing: 'focus:ring-[#c41e3a]',
-                    buttonBg: 'bg-[#c41e3a] hover:bg-[#a51830]',
-                };
             case 'dark':
                 return {
                     focusRing: 'focus:ring-[#635bff]',

@@ -5,17 +5,17 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const adminMenuThemeStyles = {
-  pop: {
+  light: {
     cardShadow: "shadow-2xl",
   },
-  christmas: {
-    cardShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+  dark: {
+    cardShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.3)]",
   },
 };
 
 export function AdminMenu({ actions }) {
   const { theme } = useThemeStore();
-  const themeStyle = adminMenuThemeStyles[theme] || adminMenuThemeStyles.pop;
+  const themeStyle = adminMenuThemeStyles[theme] || adminMenuThemeStyles.light;
 
   return (
     <Card className={`bg-white border border-gray-200 ${themeStyle.cardShadow} rounded-3xl`}>

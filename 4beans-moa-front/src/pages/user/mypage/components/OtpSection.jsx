@@ -3,21 +3,21 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const otpThemeStyles = {
-  pop: {
-    buttonBg: "bg-indigo-600",
-    buttonText: "text-indigo-700",
+  light: {
+    buttonBg: "bg-[#635bff]",
+    buttonText: "text-[#635bff]",
     buttonHover: "hover:bg-indigo-50",
   },
-  christmas: {
-    buttonBg: "bg-[#c41e3a]",
-    buttonText: "text-[#c41e3a]",
-    buttonHover: "hover:bg-red-50",
+  dark: {
+    buttonBg: "bg-[#635bff]",
+    buttonText: "text-[#635bff]",
+    buttonHover: "hover:bg-[#635bff]/10",
   },
 };
 
 export function OtpSection({ otp, backup, actions }) {
   const { theme } = useThemeStore();
-  const themeStyle = otpThemeStyles[theme] || otpThemeStyles.pop;
+  const themeStyle = otpThemeStyles[theme] || otpThemeStyles.light;
   return (
     <div className="space-y-1.5">
       <p className="text-[11px] font-black text-slate-500 uppercase tracking-wider">

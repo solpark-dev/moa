@@ -5,15 +5,10 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 Statement 섹션 스타일
 const statementThemeStyles = {
-  pop: {
+  light: {
     badgeBg: "bg-cyan-400",
     accentText: "text-pink-500",
     badgeText: "",
-  },
-  christmas: {
-    badgeBg: "bg-[#1a5f2a]",
-    accentText: "text-[#c41e3a]",
-    badgeText: "text-white",
   },
 };
 
@@ -24,7 +19,7 @@ export default function MainStatementSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { theme } = useThemeStore();
-  const themeStyle = statementThemeStyles[theme] || statementThemeStyles.pop;
+  const themeStyle = statementThemeStyles[theme] || statementThemeStyles.light;
   const isDark = theme === "dark";
 
   return (
@@ -37,7 +32,7 @@ export default function MainStatementSection() {
       >
         <NeoCard color={themeStyle.badgeBg} rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-8">
           <span className={`text-2xl font-black ${themeStyle.badgeText}`}>
-            {theme === "christmas" ? "🎄 WHY MoA? 🎅" : "WHY MoA?"}
+            WHY MoA?
           </span>
         </NeoCard>
         <p className={`text-[28px] md:text-[36px] lg:text-[44px] font-black leading-[1.3] ${isDark ? 'text-white' : 'text-black'}`}>
@@ -46,7 +41,7 @@ export default function MainStatementSection() {
           혼자 다 내고 계셨나요?
           <br />
           <span className={themeStyle.accentText}>
-            {theme === "christmas" ? "🎁 이제 함께 나눠요!" : "이제 함께 나눠요!"}
+            이제 함께 나눠요!
           </span>
         </p>
       </motion.div>

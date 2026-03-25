@@ -18,7 +18,7 @@ const BANKS = [
 /**
  * 은행 선택 드롭다운 컴포넌트
  */
-export default function BankSelector({ value, onChange, disabled = false, theme = 'classic' }) {
+export default function BankSelector({ value, onChange, disabled = false, theme = 'light' }) {
     const [isOpen, setIsOpen] = useState(false);
 
     const selectedBank = BANKS.find(bank => bank.code === value);

@@ -14,19 +14,7 @@ const FaqItem = ({ faq, index, isAdmin, onUpdate, getCategoryFromTitle, isOpen, 
 
     // Theme-based colors
     const communityThemeStyles = {
-        pop: {
-            // Neo/Pop 스타일 - 핑크, 시안 계열
-            categoryBadge: 'bg-pink-500',
-            focusRing: 'focus:ring-pink-500',
-            saveButton: 'bg-cyan-500',
-            editButton: 'bg-pink-500',
-            cardBg: 'bg-white',
-            hoverBg: 'hover:bg-pink-50',
-            answerBg: 'bg-slate-50',
-            textColor: 'text-black',
-            iconColor: 'text-black',
-        },
-        classic: {
+        light: {
             categoryBadge: 'bg-[#635bff]',
             focusRing: 'focus:ring-[#635bff]',
             saveButton: 'bg-indigo-500',
@@ -48,20 +36,9 @@ const FaqItem = ({ faq, index, isAdmin, onUpdate, getCategoryFromTitle, isOpen, 
             textColor: 'text-gray-200',
             iconColor: 'text-gray-400',
         },
-        christmas: {
-            categoryBadge: 'bg-[#c41e3a]',
-            focusRing: 'focus:ring-[#c41e3a]',
-            saveButton: 'bg-[#1a5f2a]',
-            editButton: 'bg-[#1a5f2a]',
-            cardBg: 'bg-white',
-            hoverBg: 'hover:bg-red-50',
-            answerBg: 'bg-slate-50',
-            textColor: 'text-black',
-            iconColor: 'text-black',
-        },
     };
 
-    const themeColors = communityThemeStyles[theme] || communityThemeStyles.pop;
+    const themeColors = communityThemeStyles[theme] || communityThemeStyles.light;
 
     const categories = ['회원', '결제', '구독', '파티', '정산', '기타'];
     const category = getCategoryFromTitle ? getCategoryFromTitle(faq.title) : '기타';
@@ -138,7 +115,7 @@ const FaqItem = ({ faq, index, isAdmin, onUpdate, getCategoryFromTitle, isOpen, 
                     onClick={handleToggle}
                     className={`flex items-center p-5 cursor-pointer ${themeColors.hoverBg} transition-colors`}
                 >
-                    <span className={`px-3 py-1 text-sm font-black ${themeColors.categoryBadge} text-white rounded-lg ${theme === 'pop' ? 'border border-gray-200' : ''} shadow-[4px_4px_12px_rgba(0,0,0,0.08)] mr-4`}>
+                    <span className={`px-3 py-1 text-sm font-black ${themeColors.categoryBadge} text-white rounded-lg shadow-[4px_4px_12px_rgba(0,0,0,0.08)] mr-4`}>
                         {category}
                     </span>
                     <span className={`flex-1 font-bold ${themeColors.textColor}`}>

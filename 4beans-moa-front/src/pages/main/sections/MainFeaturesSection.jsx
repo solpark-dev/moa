@@ -5,16 +5,10 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 Features 섹션 스타일
 const featuresThemeStyles = {
-  pop: {
+  light: {
     stickerBg: "bg-lime-400",
     accentText: "text-pink-500",
     cardColors: ["bg-cyan-400", "bg-lime-400", "bg-pink-400"],
-  },
-  christmas: {
-    stickerBg: "bg-[#c41e3a]",
-    accentText: "text-[#c41e3a]",
-    cardColors: ["bg-[#1a5f2a]", "bg-[#c41e3a]", "bg-[#1a5f2a]"],
-    stickerText: "text-white",
   },
 };
 
@@ -62,7 +56,7 @@ function BouncyCard({ children, className = "", delay = 0, isDark = false }) {
 
 export default function MainFeaturesSection() {
   const { theme } = useThemeStore();
-  const themeStyle = featuresThemeStyles[theme] || featuresThemeStyles.pop;
+  const themeStyle = featuresThemeStyles[theme] || featuresThemeStyles.light;
   const isDark = theme === "dark";
 
   const features = [
@@ -71,21 +65,21 @@ export default function MainFeaturesSection() {
       title: "파티 공유",
       desc: "최대 4명과 함께 나눠요!",
       color: themeStyle.cardColors[0],
-      emoji: theme === "christmas" ? "🎄" : "🎉",
+      emoji: "🎉",
     },
     {
       icon: Shield,
       title: "안전 보장",
       desc: "검증/정산으로 안심!",
       color: themeStyle.cardColors[1],
-      emoji: theme === "christmas" ? "🎅" : "🛡️",
+      emoji: "🛡️",
     },
     {
       icon: Zap,
       title: "즉시 시작",
       desc: "찾고 결제하면 바로!",
       color: themeStyle.cardColors[2],
-      emoji: theme === "christmas" ? "🎁" : "⚡",
+      emoji: "⚡",
     },
   ];
 
@@ -104,8 +98,8 @@ export default function MainFeaturesSection() {
             className="inline-block px-6 py-3 rounded-xl mb-6"
             isDark={isDark}
           >
-            <span className={`text-xl md:text-2xl font-black ${themeStyle.stickerText || ""}`}>
-              {theme === "christmas" ? "🎄 WHY MoA? 🎅" : "WHY MoA? 🤔"}
+            <span className="text-xl md:text-2xl font-black">
+              WHY MoA? 🤔
             </span>
           </Sticker>
           <h2 className="text-4xl md:text-6xl font-black tracking-tight">

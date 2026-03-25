@@ -8,13 +8,7 @@ import { NeoCard, NeoButton } from '@/components/common/neo';
 
 // 테마별 스타일
 const communityThemeStyles = {
-    pop: {
-        // Neo/Pop 스타일 - 핑크, 시안 계열
-        dateBadge: 'bg-cyan-100 text-cyan-700',
-        viewBadge: 'bg-pink-100 text-pink-700',
-        editButton: 'bg-pink-500 hover:bg-pink-600 text-white',
-    },
-    classic: {
+    light: {
         dateBadge: 'bg-indigo-100 text-indigo-700',
         viewBadge: 'bg-purple-100 text-purple-700',
         editButton: 'bg-[#635bff] hover:bg-indigo-600 text-white',
@@ -24,11 +18,6 @@ const communityThemeStyles = {
         viewBadge: 'bg-gray-600 text-gray-200',
         editButton: 'bg-[#635bff] hover:bg-indigo-600 text-white',
     },
-    christmas: {
-        dateBadge: 'bg-[#1a5f2a] text-white',
-        viewBadge: 'bg-[#c41e3a] text-white',
-        editButton: 'bg-[#c41e3a] hover:bg-red-700 text-white',
-    },
 };
 
 const GetNotice = () => {
@@ -37,7 +26,7 @@ const GetNotice = () => {
     const noticeId = params.id || params.communityId;
     const { user } = useAuthStore();
     const { theme } = useThemeStore();
-    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.pop;
+    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.light;
     const [notice, setNotice] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -46,20 +35,18 @@ const GetNotice = () => {
     // Theme-specific color helpers
     const getAccentColor = () => {
         switch (theme) {
-            case 'classic': return '#635bff';
-            case 'dark': return '#635bff';
-            case 'pop': return '#ec4899';
-            case 'christmas': return '#c41e3a';
+            case 'light':
+            case 'dark':
+                return '#635bff';
             default: return '#635bff';
         }
     };
 
     const getSecondaryColor = () => {
         switch (theme) {
-            case 'classic': return '#06b6d4';
-            case 'dark': return '#06b6d4';
-            case 'pop': return '#84cc16';
-            case 'christmas': return '#1a5f2a';
+            case 'light':
+            case 'dark':
+                return '#06b6d4';
             default: return '#06b6d4';
         }
     };
@@ -133,11 +120,7 @@ const GetNotice = () => {
                     onClick={() => navigate('/community/notice')}
                     className={`flex items-center gap-2 mb-6 transition-colors group ${theme === "dark"
                         ? "text-gray-400 hover:text-[#635bff]"
-                        : theme === "pop"
-                            ? "text-black hover:text-pink-500"
-                            : theme === "christmas"
-                                ? "text-gray-500 hover:text-[#c41e3a]"
-                                : "text-gray-400 hover:text-[#635bff]"
+                        : "text-gray-400 hover:text-[#635bff]"
                         }`}
                 >
                     <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />

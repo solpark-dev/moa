@@ -114,11 +114,7 @@ export default function SettlementHistoryPage() {
                         onClick={() => navigate(-1)}
                         className={`flex items-center gap-2 mb-6 transition-colors group ${theme === "dark"
                             ? "text-gray-400 hover:text-[#635bff]"
-                            : theme === "pop"
-                                ? "text-black hover:text-pink-500"
-                                : theme === "christmas"
-                                    ? "text-gray-500 hover:text-[#c41e3a]"
-                                    : "text-gray-400 hover:text-[#635bff]"
+                            : "text-gray-400 hover:text-[#635bff]"
                             }`}
                     >
                         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
@@ -130,19 +126,15 @@ export default function SettlementHistoryPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 ${theme === "pop"
-                            ? "bg-pink-100 text-pink-600 border border-pink-200"
-                            : theme === "dark"
-                                ? "bg-[#635bff]/20 text-[#635bff] border border-[#635bff]/30"
-                                : theme === "christmas"
-                                    ? "bg-[#c41e3a]/10 text-[#c41e3a] border border-[#c41e3a]/20"
-                                    : "bg-[#635bff]/10 text-[#635bff]"
+                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 ${theme === "dark"
+                            ? "bg-[#635bff]/20 text-[#635bff] border border-[#635bff]/30"
+                            : "bg-[#635bff]/10 text-[#635bff]"
                             }`}>
                             <Sparkles className="w-4 h-4" />
                             정산 관리
                         </span>
                         <h1 className={`text-3xl sm:text-4xl font-bold mb-2 tracking-tight flex items-center gap-3 ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-                            <TrendingUp className={`w-7 h-7 sm:w-8 sm:h-8 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-[#c41e3a]" : "text-[#635bff]"}`} />
+                            <TrendingUp className="w-7 h-7 sm:w-8 sm:h-8 text-[#635bff]" />
                             정산 내역
                         </h1>
                         <p className={theme === "dark" ? "text-gray-400" : "text-gray-500"}>파티별 정산 내역을 확인하세요</p>
