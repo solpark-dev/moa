@@ -1,4 +1,4 @@
-package com.moa.event.listener;
+package com.moa.common.listener;
 
 import java.time.LocalDateTime;
 import java.util.List;

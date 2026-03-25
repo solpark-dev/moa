@@ -1,4 +1,4 @@
-package com.moa.listener;
+package com.moa.common.listener;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
