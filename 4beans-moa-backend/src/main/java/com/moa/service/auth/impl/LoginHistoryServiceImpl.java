@@ -14,7 +14,7 @@ import com.moa.global.common.exception.BusinessException;
 import com.moa.global.common.exception.ErrorCode;
 import com.moa.dao.auth.LoginHistoryDao;
 import com.moa.domain.LoginHistory;
-import com.moa.dto.community.response.PageResponse;
+import com.moa.community.dto.response.PageResponse;
 import com.moa.dto.user.response.LoginHistoryResponse;
 import com.moa.service.auth.LoginHistoryService;
 

@@ -1,6 +1,6 @@
 package com.moa.service.auth;
 
-import com.moa.dto.community.response.PageResponse;
+import com.moa.community.dto.response.PageResponse;
 import com.moa.dto.user.response.LoginHistoryResponse;
 
 public interface LoginHistoryService {

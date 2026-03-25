@@ -1,7 +1,6 @@
-package com.moa.dto.community.request;
+package com.moa.community.dto.request;
 
-import com.moa.domain.Community;
-
+import com.moa.community.domain.Community;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NoticeRequest {
+public class FaqRequest {
     
     private String userId;
     private Integer communityCodeId;

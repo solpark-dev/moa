@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.moa.global.common.exception.ApiResponse;
 import com.moa.dto.blacklist.AddBlacklistRequest;
 import com.moa.dto.blacklist.DeleteBlacklistRequest;
-import com.moa.dto.community.response.PageResponse;
+import com.moa.community.dto.response.PageResponse;
 import com.moa.dto.user.request.AdminUserSearchRequest;
 import com.moa.dto.user.response.AdminUserListItemResponse;
 import com.moa.dto.user.response.LoginHistoryResponse;

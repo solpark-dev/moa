@@ -1,4 +1,4 @@
-package com.moa.dto.community.request;
+package com.moa.community.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

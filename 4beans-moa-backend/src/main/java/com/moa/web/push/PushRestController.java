@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.moa.dto.community.response.PageResponse;
+import com.moa.community.dto.response.PageResponse;
 import com.moa.dto.push.request.AdminPushRequest;
 import com.moa.dto.push.request.MultiPushRequest;
 import com.moa.dto.push.request.PushCodeRequest;

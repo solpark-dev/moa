@@ -1,6 +1,6 @@
 package com.moa.service.push;
 
-import com.moa.dto.community.response.PageResponse;
+import com.moa.community.dto.response.PageResponse;
 import com.moa.dto.push.request.AdminPushRequest;
 import com.moa.dto.push.request.MultiPushRequest;
 import com.moa.dto.push.request.PushCodeRequest;

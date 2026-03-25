@@ -12,7 +12,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import com.moa.dao.push.PushDao;
 import com.moa.domain.Push;
 import com.moa.domain.PushCode;
-import com.moa.dto.community.response.PageResponse;
+import com.moa.community.dto.response.PageResponse;
 import com.moa.dto.push.request.AdminPushRequest;
 import com.moa.dto.push.request.MultiPushRequest;
 import com.moa.dto.push.request.PushCodeRequest;

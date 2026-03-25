@@ -36,7 +36,7 @@ import com.moa.domain.OAuthAccount;
 import com.moa.domain.User;
 import com.moa.domain.enums.UserStatus;
 import com.moa.dto.auth.TokenResponse;
-import com.moa.dto.community.response.PageResponse;
+import com.moa.community.dto.response.PageResponse;
 import com.moa.dto.user.request.AdminUserSearchRequest;
 import com.moa.dto.user.request.CommonCheckRequest;
 import com.moa.dto.user.request.DeleteUserRequest;

@@ -1,4 +1,4 @@
-package com.moa.domain;
+package com.moa.community.domain;
 
 import java.time.LocalDateTime;
 

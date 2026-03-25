@@ -1,4 +1,4 @@
-package com.moa.dto.community.request;
+package com.moa.community.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

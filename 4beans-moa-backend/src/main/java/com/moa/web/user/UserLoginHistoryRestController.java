@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.moa.global.common.exception.ApiResponse;
 import com.moa.dto.auth.TokenResponse;
-import com.moa.dto.community.response.PageResponse;
+import com.moa.community.dto.response.PageResponse;
 import com.moa.dto.user.response.LoginHistoryResponse;
 import com.moa.service.auth.LoginHistoryService;
 

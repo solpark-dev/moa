@@ -1,8 +1,8 @@
-package com.moa.web.community;
+package com.moa.community.controller;
 
-import com.moa.dto.community.request.*;
-import com.moa.dto.community.response.*;
-import com.moa.service.community.CommunityService;
+import com.moa.community.dto.request.*;
+import com.moa.community.dto.response.*;
+import com.moa.community.service.CommunityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;

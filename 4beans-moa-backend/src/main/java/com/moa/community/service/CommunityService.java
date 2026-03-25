@@ -1,7 +1,7 @@
-package com.moa.service.community;
+package com.moa.community.service;
 
-import com.moa.dto.community.request.*;
-import com.moa.dto.community.response.*;
+import com.moa.community.dto.request.*;
+import com.moa.community.dto.response.*;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface CommunityService {

@@ -1,6 +1,6 @@
-package com.moa.dto.community.response;
+package com.moa.community.dto.response;
 
-import com.moa.domain.Community;
+import com.moa.community.domain.Community;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FaqResponse {
+public class NoticeResponse {
     
     private Integer communityId;
     private String userId;
@@ -24,8 +24,8 @@ public class FaqResponse {
     private String category;
     private String categoryName;
     
-    public static FaqResponse fromEntity(Community community) {
-        return FaqResponse.builder()
+    public static NoticeResponse fromEntity(Community community) {
+        return NoticeResponse.builder()
                 .communityId(community.getCommunityId())
                 .userId(community.getUserId())
                 .communityCodeId(community.getCommunityCodeId())

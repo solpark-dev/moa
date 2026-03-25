@@ -1,11 +1,11 @@
-package com.moa.dao.community;
+package com.moa.community.repository;
 
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.moa.domain.Community;
+import com.moa.community.domain.Community;
 
 @Mapper
 public interface CommunityDao {
