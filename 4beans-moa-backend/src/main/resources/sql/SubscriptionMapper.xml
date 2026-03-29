@@ -20,6 +20,7 @@
         <result property="productImage" column="IMAGE"/>
         <result property="price" column="PRICE"/>
         <result property="categoryName" column="CATEGORY_NAME"/>
+        <result property="cancelUrl" column="CANCEL_URL"/>
     </resultMap>
 
     <insert id="addSubscription"
@@ -47,6 +48,7 @@
             P.PRODUCT_NAME,
             P.IMAGE,
             P.PRICE,
+            P.CANCEL_URL,
             C.CATEGORY_NAME
         FROM SUBSCRIPTION S
         JOIN PRODUCT P ON S.PRODUCT_ID = P.PRODUCT_ID
@@ -69,6 +71,7 @@
             P.PRODUCT_NAME,
             P.IMAGE,
             P.PRICE,
+            P.CANCEL_URL,
             C.CATEGORY_NAME
         FROM SUBSCRIPTION S
         JOIN PRODUCT P ON S.PRODUCT_ID = P.PRODUCT_ID

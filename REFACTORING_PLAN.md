@@ -550,6 +550,33 @@ ECR_REGISTRY
 
 > **목표**: 운영 환경에서 발생할 수 있는 문제를 예방하고 사용자 경험을 개선한다.
 
+### 3-0. 구독 대시보드 고도화 `HIGH` ✅
+
+**목표**: 구독 중인 스트리밍 서비스를 한눈에 보고, 결제일 확인 및 해지까지 이어지는 대시보드 구현.
+
+#### 구현 내용
+
+**Backend**
+- `PRODUCT` 테이블에 `CANCEL_URL VARCHAR(500)` 컬럼 추가 (서비스 공식 해지 페이지 URL)
+- `SubscriptionDTO`에 `cancelUrl` 필드 추가
+- `SubscriptionMapper.xml` SELECT 쿼리에 `P.CANCEL_URL` 포함
+
+**Frontend** (`UserSubscriptionList.jsx` 전면 재설계)
+- 실제 API 연결 (`GET /subscription?userId=...`)
+- **월 지출 요약 카드**: 이달 총 구독료 합계 + 이용 중인 서비스 수
+- **D-7 임박 배지**: 결제일 7일 이내 구독에 빨간색 D-N 배지 + 요약 카드 경고 표시
+- **다음 결제일 자동 계산**: `endDate`가 없는 자동갱신 구독은 `startDate` 기준 매월 동일 날짜로 계산
+- **해지 링크**: `cancelUrl`(외부 URL) 있으면 새 탭으로 이동, 없으면 MOA 내부 해지 페이지
+- **카테고리별 지출 분석**: 카테고리가 2개 이상일 때 애니메이션 바 차트 표시
+- **구독 히스토리**: 해지된 구독을 접기/펼치기 UI로 제공 (해지일 포함)
+- **기간 만료 예정 배지**: `endDate` 있고 30일 이내 만료 시 노란색 경고 배지
+
+#### 다음 할 일
+- `PRODUCT` 테이블 실 DB에 `ALTER TABLE PRODUCT ADD CANCEL_URL VARCHAR(500) NULL;` 실행
+- 각 상품 레코드에 실제 해지 URL 입력 (넷플릭스: `https://www.netflix.com/cancelplan`, 등)
+
+---
+
 ### 3-1. AI 챗봇 고도화 (SSE + 맥락 유지) `MEDIUM`
 
 **현황**: `ChatBotService`, `ChatRoutingService`, `ChatKnowledgeCache` 구현됨.
@@ -731,6 +758,7 @@ graph LR
 
 | 작업 | 우선순위 | 상태 |
 |------|---------|------|
+| 구독 대시보드 고도화 | HIGH | ✅ 완료 |
 | AI 챗봇 SSE 스트리밍 | MEDIUM | ⬜ 미시작 |
 | Frontend Error Boundary | MEDIUM | ⬜ 미시작 |
 | Rate Limiting (Bucket4j) | LOW | ⬜ 미시작 |

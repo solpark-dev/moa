@@ -19,6 +19,7 @@ public class SubscriptionDTO {
     private String productImage;
     private int price;
     private String categoryName;
+    private String cancelUrl;
 
     public Subscription toEntity() {
         Subscription subscription = new Subscription();
