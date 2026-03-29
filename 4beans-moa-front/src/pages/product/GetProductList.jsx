@@ -1,603 +1,410 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Search, Coffee, X, Calendar, CalendarPlus, Sparkles, LayoutGrid, Bell, Users, Lightbulb, AlertTriangle, ArrowRight, List } from 'lucide-react';
-import httpClient from '../../api/httpClient';
-import { useAuthStore } from '../../store/authStore';
-import AddSubscriptionModal from '../../components/subscription/AddSubscriptionModal';
-import AddProductModal from '../../components/product/AddProductModal';
-import UpdateProductModal from '../../components/product/UpdateProductModal';
-import { useThemeStore } from '@/store/themeStore';
-import { ChristmasBackground } from '@/config/themeConfig';
-import { getProductIconUrl } from '@/utils/imageUtils';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, X, CalendarPlus, Calendar, Sparkles } from "lucide-react";
+import httpClient from "../../api/httpClient";
+import { useAuthStore } from "../../store/authStore";
+import AddSubscriptionModal from "../../components/subscription/AddSubscriptionModal";
+import AddProductModal from "../../components/product/AddProductModal";
+import UpdateProductModal from "../../components/product/UpdateProductModal";
+import { getProductIconUrl } from "@/utils/imageUtils";
 
-// Theme-based styles
-const getThemeStyles = (theme) => {
-  switch (theme) {
-    case 'dark':
-      return {
-        bg: 'bg-transparent',
-        text: 'text-white',
-        subtext: 'text-gray-400',
-        cardBg: 'bg-[#1E293B]/90 backdrop-blur-sm border border-gray-700 rounded-[2rem] shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
-        cardHover: 'hover:border-[#635bff]/30 hover:shadow-[0_25px_50px_-12px_rgba(99,91,255,0.2)]',
-        searchBg: 'bg-[#1E293B]/90 backdrop-blur-sm border border-gray-700',
-        inputBg: 'bg-[#0F172A]',
-        inputFocus: 'focus:ring-[#635bff]/20 focus:bg-[#0F172A]',
-        filterActive: 'bg-[#635bff]/10 text-[#635bff] ring-1 ring-[#635bff]/30',
-        filterInactive: 'bg-[#0F172A] text-gray-400 hover:bg-gray-800 border border-gray-700',
-        buttonPrimary: 'bg-[#635bff] hover:bg-[#5851e8] text-white',
-        buttonSecondary: 'bg-[#1E293B] border border-gray-700 text-white hover:bg-gray-700',
-        modalBg: 'bg-[#1E293B]',
-        highlight: 'text-[#635bff]',
-        priceBox: 'bg-[#0F172A]/80 border-gray-700',
-      };
-    case 'light':
-      return {
-        bg: 'bg-transparent',
-        text: 'text-gray-900',
-        subtext: 'text-gray-500',
-        cardBg: 'bg-white/90 backdrop-blur-sm border border-gray-200 rounded-[2rem] shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
-        cardHover: 'hover:border-[#635bff]/30 hover:shadow-[0_25px_50px_-12px_rgba(99,91,255,0.15)]',
-        searchBg: 'bg-white/90 backdrop-blur-sm border border-gray-200',
-        inputBg: 'bg-gray-50',
-        inputFocus: 'focus:ring-[#635bff]/20 focus:bg-white',
-        filterActive: 'bg-[#635bff]/10 text-[#635bff] ring-1 ring-[#635bff]/30',
-        filterInactive: 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-200',
-        buttonPrimary: 'bg-[#635bff] hover:bg-[#5851e8] text-white',
-        buttonSecondary: 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50',
-        modalBg: 'bg-white',
-        highlight: 'text-[#635bff]',
-        priceBox: 'bg-gray-50 border-gray-100',
-      };
-    default:
-      return {
-        bg: 'bg-transparent',
-        text: 'text-gray-900',
-        subtext: 'text-gray-500',
-        cardBg: 'bg-white/90 backdrop-blur-sm border border-stone-200 rounded-[2rem]',
-        cardHover: 'hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-500/10',
-        searchBg: 'bg-white/90 backdrop-blur-sm border border-gray-200',
-        inputBg: 'bg-gray-50',
-        inputFocus: 'focus:ring-indigo-500/20 focus:bg-white',
-        filterActive: 'bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200',
-        filterInactive: 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-200',
-        buttonPrimary: 'bg-indigo-600 hover:bg-indigo-700 text-white',
-        buttonSecondary: 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50',
-        modalBg: 'bg-white',
-        highlight: 'text-indigo-600',
-        priceBox: 'bg-stone-50/80 border-stone-100',
-      };
-  }
-};
-
-// ProductDetailModal 컴포넌트
-const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onEdit, themeStyles, theme }) => {
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState('');
+// Product detail bottom sheet
+function ProductDetailSheet({ product, onClose, user, navigate, onSubscribe, onEdit }) {
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
+  const [endDate, setEndDate] = useState("");
 
   if (!product) return null;
 
-  const handleSubscribe = () => {
-    onClose();
-    onSubscribe({ productId: product.productId, startDate, endDate });
-  };
-
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] overflow-y-auto animate-in fade-in duration-200">
-      <div className="min-h-full flex items-start justify-center p-4 pt-24 pb-8">
-        <div className={`${themeStyles.modalBg} w-full max-w-xl rounded-2xl relative flex flex-col animate-in zoom-in-95 duration-200 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]`}>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[999] flex items-end justify-center bg-black/50"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", damping: 28, stiffness: 300 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-[390px] rounded-t-3xl pb-10 max-h-[90vh] overflow-y-auto"
+        style={{
+          background: "var(--glass-bg-card)",
+          backdropFilter: "blur(var(--glass-blur))",
+          WebkitBackdropFilter: "blur(var(--glass-blur))",
+          border: "1px solid var(--glass-border)",
+        }}
+      >
+        {/* Handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1 rounded-full" style={{ background: "var(--glass-border)" }} />
+        </div>
 
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className={`absolute top-4 right-4 p-2 rounded-full z-[50] ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-stone-100 hover:bg-stone-200'} transition-colors`}
-          >
-            <X className={`w-5 h-5 ${theme === 'dark' ? 'text-gray-300' : 'text-stone-500'}`} />
-          </button>
+        {/* Close */}
+        <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full"
+          style={{ background: "var(--glass-bg-overlay)" }}>
+          <X className="w-4 h-4" style={{ color: "var(--theme-text-muted)" }} />
+        </button>
 
-          {/* Header Section */}
-          <div className={`py-9 px-6 flex flex-row items-center gap-6 ${theme === 'dark' ? 'bg-[#1E293B]' : 'bg-white'}`}>
-            <div className="flex-shrink-0">
-              {product.image ? (
-                <img
-                  src={getProductIconUrl(product.image)}
-                  alt={product.productName}
-                  className={`w-20 h-20 rounded-3xl shadow-lg object-cover ${theme === 'dark' ? 'bg-gray-700' : 'bg-white'}`}
-                />
-              ) : (
-                <div className={`w-20 h-20 rounded-3xl shadow-lg flex items-center justify-center ${theme === 'dark' ? 'bg-gray-700 text-gray-400' : 'bg-white text-gray-400'}`}>
-                  No Img
-                </div>
+        {/* Header */}
+        <div className="flex items-center gap-4 px-6 py-4">
+          <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0"
+            style={{ background: "var(--glass-bg-overlay)" }}>
+            {product.image ? (
+              <img src={getProductIconUrl(product.image)} alt={product.productName}
+                className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-[18px] font-bold truncate" style={{ color: "var(--theme-text)" }}>
+              {product.productName}
+            </h2>
+            <div className="flex items-center gap-2 mt-1">
+              {product.categoryName && (
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                  style={{ background: "var(--glass-bg-overlay)", color: "var(--theme-primary)" }}>
+                  {product.categoryName}
+                </span>
               )}
-            </div>
-
-            <div>
-              <h2 className={`text-2xl font-extrabold leading-tight ${themeStyles.text}`}>
-                {product.productName}
-              </h2>
-              <div className="flex items-center gap-2 mt-2">
-                <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff]' : 'bg-[#635bff]/10 text-[#635bff]'}`}>
-                  {product.categoryName || '구독'}
-                </span>
-                {product.productStatus === 'INACTIVE' && (
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'}`}>
-                    판매중지
-                  </span>
-                )}
-                <span className={`font-extrabold text-lg ${themeStyles.text}`}>
-                  ₩{product.price?.toLocaleString()}
-                  <span className={`text-xs font-normal ml-0.5 ${themeStyles.subtext}`}>/월</span>
-                </span>
-              </div>
+              <span className="text-[16px] font-black" style={{ color: "var(--theme-primary)" }}>
+                ₩{product.price?.toLocaleString()}
+                <span className="text-[11px] font-normal ml-0.5" style={{ color: "var(--theme-text-muted)" }}>/월</span>
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* Content */}
-          <div className="p-8 space-y-8">
-            {/* Description */}
-            {product.description && (
-              <div>
-                <p className={`leading-relaxed ${themeStyles.subtext}`}>{product.description}</p>
-              </div>
-            )}
+        <div className="px-6 space-y-4">
+          {product.description && (
+            <p className="text-[13px] leading-relaxed" style={{ color: "var(--theme-text-muted)" }}>
+              {product.description}
+            </p>
+          )}
 
-            {/* MoA 혜택 */}
-            <div>
-              <h3 className={`font-bold mb-4 flex items-center gap-2 text-sm ${themeStyles.text}`}>
-                <Sparkles className={`w-4 h-4 ${themeStyles.highlight}`} /> MoA 구독 관리 혜택
-              </h3>
-              <div className="space-y-4">
-                {[
-                  {
-                    icon: LayoutGrid,
-                    title: "1. 모든 구독을 한눈에 정리하세요",
-                    desc: "흩어진 구독을 한 곳에서 확인하고 더 쉽고 편하게 관리할 수 있어요."
-                  },
-                  {
-                    icon: Bell,
-                    title: "2. 매달 빠져나가는 구독비, 미리 대비하세요",
-                    desc: "결제일을 자동으로 알려주어 불필요한 지출을 막아줘요."
-                  },
-                  {
-                    icon: Users,
-                    title: "3. 가족의 구독도 함께 관리하는 패밀리 센터",
-                    desc: "가족이 어떤 서비스에 가입했는지 쉽고 투명하게 관리하세요."
-                  },
-                  {
-                    icon: Lightbulb,
-                    title: "4. 꼭 필요한 구독만 남기는 똑똑한 소비 도우미",
-                    desc: "활용도가 낮은 구독을 알려줘서 해지·유지 판단을 도와줘요."
-                  }
-                ].map((item, idx) => (
-                  <div key={idx} className="flex gap-3 items-start">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff]' : 'bg-[#635bff]/10 text-[#635bff]'}`}>
-                      <item.icon className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className={`text-sm font-bold leading-tight ${themeStyles.text}`}>{item.title}</h4>
-                      <p className={`text-xs leading-relaxed mt-1 ${themeStyles.subtext}`}>{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {/* Benefits */}
+          <div className="rounded-xl p-4 space-y-3" style={{ background: "var(--glass-bg-overlay)" }}>
+            <p className="text-[12px] font-semibold flex items-center gap-1.5"
+              style={{ color: "var(--theme-primary)" }}>
+              <Sparkles className="w-3.5 h-3.5" />
+              MOA 구독 관리 혜택
+            </p>
+            {["모든 구독을 한눈에 정리", "결제일 자동 알림으로 불필요한 지출 방지", "파티 공유로 최대 75% 절약"].map((t) => (
+              <p key={t} className="text-[12px]" style={{ color: "var(--theme-text-muted)" }}>
+                • {t}
+              </p>
+            ))}
+          </div>
 
-            {/* 구독 시작일 & 종료일 선택 (일반 사용자만) */}
-            {user?.role !== 'ADMIN' && (
-              <div className={`pt-4 border-t space-y-4 ${theme === 'dark' ? 'border-gray-700' : 'border-stone-100'}`}>
-                {/* 시작일 */}
-                <div>
-                  <label className={`block text-sm font-bold mb-2 ${themeStyles.text}`}>
-                    구독 시작일 (결제일) 지정
-                  </label>
+          {/* Date pickers (non-admin) */}
+          {user?.role !== "ADMIN" && (
+            <div className="space-y-3">
+              {[
+                { label: "구독 시작일", value: startDate, onChange: setStartDate, min: "" },
+                { label: "구독 종료일 (선택)", value: endDate, onChange: setEndDate, min: startDate },
+              ].map(({ label, value, onChange, min }) => (
+                <div key={label}>
+                  <label className="block text-[12px] font-semibold mb-1.5"
+                    style={{ color: "var(--theme-text-muted)" }}>{label}</label>
                   <div className="relative">
-                    <Calendar className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${themeStyles.highlight}`} />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                      style={{ color: "var(--theme-primary)" }} />
                     <input
                       type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className={`w-full pl-11 pr-4 py-3 border-none rounded-xl font-medium focus:ring-2 outline-none ${theme === 'dark' ? 'bg-[#0F172A] text-white focus:ring-[#635bff]/30' : 'bg-gray-50 text-gray-900 focus:ring-[#635bff]/30'}`}
+                      value={value}
+                      onChange={(e) => onChange(e.target.value)}
+                      min={min || undefined}
+                      className="w-full h-10 pl-9 pr-3 rounded-xl text-[13px] outline-none"
+                      style={{
+                        background: "var(--glass-bg-overlay)",
+                        border: "1px solid var(--glass-border)",
+                        color: "var(--theme-text)",
+                      }}
                     />
                   </div>
                 </div>
+              ))}
+            </div>
+          )}
 
-                {/* 종료일 */}
-                <div>
-                  <label className={`block text-sm font-bold mb-2 ${themeStyles.text}`}>
-                    구독 종료일 (선택사항)
-                  </label>
-                  <div className="relative">
-                    <Calendar className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${themeStyles.highlight}`} />
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      min={startDate}
-                      placeholder="종료일 미지정 시 계속 유지"
-                      className={`w-full pl-11 pr-4 py-3 border-none rounded-xl font-medium focus:ring-2 outline-none ${theme === 'dark' ? 'bg-[#0F172A] text-white focus:ring-[#635bff]/30' : 'bg-gray-50 text-gray-900 focus:ring-[#635bff]/30'}`}
-                    />
-                  </div>
-                  <p className={`text-xs mt-1 ml-1 ${themeStyles.subtext}`}>미지정 시 자동 갱신으로 계속 유지됩니다</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Footer Actions */}
-          <div className={`p-4 flex gap-3 ${theme === 'dark' ? 'bg-[#1E293B]' : 'bg-white'}`}>
-            {user?.role === 'ADMIN' ? (
+          {/* Actions */}
+          <div className="flex gap-3 pt-1">
+            {user?.role === "ADMIN" ? (
               <>
-                <button
-                  onClick={() => {
-                    onClose();
-                    onEdit(product);
-                  }}
-                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' : 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20'}`}
-                >
+                <button onClick={() => { onClose(); onEdit(product); }}
+                  className="flex-1 py-3 rounded-xl text-[13px] font-bold"
+                  style={{ background: "var(--glass-bg-overlay)", color: "var(--theme-primary)" }}>
                   수정하기
                 </button>
-                <button
-                  onClick={() => {
-                    onClose();
-                    navigate(`/product/${product.productId}/delete`);
-                  }}
-                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${theme === 'dark' ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' :
-                      'bg-red-50 text-red-500 hover:bg-red-100'
-                    }`}
-                >
+                <button onClick={() => { onClose(); navigate(`/product/${product.productId}/delete`); }}
+                  className="flex-1 py-3 rounded-xl text-[13px] font-bold"
+                  style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444" }}>
                   삭제하기
                 </button>
               </>
             ) : (
               <>
-                <button
-                  onClick={onClose}
-                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' : 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20'}`}
-                >
+                <button onClick={onClose}
+                  className="flex-1 py-3 rounded-xl text-[13px] font-semibold"
+                  style={{ background: "var(--glass-bg-overlay)", color: "var(--theme-text-muted)" }}>
                   취소
                 </button>
                 <button
-                  onClick={handleSubscribe}
-                  className={`flex-[2] py-3.5 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${theme === 'dark' ? 'bg-[#635bff] text-white hover:bg-[#5851e8]' : 'bg-[#635bff] text-white hover:bg-[#5851e8]'}`}
+                  onClick={() => { onClose(); onSubscribe({ productId: product.productId, startDate, endDate }); }}
+                  className="flex-[2] py-3 rounded-xl text-[13px] font-bold text-white flex items-center justify-center gap-2"
+                  style={{ background: "var(--theme-primary)" }}
                 >
-                  <CalendarPlus className="w-5 h-5" />
+                  <CalendarPlus className="w-4 h-4" />
                   구독 일정에 등록
                 </button>
               </>
             )}
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
-};
+}
 
 const GetProductList = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { theme, setTheme } = useThemeStore();
-  const themeStyles = getThemeStyles(theme);
 
-  // Data States
-  const [allProducts, setAllProducts] = useState([]);
+  const [allProducts,      setAllProducts]      = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Filter States
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('전체');
-
-  // Modal State
-  const [viewingProduct, setViewingProduct] = useState(null);
-  const [subscribingData, setSubscribingData] = useState(null);
+  const [categories,       setCategories]       = useState([]);
+  const [loading,          setLoading]          = useState(true);
+  const [searchKeyword,    setSearchKeyword]    = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("전체");
+  const [viewingProduct,   setViewingProduct]   = useState(null);
+  const [subscribingData,  setSubscribingData]  = useState(null);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [editingProduct,   setEditingProduct]   = useState(null);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-
       const [productRes, categoryRes] = await Promise.all([
-        httpClient.get('/product'),
-        httpClient.get('/product/categorie')
+        httpClient.get("/product"),
+        httpClient.get("/product/categorie"),
       ]);
-
-      if (productRes.success) {
-        setAllProducts(productRes.data || []);
-      }
-
-      if (categoryRes.success) {
-        setCategories(categoryRes.data || []);
-      }
-
-    } catch (error) {
-      console.error("Failed to fetch data", error);
-    } finally {
-      setLoading(false);
-    }
+      if (productRes.success) setAllProducts(productRes.data || []);
+      if (categoryRes.success) setCategories(categoryRes.data || []);
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
-  // Fetch Initial Data
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
-  // Filtering Logic
   useEffect(() => {
     let result = allProducts;
-
-    if (selectedCategory !== '전체') {
-      result = result.filter(p => p.categoryName === selectedCategory);
-    }
-
+    if (selectedCategory !== "전체") result = result.filter((p) => p.categoryName === selectedCategory);
     if (searchKeyword.trim()) {
-      const keyword = searchKeyword.toLowerCase();
-      result = result.filter(p =>
-        p.productName?.toLowerCase().includes(keyword)
-      );
+      const kw = searchKeyword.toLowerCase();
+      result = result.filter((p) => p.productName?.toLowerCase().includes(kw));
     }
-
     setFilteredProducts(result);
   }, [searchKeyword, selectedCategory, allProducts]);
 
-
-
-
   if (loading) {
     return (
-      <div className={`min-h-screen flex justify-center items-center relative z-10 ${themeStyles.bg}`}>
-        <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${theme === 'dark' ? 'border-[#635bff]' : 'border-[#635bff]'}`}></div>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="w-8 h-8 border-2 rounded-full animate-spin"
+          style={{ borderColor: "var(--glass-border)", borderTopColor: "var(--theme-primary)" }} />
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen relative ${themeStyles.bg}`}>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-transparent">
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-8 md:pt-4 md:pb-12">
-          <div className="text-center max-w-3xl mx-auto">
-            {/* Badge with Subtitle */}
-            <motion.div
-              initial={{ opacity: 0, y: 20, rotate: 0 }}
-              animate={{ opacity: 1, y: 0, rotate: -5 }}
-              transition={{ duration: 0.5 }}
-              whileHover={{ rotate: 0, scale: 1.02 }}
-              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-6 shadow-md ${theme === 'dark' ? 'bg-[#635bff]/20 text-[#635bff] border border-[#635bff]/30' : 'bg-[#635bff]/10 text-[#635bff] border border-[#635bff]/20'}`}
-            >
-              <span className="text-base">✨</span>
-              <span className="text-sm font-bold">
-                구독은 복잡하지 않게, 관리는 더 편하게
-              </span>
-            </motion.div>
-
-            {/* Main Title */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className={`text-4xl sm:text-5xl md:text-6xl font-black mb-8 tracking-tight leading-[1.1] ${themeStyles.text}`}
-            >
-              모든 구독을
-              <br />
-              <span className={`${theme === 'dark' ? 'bg-gradient-to-r from-[#635bff] via-[#00d4ff] to-[#00d4ff] bg-clip-text text-transparent' : 'bg-gradient-to-r from-[#635bff] to-[#00d4ff] bg-clip-text text-transparent'}`}>
-                한눈에!
-              </span>
-            </motion.h1>
-
-            {/* Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4"
-            >
-              {/* Admin: 상품 등록 버튼 */}
-              {user?.role === 'ADMIN' && (
-                <motion.button
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setIsAddProductModalOpen(true)}
-                  className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors ${theme === 'dark' ? 'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25' : 'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25'}`}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  상품 등록
-                  <ArrowRight className="w-4 h-4" />
-                </motion.button>
-              )}
-
-              {/* User: 내 구독 목록 버튼 */}
-              {user && user?.role !== 'ADMIN' && (
-                <motion.button
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => navigate('/subscription')}
-                  className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors ${theme === 'dark' ? 'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25' : 'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25'}`}
-                >
-                  <List className="w-4 h-4" />
-                  내 구독 목록
-                  <ArrowRight className="w-4 h-4" />
-                </motion.button>
-              )}
-            </motion.div>
-          </div>
+    <div className="min-h-screen pb-4" style={{ background: "var(--theme-bg)" }}>
+      {/* Header */}
+      <div className="px-5 pt-6 pb-4 flex items-center justify-between">
+        <div>
+          <h2 className="text-[18px] font-bold" style={{ color: "var(--theme-text)" }}>구독 서비스</h2>
+          <p className="text-[13px] mt-0.5" style={{ color: "var(--theme-text-muted)" }}>
+            {filteredProducts.length}개의 서비스
+          </p>
         </div>
-      </section>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Search & Filter Section */}
-        <div className={`p-2 rounded-2xl shadow-sm mb-10 flex flex-col md:flex-row gap-4 items-center justify-between ${themeStyles.searchBg}`}>
-          <div className="relative w-full flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className={`h-5 w-5 ${themeStyles.subtext}`} />
-            </div>
-            <input
-              type="text"
-              className={`block w-full pl-10 pr-3 py-2.5 border-none rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${themeStyles.inputBg} ${themeStyles.inputFocus} ${themeStyles.text}`}
-              placeholder="서비스명 검색..."
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
-            />
-          </div>
-
-          <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto px-2 md:px-0 scrollbar-hide flex-shrink-0">
-            <button
-              onClick={() => setSelectedCategory('전체')}
-              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${selectedCategory === '전체' ? themeStyles.filterActive : themeStyles.filterInactive
-                }`}
-            >
-              전체
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.categoryId}
-                onClick={() => setSelectedCategory(cat.categoryName)}
-                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${selectedCategory === cat.categoryName ? themeStyles.filterActive : themeStyles.filterInactive
-                  }`}
-              >
-                {cat.categoryName}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Product Grid */}
-        {filteredProducts.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`text-center py-20 rounded-3xl ${theme === 'dark' ? 'bg-[#1E293B]' : 'bg-gray-50'}`}
+        {user?.role === "ADMIN" && (
+          <button
+            onClick={() => setIsAddProductModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-bold text-white"
+            style={{ background: "var(--theme-primary)" }}
           >
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${theme === 'dark' ? 'bg-[#635bff]/10' : 'bg-[#635bff]/10'}`}>
-              <Search className={`w-10 h-10 ${themeStyles.highlight}`} />
-            </div>
-            <h3 className={`text-xl font-bold mb-2 ${themeStyles.text}`}>
-              {searchKeyword ? `'${searchKeyword}' 검색 결과가 없습니다` : '등록된 구독 상품이 없습니다'}
-            </h3>
-            <p className={`${themeStyles.subtext}`}>
-              다른 검색어나 카테고리를 시도해보세요
-            </p>
-          </motion.div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map((product, index) => (
-              <motion.div
-                key={product.productId}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                className={`group relative flex flex-col h-full p-6 overflow-hidden cursor-pointer ${themeStyles.cardBg} ${themeStyles.cardHover}`}
-              >
-                <div className="relative z-10 flex flex-col gap-4 h-full">
-                  <div className="flex items-start gap-3">
-                    <div className="relative w-[60px] h-[60px] flex-shrink-0">
-                      {product.image ? (
-                        <img
-                          src={getProductIconUrl(product.image)}
-                          alt={product.productName}
-                          className={`w-full h-full rounded-xl object-cover shadow-sm ${theme === 'dark' ? 'border border-gray-700' : 'border border-stone-200'}`}
-                        />
-                      ) : (
-                        <div className={`w-full h-full rounded-xl flex items-center justify-center ${theme === 'dark' ? 'bg-gray-700 border border-gray-600' : 'bg-stone-100 border border-stone-200'}`}>
-                          <span className={`text-xs ${themeStyles.subtext}`}>No Img</span>
-                        </div>
-                      )}
-
-                      {product.productStatus === 'INACTIVE' && (
-                        <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">중지</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <h3 className={`text-lg font-bold mb-1 truncate ${themeStyles.text}`}>
-                        {product.productName}
-                      </h3>
-                      <span className={`inline-block px-2 py-0.5 rounded-md text-xs font-medium ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-stone-100 text-stone-600'
-                        }`}>
-                        {product.categoryName || '구독'}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className={`rounded-2xl p-5 flex-1 border transition-colors backdrop-blur-sm ${themeStyles.priceBox} ${theme === 'dark' ? 'group-hover:bg-[#1E293B] group-hover:border-gray-600' : 'group-hover:bg-white group-hover:border-stone-200'}`}>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-sm font-medium ${themeStyles.subtext}`}>월 공식 구독료</span>
-                      <span className={`text-xl font-bold ${themeStyles.text}`}>
-                        ₩{product.price?.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!user) {
-                          alert('로그인이 필요한 서비스입니다. 로그인 페이지로 이동합니다.');
-                          navigate('/login');
-                          return;
-                        }
-                        setViewingProduct(product);
-                      }}
-                      className={`rounded-lg py-2.5 text-sm font-medium transition-colors ${themeStyles.buttonSecondary}`}
-                    >
-                      상세보기
-                    </button>
-                    {user?.role === 'ADMIN' ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingProduct(product);
-                        }}
-                        className={`rounded-lg py-2.5 text-sm font-medium transition-colors ${themeStyles.buttonPrimary}`}
-                      >
-                        상품관리
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!user) {
-                            alert('로그인이 필요한 서비스입니다. 로그인 페이지로 이동합니다.');
-                            navigate('/login');
-                            return;
-                          }
-                          const today = new Date().toISOString().split('T')[0];
-                          setSubscribingData({ productId: product.productId, startDate: today, endDate: '' });
-                        }}
-                        className={`rounded-lg py-2.5 text-sm font-medium transition-colors ${themeStyles.buttonPrimary}`}
-                      >
-                        구독신청
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+            <Sparkles className="w-3.5 h-3.5" />
+            상품 등록
+          </button>
         )}
       </div>
 
-      {/* Product Detail Modal */}
-      {viewingProduct && (
-        <ProductDetailModal
-          product={viewingProduct}
-          onClose={() => setViewingProduct(null)}
-          user={user}
-          navigate={navigate}
-          onSubscribe={(data) => setSubscribingData(data)}
-          onEdit={(product) => setEditingProduct(product)}
-          themeStyles={themeStyles}
-          theme={theme}
-        />
-      )}
+      {/* Search */}
+      <div className="px-4 mb-3">
+        <div className="relative">
+          <input
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            placeholder="서비스명 검색..."
+            className="w-full h-10 pl-9 pr-9 rounded-xl text-[14px] outline-none"
+            style={{
+              background: "var(--glass-bg-card)",
+              border: "1px solid var(--glass-border)",
+              color: "var(--theme-text)",
+            }}
+          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+            style={{ color: "var(--theme-text-muted)" }} />
+          {searchKeyword && (
+            <button onClick={() => setSearchKeyword("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+              <X className="w-4 h-4" style={{ color: "var(--theme-text-muted)" }} />
+            </button>
+          )}
+        </div>
+      </div>
 
-      {/* Add Subscription Modal */}
+      {/* Category filter */}
+      <div className="flex gap-2 px-4 overflow-x-auto scrollbar-hide pb-2 mb-3">
+        {["전체", ...categories.map((c) => c.categoryName)].map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className="flex-shrink-0 px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-all"
+            style={{
+              background: selectedCategory === cat ? "var(--theme-primary)" : "var(--glass-bg-card)",
+              border: "1px solid var(--glass-border)",
+              color: selectedCategory === cat ? "#fff" : "var(--theme-text-muted)",
+            }}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Product list */}
+      <div className="px-4 space-y-3">
+        {filteredProducts.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center py-16 gap-3"
+          >
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
+              style={{ background: "var(--glass-bg-overlay)" }}>
+              <Search className="w-6 h-6" style={{ color: "var(--theme-primary)" }} />
+            </div>
+            <p className="text-[14px] font-semibold" style={{ color: "var(--theme-text)" }}>
+              {searchKeyword ? `'${searchKeyword}' 검색 결과 없음` : "등록된 구독 상품이 없어요"}
+            </p>
+          </motion.div>
+        ) : (
+          filteredProducts.map((product, i) => (
+            <motion.div
+              key={product.productId}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: Math.min(i * 0.05, 0.3), duration: 0.35 }}
+              className="rounded-2xl overflow-hidden"
+              style={{
+                background: "var(--glass-bg-card)",
+                backdropFilter: "blur(var(--glass-blur))",
+                WebkitBackdropFilter: "blur(var(--glass-blur))",
+                border: "1px solid var(--glass-border)",
+                boxShadow: "var(--shadow-glass)",
+              }}
+            >
+              <div className="flex items-center gap-4 p-4">
+                {/* Icon */}
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden relative"
+                  style={{ background: "var(--glass-bg-overlay)" }}>
+                  {product.image ? (
+                    <img src={getProductIconUrl(product.image)} alt={product.productName}
+                      className="w-10 h-10 object-contain" />
+                  ) : (
+                    <span className="text-2xl">📦</span>
+                  )}
+                  {product.productStatus === "INACTIVE" && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-2xl">
+                      <span className="text-white text-[10px] font-bold">중지</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-[15px] font-bold truncate" style={{ color: "var(--theme-text)" }}>
+                      {product.productName}
+                    </p>
+                    {product.categoryName && (
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                        style={{ background: "var(--glass-bg-overlay)", color: "var(--theme-text-muted)" }}>
+                        {product.categoryName}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[16px] font-black" style={{ color: "var(--theme-primary)" }}>
+                    ₩{product.price?.toLocaleString()}
+                    <span className="text-[10px] font-normal ml-0.5" style={{ color: "var(--theme-text-muted)" }}>/월</span>
+                  </p>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col gap-2 flex-shrink-0">
+                  <button
+                    onClick={() => {
+                      if (!user) { navigate("/login"); return; }
+                      setViewingProduct(product);
+                    }}
+                    className="px-3 py-1.5 rounded-lg text-[11px] font-semibold"
+                    style={{ background: "var(--glass-bg-overlay)", color: "var(--theme-primary)", border: "1px solid var(--glass-border)" }}
+                  >
+                    상세보기
+                  </button>
+                  {user?.role === "ADMIN" ? (
+                    <button
+                      onClick={() => setEditingProduct(product)}
+                      className="px-3 py-1.5 rounded-lg text-[11px] font-bold text-white"
+                      style={{ background: "var(--theme-primary)" }}
+                    >
+                      관리
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        if (!user) { navigate("/login"); return; }
+                        const today = new Date().toISOString().split("T")[0];
+                        setSubscribingData({ productId: product.productId, startDate: today, endDate: "" });
+                      }}
+                      className="px-3 py-1.5 rounded-lg text-[11px] font-bold text-white"
+                      style={{ background: "var(--theme-primary)" }}
+                    >
+                      구독신청
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          ))
+        )}
+      </div>
+
+      {/* Modals */}
+      <AnimatePresence>
+        {viewingProduct && (
+          <ProductDetailSheet
+            product={viewingProduct}
+            onClose={() => setViewingProduct(null)}
+            user={user}
+            navigate={navigate}
+            onSubscribe={(data) => setSubscribingData(data)}
+            onEdit={(p) => setEditingProduct(p)}
+          />
+        )}
+      </AnimatePresence>
+
       {subscribingData && (
         <AddSubscriptionModal
           productId={subscribingData.productId}
@@ -605,31 +412,22 @@ const GetProductList = () => {
           endDate={subscribingData.endDate}
           onClose={() => setSubscribingData(null)}
           user={user}
-          onSuccess={() => {
-            // 구독 목록으로 이동할 수도 있음
-            // navigate('/subscriptions');
-          }}
+          onSuccess={() => {}}
         />
       )}
 
-      {/* Add Product Modal */}
       <AddProductModal
         isOpen={isAddProductModalOpen}
         onClose={() => setIsAddProductModalOpen(false)}
-        onSuccess={() => {
-          fetchData(); // 목록 갱신
-        }}
+        onSuccess={fetchData}
       />
 
-      {/* Update Product Modal */}
       <UpdateProductModal
         isOpen={!!editingProduct}
         onClose={() => setEditingProduct(null)}
         productId={editingProduct?.productId}
         initialData={editingProduct}
-        onSuccess={() => {
-          fetchData(); // 목록 갱신
-        }}
+        onSuccess={fetchData}
       />
     </div>
   );

@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.moa.global.auth.provider.JwtProvider;
+import com.moa.global.auth.service.TokenBlacklistService;
 import com.moa.global.common.exception.BusinessException;
 import com.moa.global.common.exception.ErrorCode;
+import com.moa.global.service.mail.EmailService;
 import com.moa.user.repository.EmailVerificationDao;
 import com.moa.user.repository.UserDao;
 import com.moa.user.domain.EmailVerification;
@@ -40,6 +42,8 @@ public class AuthServiceImpl implements AuthService {
 
 	private final UserDao userDao;
 	private final EmailVerificationDao emailVerificationDao;
+	private final EmailService emailService;
+	private final TokenBlacklistService tokenBlacklistService;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtProvider jwtProvider;
 	private final OtpService otpService;
@@ -117,6 +121,15 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public void logout(String accessToken, String refreshToken) {
+		if (accessToken != null && !accessToken.isBlank()) {
+			String token = accessToken.startsWith("Bearer ") ? accessToken.substring(7) : accessToken;
+			long remaining = jwtProvider.getRemainingTtlMillis(token);
+			tokenBlacklistService.blacklistToken(token, remaining);
+		}
+		if (refreshToken != null && !refreshToken.isBlank()) {
+			long remaining = jwtProvider.getRemainingTtlMillis(refreshToken);
+			tokenBlacklistService.blacklistToken(refreshToken, remaining);
+		}
 	}
 
 	@Override
@@ -135,6 +148,31 @@ public class AuthServiceImpl implements AuthService {
 
 		emailVerificationDao.updateVerifiedAt(token);
 		userDao.updateUserStatus(verification.getUserId(), UserStatus.ACTIVE);
+	}
+
+	@Override
+	@Transactional
+	public void resendVerificationEmail(String email) {
+		String userId = email.toLowerCase();
+
+		User user = userDao.findByUserId(userId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "가입된 이메일이 없습니다."));
+
+		if (user.getStatus() != UserStatus.PENDING) {
+			throw new BusinessException(ErrorCode.CONFLICT, "이미 인증이 완료된 계정입니다.");
+		}
+
+		emailVerificationDao.expirePreviousTokens(userId);
+
+		String token = java.util.UUID.randomUUID().toString();
+		LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(30);
+
+		EmailVerification verification = EmailVerification.builder()
+				.userId(userId).token(token).expiresAt(expiresAt).build();
+
+		emailVerificationDao.insert(verification);
+
+		emailService.sendSignupVerificationEmail(userId, user.getNickname(), token);
 	}
 
 	@Override

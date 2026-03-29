@@ -57,13 +57,15 @@ public class JwtProvider {
 		Date accessTokenExpiresIn = new Date(now + accessTokenExpirationMillis);
 		Date refreshTokenExpiresIn = new Date(now + refreshTokenExpirationMillis);
 
+		Date issuedAt = new Date(now);
+
 		String accessToken = Jwts.builder().setSubject(authentication.getName()).claim(AUTHORITIES_KEY, authorities)
 				.claim(PROVIDER_KEY, provider == null || provider.isBlank() ? "email" : provider)
-				.setExpiration(accessTokenExpiresIn).signWith(secretKey, SignatureAlgorithm.HS256).compact();
+				.setIssuedAt(issuedAt).setExpiration(accessTokenExpiresIn).signWith(secretKey, SignatureAlgorithm.HS256).compact();
 
 		String refreshToken = Jwts.builder().setSubject(authentication.getName()).claim(AUTHORITIES_KEY, authorities)
 				.claim(PROVIDER_KEY, provider == null || provider.isBlank() ? "email" : provider)
-				.setExpiration(refreshTokenExpiresIn).signWith(secretKey, SignatureAlgorithm.HS256).compact();
+				.setIssuedAt(issuedAt).setExpiration(refreshTokenExpiresIn).signWith(secretKey, SignatureAlgorithm.HS256).compact();
 
 		return TokenResponse.builder().grantType(BEARER_TYPE).accessToken(accessToken).refreshToken(refreshToken)
 				.accessTokenExpiresIn(accessTokenExpiresIn.getTime()).build();
@@ -85,16 +87,17 @@ public class JwtProvider {
 		}
 
 		long now = (new Date()).getTime();
+		Date issuedAt = new Date(now);
 		Date accessTokenExpiresIn = new Date(now + accessTokenExpirationMillis);
 		Date newRefreshTokenExpiresIn = new Date(now + refreshTokenExpirationMillis);
 
 		String newAccessToken = Jwts.builder().setSubject(userId).claim(AUTHORITIES_KEY, authorities)
 				.claim(PROVIDER_KEY, provider == null || provider.isBlank() ? "email" : provider)
-				.setExpiration(accessTokenExpiresIn).signWith(secretKey, SignatureAlgorithm.HS256).compact();
+				.setIssuedAt(issuedAt).setExpiration(accessTokenExpiresIn).signWith(secretKey, SignatureAlgorithm.HS256).compact();
 
 		String newRefreshToken = Jwts.builder().setSubject(userId).claim(AUTHORITIES_KEY, authorities)
 				.claim(PROVIDER_KEY, provider == null || provider.isBlank() ? "email" : provider)
-				.setExpiration(newRefreshTokenExpiresIn).signWith(secretKey, SignatureAlgorithm.HS256).compact();
+				.setIssuedAt(issuedAt).setExpiration(newRefreshTokenExpiresIn).signWith(secretKey, SignatureAlgorithm.HS256).compact();
 
 		return TokenResponse.builder().grantType(BEARER_TYPE).accessToken(newAccessToken).refreshToken(newRefreshToken)
 				.accessTokenExpiresIn(accessTokenExpiresIn.getTime()).build();
@@ -135,6 +138,29 @@ public class JwtProvider {
 			return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
 		} catch (ExpiredJwtException e) {
 			return e.getClaims();
+		}
+	}
+
+	/** 토큰의 남은 유효 시간(밀리초). 이미 만료된 경우 0 반환. */
+	public long getRemainingTtlMillis(String token) {
+		try {
+			Claims claims = parseClaims(token);
+			long expMillis = claims.getExpiration().getTime();
+			long remaining = expMillis - System.currentTimeMillis();
+			return Math.max(remaining, 0L);
+		} catch (Exception e) {
+			return 0L;
+		}
+	}
+
+	/** 토큰의 발급 시각(epoch millis). iat 클레임이 없으면 0 반환. */
+	public long getIssuedAtMillis(String token) {
+		try {
+			Claims claims = parseClaims(token);
+			Date iat = claims.getIssuedAt();
+			return iat != null ? iat.getTime() : 0L;
+		} catch (Exception e) {
+			return 0L;
 		}
 	}
 

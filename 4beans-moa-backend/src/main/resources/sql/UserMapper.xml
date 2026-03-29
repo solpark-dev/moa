@@ -12,7 +12,7 @@
 		<result property="profileImage" column="PROFILE_IMAGE" />
 		<result property="role" column="ROLE" />
 		<result property="status" column="USER_STATUS"
-			javaType="com.moa.domain.enums.UserStatus" />
+			javaType="com.moa.party.domain.enums.UserStatus" />
 		<result property="regDate" column="REG_DATE" />
 		<result property="ci" column="CI" />
 		<result property="passCertifiedAt" column="PASS_CERTIFIED_AT" />

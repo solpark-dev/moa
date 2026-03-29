@@ -1,13 +1,11 @@
-﻿import { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import httpClient from "@/api/httpClient";
 import { useSignupStore } from "@/store/user/addUserStore";
 import { uploadProfileImage } from "@/api/userApi";
 
 import {
   signup,
   checkCommon,
-  checkPhone,
   fetchCurrentUser,
 } from "@/api/authApi";
 import { useAuthStore } from "@/store/authStore";
@@ -17,6 +15,7 @@ const BAD_WORDS = ["fuck", "shit", "bitch", "asshole", "ssibal", "jiral"];
 const REGEX = {
   EMAIL: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
   NICKNAME: /^[A-Za-z0-9\uAC00-\uD7A3]{2,10}$/,
+  PHONE: /^010\d{8}$/,
   PASSWORD:
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()])[A-Za-z\d!@#$%^&*()]{8,20}$/,
 };
@@ -25,7 +24,7 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
   const navigate = useNavigate();
   const { form, errors, setField, setErrorMessage, reset } = useSignupStore();
   const isSocial = mode === "social";
-  const { setTokens, setUser, clearAuth } = useAuthStore();
+  const { setTokens, setUser } = useAuthStore();
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
   const passwordCheckRef = useRef(null);
@@ -159,97 +158,16 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
     return () => clearTimeout(t);
   }, [form.nickname]);
 
-  const handlePassAuth = async () => {
-    try {
-      const startUrl = "/signup/pass/start";
-      const verifyUrl = "/signup/pass/verify";
+  useEffect(() => {
+    if (!form.phone) return setErrorMessage("phone", "", false);
 
-      const start = await httpClient.get(startUrl, { skipAuth: true });
-
-      if (!start?.success) {
-        throw new Error(
-          start?.error?.message || "본인인증 시작에 실패했습니다."
-        );
-      }
-
-      const { impCode, merchantUid } = start.data;
-
-      if (!window.IMP) {
-        alert("본인인증 모듈 로드에 실패했습니다.");
-        return;
-      }
-
-      window.IMP.init(impCode);
-
-      window.IMP.certification({ merchant_uid: merchantUid }, async (rsp) => {
-        if (!rsp.success) return;
-
-        try {
-          const verify = await httpClient.post(
-            verifyUrl,
-            { imp_uid: rsp.imp_uid },
-            { skipAuth: true }
-          );
-
-          if (!verify?.success) {
-            throw new Error(
-              verify?.error?.message || "본인인증에 실패했습니다."
-            );
-          }
-
-          const { phone, ci } = verify.data;
-          const phoneCheck = await checkPhone(phone);
-          const available =
-            phoneCheck?.data?.available ?? phoneCheck?.data?.data?.available;
-          if (!phoneCheck?.success || available === false) {
-            if (
-              isSocial &&
-              socialInfo?.provider &&
-              socialInfo?.providerUserId
-            ) {
-              const ok = window.confirm(
-                "이미 가입된 휴대폰 번호입니다.\n해당 계정에 소셜 로그인을 연동하시겠습니까?"
-              );
-
-              if (ok) {
-                navigate("/oauth/phone-connect", {
-                  replace: true,
-                  state: {
-                    provider: socialInfo.provider,
-                    providerUserId: socialInfo.providerUserId,
-                    phone,
-                    ci,
-                  },
-                });
-              }
-
-              return;
-            }
-
-            throw new Error("이미 가입된 휴대폰 번호입니다.");
-          }
-
-          setField("phone", phone);
-          sessionStorage.setItem("PASS_CI", ci);
-          setErrorMessage("phone", "본인인증 성공!", false);
-        } catch (err) {
-          sessionStorage.removeItem("PASS_CI");
-          setField("phone", "");
-
-          const message =
-            err?.message ||
-            err?.response?.data?.error?.message ||
-            err?.response?.data?.message ||
-            "본인인증에 실패했습니다.";
-
-          setErrorMessage("phone", message, true);
-          alert(message);
-        }
-      });
-    } catch (err) {
-      alert(err?.message || "본인인증 처리 중 오류가 발생했습니다.");
+    const digits = form.phone.replace(/-/g, "");
+    if (!REGEX.PHONE.test(digits)) {
+      setErrorMessage("phone", "올바른 휴대폰 번호 형식이 아닙니다.", true);
+    } else {
+      setErrorMessage("phone", "", false);
     }
-  };
+  }, [form.phone]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -265,38 +183,11 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
         return alert("비밀번호 일치를 확인해주세요.");
     }
 
-    if (
-      isSocial &&
-      errors.nickname.isError &&
-      errors.phone.isError &&
-      socialInfo?.provider &&
-      socialInfo?.providerUserId
-    ) {
-      const ok = window.confirm(
-        "이미 가입된 계정이 존재합니다.\n해당 계정과 소셜 로그인을 연동하시겠습니까?"
-      );
-
-      if (ok) {
-        navigate("/oauth/phone-connect", {
-          replace: true,
-          state: {
-            provider: socialInfo.provider,
-            providerUserId: socialInfo.providerUserId,
-          },
-        });
-      }
-
-      return;
-    }
     if (!form.nickname || errors.nickname.isError)
       return alert("닉네임을 확인해주세요.");
 
-    if (!form.phone) return alert("본인인증을 진행해주세요.");
-    if (errors.phone.isError)
+    if (form.phone && errors.phone.isError)
       return alert(errors.phone.message || "휴대폰 번호를 확인해주세요.");
-
-    const ci = sessionStorage.getItem("PASS_CI");
-    if (!ci) return alert("본인인증 정보를 찾을 수 없습니다.");
 
     const socialEmail = socialInfo?.email || form.email;
     if (isSocial && !socialEmail) {
@@ -309,18 +200,16 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
           providerUserId: socialInfo.providerUserId,
           userId: socialInfo.email,
           nickname: form.nickname,
-          phone: form.phone,
+          phone: form.phone || undefined,
           agreeMarketing: form.agreeMarketing,
-          ci,
         }
       : {
           userId: form.email,
           password: form.password,
           passwordConfirm: form.passwordCheck,
           nickname: form.nickname,
-          phone: form.phone,
+          phone: form.phone || undefined,
           agreeMarketing: form.agreeMarketing,
-          ci,
         };
 
     try {
@@ -369,7 +258,9 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
       }
 
       if (signupType === "NORMAL") {
-        alert("인증 메일이 발송되었습니다. 이메일을 확인해주세요.");
+        alert(
+          "인증 메일이 발송되었습니다.\n이메일을 확인하여 인증을 완료해 주세요."
+        );
         navigate("/", { replace: true });
         return;
       }
@@ -379,6 +270,7 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
       alert(err?.message || err?.response?.data?.message || "회원가입 실패");
     }
   };
+
   return {
     form,
     errors,
@@ -392,7 +284,6 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
     handleChange,
     handleBlur,
     handleImageChange,
-    handlePassAuth,
     handleSubmit,
   };
 };

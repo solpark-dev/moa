@@ -1,13 +1,9 @@
-import React from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Calendar, ChevronRight, CreditCard, AlertCircle, Sparkles } from "lucide-react";
-import { useThemeStore } from "@/store/themeStore";
-import { ThemeSwitcher } from "@/config/themeConfig";
-import { themeClasses } from "@/utils/themeUtils";
+import { Calendar, ChevronRight, CreditCard, AlertCircle, Plus } from "lucide-react";
 
+// This page currently uses mock data - real API integration pending
 const MOCK_USER = { id: "user-001", nickname: "테스트사용자" };
-
 const MOCK_USER_SUBSCRIPTIONS = [
   {
     id: "sub-1",
@@ -24,118 +20,132 @@ const MOCK_USER_SUBSCRIPTIONS = [
 
 export default function UserSubscriptionList() {
   const navigate = useNavigate();
-  const { theme, setTheme } = useThemeStore();
   const user = MOCK_USER;
 
-  const subscriptions = MOCK_USER_SUBSCRIPTIONS.filter(
-    (s) => s.userId === user?.id
-  );
+  const subscriptions = MOCK_USER_SUBSCRIPTIONS.filter((s) => s.userId === user?.id);
 
   return (
-    <div className={`min-h-screen bg-transparent pb-20`}>
-      {/* Theme Switcher */}
-      <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
-
-      {/* Hero Header */}
-      <div className={`relative overflow-hidden bg-transparent border-b border-[var(--theme-border-light)]`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className={`inline-flex items-center gap-2 px-4 py-2 bg-[var(--theme-primary)]/10 text-[var(--theme-primary)] rounded-full text-sm font-medium mb-4`}>
-              <Sparkles className="w-4 h-4" />
-              구독 관리
-            </span>
-            <h1 className={`text-4xl font-bold ${themeClasses.text.primary} mb-3 tracking-tight`}>내 구독 목록</h1>
-            <p className={themeClasses.text.muted}>현재 이용 중인 구독 서비스입니다.</p>
-          </motion.div>
-        </div>
+    <div className="min-h-screen pb-4" style={{ background: "var(--theme-bg)" }}>
+      {/* Section header */}
+      <div className="px-5 pt-6 pb-4">
+        <h2 className="text-[18px] font-bold" style={{ color: "var(--theme-text)" }}>
+          내 구독
+        </h2>
+        <p className="text-[13px] mt-0.5" style={{ color: "var(--theme-text-muted)" }}>
+          현재 이용 중인 구독 서비스
+        </p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {subscriptions.length === 0 && (
+      <div className="px-4 space-y-3">
+        {subscriptions.length === 0 ? (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`${themeClasses.card.base} p-10 text-center`}
+            className="flex flex-col items-center py-16 gap-3"
           >
-            <div className={`w-16 h-16 bg-[var(--theme-border-light)] rounded-full flex items-center justify-center mx-auto mb-4`}>
-              <AlertCircle className={`w-8 h-8 text-[var(--theme-text-muted)]`} />
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center"
+              style={{ background: "var(--glass-bg-overlay)" }}
+            >
+              <AlertCircle className="w-6 h-6" style={{ color: "var(--theme-primary)" }} />
             </div>
-            <h3 className={`font-bold ${themeClasses.text.primary} mb-2`}>
-              구독 중인 서비스가 없습니다.
-            </h3>
-            <p className={`${themeClasses.text.muted} mb-6`}>새로운 구독을 시작해보세요.</p>
-
+            <p className="text-[14px] font-semibold" style={{ color: "var(--theme-text)" }}>
+              구독 중인 서비스가 없어요
+            </p>
+            <p className="text-[12px]" style={{ color: "var(--theme-text-muted)" }}>
+              새로운 구독을 시작해보세요
+            </p>
             <Link
               to="/subscriptions"
-              className={`inline-flex items-center gap-2 px-6 py-3 ${themeClasses.button.primary} rounded-full font-semibold shadow-lg transition-all`}
+              className="flex items-center gap-2 mt-1 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white"
+              style={{ background: "var(--theme-primary)" }}
             >
               구독 상품 보러가기
               <ChevronRight className="w-4 h-4" />
             </Link>
           </motion.div>
-        )}
-
-        <div className="space-y-4">
-          {subscriptions.map((sub, index) => (
-            <motion.div
+        ) : (
+          subscriptions.map((sub, i) => (
+            <motion.button
               key={sub.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -2 }}
-              className={`${themeClasses.card.base} p-6 cursor-pointer transition-all hover:shadow-[var(--theme-shadow-hover)]`}
+              transition={{ delay: i * 0.07, duration: 0.35 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => navigate(`/my/subscriptions/${sub.id}`)}
+              className="w-full text-left rounded-2xl overflow-hidden"
+              style={{
+                background: "var(--glass-bg-card)",
+                backdropFilter: "blur(var(--glass-blur))",
+                WebkitBackdropFilter: "blur(var(--glass-blur))",
+                border: "1px solid var(--glass-border)",
+                boxShadow: "var(--shadow-glass)",
+              }}
             >
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 p-4">
+                <div
+                  className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden"
+                  style={{ background: "var(--glass-bg-overlay)" }}
+                >
                   <img
                     src={sub.product.iconUrl}
-                    className={`w-14 h-14 rounded-xl bg-white p-1 object-contain border border-[var(--theme-border-light)]`}
+                    className="w-10 h-10 object-contain"
                     alt={sub.product.name}
                   />
+                </div>
 
-                  <div>
-                    <h3 className={`font-bold ${themeClasses.text.primary} text-lg`}>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-[15px] font-bold truncate" style={{ color: "var(--theme-text)" }}>
                       {sub.product.name}
-                    </h3>
-
+                    </p>
                     <span
-                      className={`text-xs px-3 py-1 rounded-full font-semibold ${sub.status === "ACTIVE"
-                        ? "bg-emerald-500/10 text-emerald-600"
-                        : "bg-red-50 text-red-600"
-                        }`}
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
+                      style={sub.status === "ACTIVE"
+                        ? { background: "rgba(16,185,129,0.12)", color: "#10b981" }
+                        : { background: "rgba(239,68,68,0.1)", color: "#ef4444" }
+                      }
                     >
                       {sub.status === "ACTIVE" ? "이용중" : "해지됨"}
                     </span>
                   </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1 text-[11px]"
+                      style={{ color: "var(--theme-text-muted)" }}>
+                      <Calendar className="w-3 h-3" />
+                      다음 결제: {sub.nextBillingDate}
+                    </span>
+                    <span className="price text-[14px] font-black" style={{ color: "var(--theme-primary)" }}>
+                      ₩{sub.product.price.toLocaleString()}
+                      <span className="text-[10px] font-normal ml-0.5"
+                        style={{ color: "var(--theme-text-muted)" }}>/월</span>
+                    </span>
+                  </div>
                 </div>
 
-                <ChevronRight className={`w-5 h-5 ${themeClasses.text.muted}`} />
+                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: "var(--theme-text-muted)" }} />
               </div>
+            </motion.button>
+          ))
+        )}
 
-              <div className={`mt-4 pt-4 border-t border-[var(--theme-border-light)] flex justify-between text-sm ${themeClasses.text.muted}`}>
-                <div className="flex items-center gap-2">
-                  <Calendar className={`w-4 h-4 text-[var(--theme-primary)]`} />
-                  다음 결제일:{" "}
-                  <span className={`font-semibold ${themeClasses.text.primary}`}>
-                    {sub.nextBillingDate}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <CreditCard className={`w-4 h-4 text-[var(--theme-primary-light)]`} />월{" "}
-                  <span className={`font-bold text-[var(--theme-primary)]`}>
-                    ₩{sub.product.price.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        {/* Browse products CTA */}
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          onClick={() => navigate("/product")}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-[13px] font-semibold"
+          style={{
+            background: "var(--glass-bg-overlay)",
+            border: "1px solid var(--glass-border)",
+            color: "var(--theme-primary)",
+          }}
+        >
+          <Plus className="w-4 h-4" />
+          새 구독 상품 둘러보기
+        </motion.button>
       </div>
     </div>
   );

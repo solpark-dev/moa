@@ -109,23 +109,36 @@ button {
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  /* Theme-specific: Light (Stripe-style) */
-  --theme-primary: #635bff;
-  --theme-primary-hover: #5851e8;
-  --theme-primary-light: #eef2ff;
-  --theme-secondary: #00d4ff;
-  --theme-bg: #ffffff;
+  /* Theme-specific: Light (Korean Fintech — Toss style) */
+  --theme-primary: #2563EB;
+  --theme-primary-hover: #1d4ed8;
+  --theme-primary-light: #eff6ff;
+  --theme-secondary: #0ea5e9;
+  --theme-bg: #f5f5f7;
   --theme-bg-card: #ffffff;
   --theme-text: #111827;
   --theme-text-muted: #6b7280;
-  --theme-border: #e5e7eb;
-  --theme-border-light: #f3f4f6;
-  --theme-shadow: 0 4px 12px rgba(99,91,255,0.1);
-  --theme-shadow-hover: 0 8px 24px rgba(99,91,255,0.15);
-  --theme-shadow-soft: 0 1px 3px rgba(0,0,0,0.08);
-  --theme-focus-ring: rgba(99,91,255,0.5);
+  --theme-border: rgba(0, 0, 0, 0.07);
+  --theme-border-light: rgba(0, 0, 0, 0.04);
+  --theme-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
+  --theme-shadow-hover: 0 2px 4px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.1);
+  --theme-shadow-soft: 0 1px 3px rgba(0,0,0,0.06);
+  --theme-focus-ring: rgba(37,99,235,0.4);
   --theme-border-width: 1px;
   --theme-radius: 1rem;
+
+  /* Card tokens — solid white, soft shadow (no blur) */
+  --glass-bg: #ffffff;
+  --glass-bg-card: #ffffff;
+  --glass-bg-overlay: #f5f5f7;
+  --glass-border: rgba(0, 0, 0, 0.07);
+  --glass-blur: 0px;
+  --shadow-glass: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-glass-dark: 0 2px 8px rgba(0,0,0,0.12);
+
+  /* Orb colors (kept for dark mode compatibility) */
+  --orb-1: #818cf8;
+  --orb-2: #c084fc;
 }
 
 [data-theme="dark"] {
@@ -156,23 +169,36 @@ button {
   --sidebar-border: #334155;
   --sidebar-ring: oklch(0.556 0 0);
 
-  /* Theme-specific: Dark */
-  --theme-primary: #635bff;
-  --theme-primary-hover: #5851e8;
+  /* Theme-specific: Dark (Korean Fintech dark) */
+  --theme-primary: #7c74ff;
+  --theme-primary-hover: #6c64f0;
   --theme-primary-light: #1e1b4b;
   --theme-secondary: #4fd1c5;
-  --theme-bg: #0B1120;
-  --theme-bg-card: #1E293B;
-  --theme-text: #f8fafc;
-  --theme-text-muted: #94a3b8;
-  --theme-border: #334155;
-  --theme-border-light: #475569;
-  --theme-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  --theme-shadow-hover: 0 8px 24px rgba(0,0,0,0.4);
-  --theme-shadow-soft: 0 1px 3px rgba(0,0,0,0.2);
-  --theme-focus-ring: rgba(99,91,255,0.5);
+  --theme-bg: #111114;
+  --theme-bg-card: #1c1c1e;
+  --theme-text: #f5f5f7;
+  --theme-text-muted: #8e8e93;
+  --theme-border: rgba(255, 255, 255, 0.09);
+  --theme-border-light: rgba(255, 255, 255, 0.05);
+  --theme-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.4);
+  --theme-shadow-hover: 0 2px 4px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.5);
+  --theme-shadow-soft: 0 1px 3px rgba(0,0,0,0.3);
+  --theme-focus-ring: rgba(124,116,255,0.5);
   --theme-border-width: 1px;
   --theme-radius: 1rem;
+
+  /* Card tokens — dark surface, no blur */
+  --glass-bg: #1c1c1e;
+  --glass-bg-card: #1c1c1e;
+  --glass-bg-overlay: #2c2c2e;
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-blur: 0px;
+  --shadow-glass: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-glass-dark: 0 2px 8px rgba(0,0,0,0.5);
+
+  /* Orb colors */
+  --orb-1: #818cf8;
+  --orb-2: #c084fc;
 }
 
 
@@ -249,4 +275,119 @@ button {
     scrollbar-width: thin;
     scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
   }
+}
+
+/* ============================================
+   Mobile Container — 390px centered (iPhone 14)
+   Admin pages excluded (full-width)
+   ============================================ */
+.mobile-container {
+  width: 100%;
+  max-width: 390px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+
+/* Desktop: clean neutral background outside the mobile frame */
+@media (min-width: 768px) {
+  body:not(.admin-layout) {
+    background: #e8e8ec;
+  }
+  [data-theme="dark"] body:not(.admin-layout) {
+    background: #0a0a0c;
+  }
+}
+
+/* ============================================
+   Typography utilities
+   ============================================ */
+
+/* Pretendard tight — for headings and UI text */
+body {
+  font-family: 'Pretendard Variable', 'Pretendard', 'Inter', sans-serif;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Price / numeric — JetBrains Mono */
+.price {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+/* Display headline — big, tight */
+.display {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+/* ============================================
+   Card Utility Classes — Korean Fintech style
+   (renamed from Glass but same variable names
+   for backward compatibility)
+   ============================================ */
+
+/* Base glass layer */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass);
+}
+
+/* Glass card */
+.glass-card {
+  background: var(--glass-bg-card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass);
+  border-radius: var(--theme-radius);
+}
+
+/* Glass overlay (accent tinted) */
+.glass-overlay {
+  background: var(--glass-bg-overlay);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+/* Orb background — decorative gradient blobs */
+.orb-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.orb-bg::before,
+.orb-bg::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb-bg::before {
+  width: 300px;
+  height: 300px;
+  background: var(--orb-1);
+  opacity: 0.25;
+  top: -60px;
+  left: -60px;
+}
+
+.orb-bg::after {
+  width: 260px;
+  height: 260px;
+  background: var(--orb-2);
+  opacity: 0.2;
+  bottom: 40px;
+  right: -40px;
 }

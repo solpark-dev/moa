@@ -36,9 +36,10 @@ public class UserAddValidator {
 		validateNicknameCommon(request.getNickname());
 		validateEmailDuplicate(request.getUserId());
 		validateNicknameDuplicate(request.getNickname());
-		validatePhoneDuplicate(request.getPhone());
 
-		validateCi(request.getCi());
+		if (request.getPhone() != null && !request.getPhone().isBlank()) {
+			validatePhoneDuplicate(request.getPhone());
+		}
 	}
 
 	/*
@@ -54,11 +55,9 @@ public class UserAddValidator {
 		validateNicknameCommon(request.getNickname());
 		validateNicknameDuplicate(request.getNickname());
 
-		if (request.getPhone() == null || request.getPhone().isBlank()) {
-			throw new BusinessException(ErrorCode.VALIDATION_ERROR, "휴대폰 번호가 필요합니다.");
+		if (request.getPhone() != null && !request.getPhone().isBlank()) {
+			validatePhoneDuplicate(request.getPhone());
 		}
-
-		validateCi(request.getCi());
 	}
 
 	/*
@@ -106,17 +105,8 @@ public class UserAddValidator {
 	}
 
 	private void validatePhoneDuplicate(String phone) {
-		if (phone == null || phone.isBlank()) {
-			throw new BusinessException(ErrorCode.VALIDATION_ERROR, "휴대폰 번호를 입력해 주세요.");
-		}
 		if (userDao.existsByPhone(phone) > 0) {
 			throw new BusinessException(ErrorCode.DUPLICATED_PHONE);
-		}
-	}
-
-	private void validateCi(String ci) {
-		if (ci == null || ci.isBlank()) {
-			throw new BusinessException(ErrorCode.VALIDATION_ERROR, "본인인증이 필요합니다.");
 		}
 	}
 }

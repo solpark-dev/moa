@@ -1,255 +1,301 @@
-﻿import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useMyPage } from "@/hooks/user/useMyPage";
 import { useLoginHistory } from "@/hooks/user/useLoginHistory";
 import { useBackupCodeModal } from "@/hooks/user/useBackupCodeModal";
 import { useOtpStore } from "@/store/user/otpStore";
-import { useThemeStore } from "@/store/themeStore";
 import { getMyParties } from "@/api/partyApi";
 import httpClient from "@/api/httpClient";
-import { Users, CreditCard } from "lucide-react";
+import {
+  KeyRound, Clock, CreditCard, Users, Wallet,
+  UserMinus, UserPen, ChevronRight, LogOut, Shield,
+} from "lucide-react";
 
-import { Separator } from "@/components/ui/separator";
-
-// 테마별 스타일
-const myPageThemeStyles = {
-  light: {
-    accent: "text-[#635bff]",
-    accentBg: "bg-[#635bff]",
-    buttonBg: "bg-[#635bff] hover:bg-[#5851e8]",
-    accentText: "text-[#635bff]",
-    cyanText: "text-[#00d4ff]",
-    bg: "bg-transparent",
-    cardBg: "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
-    text: "text-slate-900",
-  },
-  dark: {
-    accent: "text-[#635bff]",
-    accentBg: "bg-[#635bff]",
-    buttonBg: "bg-[#635bff] hover:bg-[#5851e8]",
-    accentText: "text-[#635bff]",
-    cyanText: "text-[#00d4ff]",
-    bg: "bg-transparent",
-    cardBg: "bg-[#1E293B]/90 backdrop-blur-sm border border-gray-700 shadow-lg",
-    text: "text-white",
-  },
-};
-
-import { AccountMenu } from "./components/AccountMenu";
-import { AdminMenu } from "./components/AdminMenu";
 import { AccountInfoCard } from "./components/AccountInfoCard";
 import { ConnectionStatusCard } from "./components/ConnectionStatusCard";
 import { LoginHistoryCard } from "./components/LoginHistoryCard";
+import { AdminMenu } from "./components/AdminMenu";
 import { OtpDialog } from "./components/OtpDialog";
 import { BackupCodeDialog } from "./components/BackupCodeDialog";
 import { UpdateUserDialog } from "./components/UpdateUserDialog";
 import { DeleteUserDialog } from "./components/DeleteUserDialog";
 
-const HERO_WRAPPER = "relative mt-6 sm:mt-10 overflow-hidden";
+// Glass card wrapper
+function Section({ children, title, delay = 0 }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.4, ease: "easeOut" }}
+      className="rounded-2xl overflow-hidden"
+      style={{
+        background: "var(--glass-bg-card)",
+        backdropFilter: "blur(var(--glass-blur))",
+        WebkitBackdropFilter: "blur(var(--glass-blur))",
+        border: "1px solid var(--glass-border)",
+        boxShadow: "var(--shadow-glass)",
+      }}
+    >
+      {title && (
+        <div className="px-5 pt-4 pb-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wider"
+            style={{ color: "var(--theme-text-muted)" }}>{title}</p>
+        </div>
+      )}
+      {children}
+    </motion.div>
+  );
+}
 
-// PANE_WRAPPER는 이제 동적으로 themeStyle.cardBg를 사용합니다
+// Menu item row
+function MenuItem({ icon: Icon, label, onClick, danger, active }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full flex items-center justify-between px-5 py-3.5 transition-opacity active:opacity-70"
+      style={{ borderBottom: "1px solid var(--glass-border)" }}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{
+            background: danger ? "rgba(239,68,68,0.1)" : active ? "var(--theme-primary)" : "var(--glass-bg-overlay)",
+          }}
+        >
+          <Icon className="w-4 h-4"
+            style={{ color: danger ? "#ef4444" : active ? "#fff" : "var(--theme-primary)" }} />
+        </div>
+        <span
+          className="text-[14px] font-semibold"
+          style={{ color: danger ? "#ef4444" : "var(--theme-text)" }}
+        >
+          {label}
+        </span>
+      </div>
+      <ChevronRight className="w-4 h-4" style={{ color: "var(--theme-text-muted)" }} />
+    </button>
+  );
+}
 
 export default function MyPage() {
-  const { theme } = useThemeStore();
-  const themeStyle = myPageThemeStyles[theme] || myPageThemeStyles.light;
   const { state, actions } = useMyPage();
-
-  const {
-    user,
-    isAdmin,
-    marketingAgreed,
-    googleConn,
-    kakaoConn,
-    loginProvider,
-  } = state;
+  const { user, isAdmin, marketingAgreed, googleConn, kakaoConn, loginProvider } = state;
 
   const otp = {
-    enabled: useOtpStore((s) => s.enabled),
+    enabled:   useOtpStore((s) => s.enabled),
     modalOpen: useOtpStore((s) => s.modalOpen),
-    mode: useOtpStore((s) => s.mode),
-    qrUrl: useOtpStore((s) => s.qrUrl),
-    code: useOtpStore((s) => s.code),
-    loading: useOtpStore((s) => s.loading),
+    mode:      useOtpStore((s) => s.mode),
+    qrUrl:     useOtpStore((s) => s.qrUrl),
+    code:      useOtpStore((s) => s.code),
+    loading:   useOtpStore((s) => s.loading),
   };
 
   const backup = useBackupCodeModal();
   const showUserUI = !isAdmin;
-  const [activeView, setActiveView] = useState("main");
+
+  const [activeView,        setActiveView]        = useState("main");
   const [subscriptionCount, setSubscriptionCount] = useState(0);
-  const [partyCount, setPartyCount] = useState(0);
-  
-  // 모달 상태
-  const [updateUserOpen, setUpdateUserOpen] = useState(false);
-  const [deleteUserOpen, setDeleteUserOpen] = useState(false);
-  const loginHistory = useLoginHistory({
-    size: 10,
-    enabled: activeView === "history" && !!user,
-  });
+  const [partyCount,        setPartyCount]        = useState(0);
+  const [updateUserOpen,    setUpdateUserOpen]     = useState(false);
+  const [deleteUserOpen,    setDeleteUserOpen]     = useState(false);
+
+  const loginHistory      = useLoginHistory({ size: 10, enabled: activeView === "history" && !!user });
   const loginHistoryState = loginHistory?.state;
 
-  // 구독 및 파티 개수 불러오기
   useEffect(() => {
     const fetchCounts = async () => {
       if (!user?.userId) return;
-
       try {
-        // 구독 개수
-        const subResponse = await httpClient.get('/subscription', {
-          params: { userId: user.userId }
-        });
-        if (Array.isArray(subResponse)) {
-          setSubscriptionCount(subResponse.filter(s => s.subscriptionStatus === 'ACTIVE').length);
-        } else if (subResponse?.data) {
-          setSubscriptionCount(subResponse.data.filter(s => s.subscriptionStatus === 'ACTIVE').length);
-        }
+        const subResponse = await httpClient.get("/subscription", { params: { userId: user.userId } });
+        const subs = Array.isArray(subResponse) ? subResponse : (subResponse?.data || []);
+        setSubscriptionCount(subs.filter((s) => s.subscriptionStatus === "ACTIVE").length);
 
-        // 파티 개수
         const partyResponse = await getMyParties();
-        if (partyResponse?.data) {
-          setPartyCount(partyResponse.data.length);
-        } else if (Array.isArray(partyResponse)) {
-          setPartyCount(partyResponse.length);
-        }
-      } catch (error) {
-        console.error("Failed to fetch counts:", error);
-      }
+        const parties = partyResponse?.data ?? (Array.isArray(partyResponse) ? partyResponse : []);
+        setPartyCount(parties.length);
+      } catch (err) { console.error(err); }
     };
-
     fetchCounts();
   }, [user?.userId]);
 
   useEffect(() => {
-    if (otp.enabled) {
-      backup.fetchExistingCodes();
-    }
+    if (otp.enabled) backup.fetchExistingCodes();
   }, [otp.enabled]);
 
   useEffect(() => {
-    if (user) {
-      useOtpStore.getState().setEnabled(!!user.otpEnabled);
-    }
+    if (user) useOtpStore.getState().setEnabled(!!user.otpEnabled);
   }, [user]);
 
   const handleOtpConfirm = async () => {
     const result = await actions.otp.confirmOtp?.();
-
     if (result?.success && result.mode === "enable") {
-      if (backup.issued) {
-        await backup.openExistingCodes();
-      } else {
-        await backup.issueBackupCodes();
-      }
+      if (backup.issued) await backup.openExistingCodes();
+      else await backup.issueBackupCodes();
     }
   };
 
   if (!user) return null;
 
-  const paneWrapperClass = `${themeStyle.cardBg} rounded-2xl sm:rounded-3xl`;
+  // Menu items config
+  const menuItems = [
+    { icon: UserPen,  label: "회원정보 수정",  onClick: () => setUpdateUserOpen(true) },
+    { icon: KeyRound, label: "비밀번호 변경",  onClick: () => actions.goChangePwd?.() || actions.goUpdatePassword?.() },
+    { icon: CreditCard, label: "구독·결제 관리", onClick: () => actions.goSubscription?.() },
+    { icon: Users,    label: "내 파티 목록",   onClick: () => actions.goMyParties?.() },
+    { icon: Wallet,   label: "내 지갑",        onClick: () => actions.goWallet?.() },
+    { icon: Shield,   label: "보안 설정",      onClick: () => setActiveView("security") },
+    { icon: Clock,    label: "로그인 기록",    onClick: () => setActiveView("history"), active: activeView === "history" },
+    { icon: UserMinus, label: "회원 탈퇴",     onClick: () => setDeleteUserOpen(true), danger: true },
+  ];
 
   return (
-    <div className={`min-h-screen font-sans pb-20 relative z-10 ${themeStyle.bg} ${themeStyle.text}`}>
-      <section className={HERO_WRAPPER}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
-          <div className={`${themeStyle.cardBg} rounded-2xl sm:rounded-[32px] min-h-[200px] sm:min-h-[240px] flex items-center`}>
-            <div className="w-full flex flex-col lg:flex-row items-center gap-6 sm:gap-10 px-4 sm:px-6 lg:px-10 py-6 sm:py-10">
-              <div className="text-center lg:text-left lg:flex-shrink-0">
-                <h2 className={`text-3xl sm:text-4xl md:text-5xl font-black leading-tight mb-3 ${themeStyle.text}`}>
-                  나의 구독과 계정
-                  <br />
-                  <span className={themeStyle.accentText}>한곳에서 관리해요</span>
-                </h2>
-              </div>
+    <div className="min-h-screen pb-8" style={{ background: "var(--theme-bg)" }}>
 
-              <div className="flex-1 flex items-center justify-center gap-16 sm:gap-24 lg:gap-32">
-                <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-full ${themeStyle.accentBg} flex items-center justify-center`}>
-                    <CreditCard className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-center">
-                    <p className={`text-3xl sm:text-4xl font-black ${themeStyle.accentText}`}>{subscriptionCount}</p>
-                    <p className="text-xs sm:text-sm text-gray-500 font-bold">구독 상품</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-full ${themeStyle.accentBg} flex items-center justify-center`}>
-                    <Users className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-center">
-                    <p className={`text-3xl sm:text-4xl font-black ${themeStyle.cyanText}`}>{partyCount}</p>
-                    <p className="text-xs sm:text-sm text-gray-500 font-bold">가입 파티</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* Profile header */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        className="px-5 pt-6 pb-5"
+      >
+        {/* Avatar + name */}
+        <div className="flex items-center gap-4 mb-5">
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl font-black flex-shrink-0"
+            style={{ background: "var(--theme-primary)" }}
+          >
+            {user.nickname?.[0]?.toUpperCase() || "U"}
+          </div>
+          <div>
+            <h1 className="text-[20px] font-bold" style={{ color: "var(--theme-text)" }}>
+              {user.nickname}
+            </h1>
+            <p className="text-[13px]" style={{ color: "var(--theme-text-muted)" }}>
+              {user.email}
+            </p>
           </div>
         </div>
-      </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mt-8 sm:mt-12">
-        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 min-h-[400px] sm:min-h-[520px]">
-          <aside className="w-full lg:w-80 flex flex-col gap-3 sm:gap-4">
-            {showUserUI && (
-              <div className={paneWrapperClass}>
-                <AccountMenu
-                  actions={actions}
-                  activeView={activeView}
-                  onShowMain={() => setActiveView("main")}
-                  onShowLoginHistory={() => setActiveView("history")}
-                  onOpenUpdateUser={() => setUpdateUserOpen(true)}
-                  onOpenDeleteUser={() => setDeleteUserOpen(true)}
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { icon: CreditCard, label: "구독 상품", count: subscriptionCount, color: "var(--theme-primary)" },
+            { icon: Users,      label: "가입 파티", count: partyCount,         color: "#10b981" },
+          ].map(({ icon: Icon, label, count, color }) => (
+            <div
+              key={label}
+              className="flex items-center gap-3 p-4 rounded-2xl"
+              style={{
+                background: "var(--glass-bg-card)",
+                backdropFilter: "blur(var(--glass-blur))",
+                WebkitBackdropFilter: "blur(var(--glass-blur))",
+                border: "1px solid var(--glass-border)",
+                boxShadow: "var(--shadow-glass)",
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: `${color}1a` }}
+              >
+                <Icon className="w-5 h-5" style={{ color }} />
+              </div>
+              <div>
+                <p className="text-[22px] font-black leading-none" style={{ color }}>{count}</p>
+                <p className="text-[11px] mt-0.5" style={{ color: "var(--theme-text-muted)" }}>{label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Main view */}
+      <div className="px-4 space-y-3">
+        {showUserUI && activeView === "main" && (
+          <>
+            {/* Menu */}
+            <Section delay={0.1}>
+              {menuItems.map(({ icon, label, onClick, danger, active }) => (
+                <MenuItem key={label} icon={icon} label={label} onClick={onClick} danger={danger} active={active} />
+              ))}
+              {/* Last item without border-bottom */}
+              <div style={{ marginTop: -1 }} />
+            </Section>
+
+            {/* Account info */}
+            <Section title="계정 정보" delay={0.15}>
+              <div className="px-5 pb-5">
+                <AccountInfoCard
+                  user={user}
+                  marketingAgreed={marketingAgreed}
+                  formatDate={actions.formatDate}
                 />
               </div>
-            )}
+            </Section>
 
-            {isAdmin && (
-              <div className={paneWrapperClass}>
-                <AdminMenu actions={actions} />
+            {/* Connection & security */}
+            <Section title="보안 · 연결" delay={0.2}>
+              <div className="px-5 pb-5">
+                <ConnectionStatusCard
+                  user={user}
+                  loginProvider={loginProvider}
+                  googleConn={googleConn}
+                  kakaoConn={kakaoConn}
+                  otp={otp}
+                  backup={backup}
+                  actions={actions}
+                />
               </div>
-            )}
-          </aside>
+            </Section>
+          </>
+        )}
 
-          {showUserUI && (
-            <main className="flex-1 flex flex-col gap-4 sm:gap-8">
-              {activeView === "main" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
-                  <div className={paneWrapperClass}>
-                    <AccountInfoCard
-                      user={user}
-                      marketingAgreed={marketingAgreed}
-                      formatDate={actions.formatDate}
-                    />
-                  </div>
+        {/* Login history view */}
+        {showUserUI && activeView === "history" && (
+          <Section delay={0}>
+            <div className="p-5">
+              <LoginHistoryCard
+                loginHistory={loginHistoryState}
+                onBack={() => setActiveView("main")}
+              />
+            </div>
+          </Section>
+        )}
 
-                  <div className={paneWrapperClass}>
-                    <ConnectionStatusCard
-                      user={user}
-                      loginProvider={loginProvider}
-                      googleConn={googleConn}
-                      kakaoConn={kakaoConn}
-                      otp={otp}
-                      backup={backup}
-                      actions={actions}
-                    />
-                  </div>
-                </div>
-              )}
+        {/* Security view */}
+        {showUserUI && activeView === "security" && (
+          <Section delay={0}>
+            <div className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <button onClick={() => setActiveView("main")}
+                  className="text-[13px] font-medium" style={{ color: "var(--theme-primary)" }}>
+                  ← 돌아가기
+                </button>
+              </div>
+              <ConnectionStatusCard
+                user={user}
+                loginProvider={loginProvider}
+                googleConn={googleConn}
+                kakaoConn={kakaoConn}
+                otp={otp}
+                backup={backup}
+                actions={actions}
+              />
+            </div>
+          </Section>
+        )}
 
-              {activeView === "history" && (
-                <div className={paneWrapperClass}>
-                  <div className="p-6">
-                    <LoginHistoryCard
-                      loginHistory={loginHistoryState}
-                      onBack={() => setActiveView("main")}
-                    />
-                  </div>
-                  <Separator className={theme === "dark" ? "bg-gray-700" : "bg-slate-200"} />
-                </div>
-              )}
-            </main>
-          )}
-        </div>
+        {/* Admin menu */}
+        {isAdmin && (
+          <Section title="관리자" delay={0.1}>
+            <div className="px-5 pb-5">
+              <AdminMenu actions={actions} />
+            </div>
+          </Section>
+        )}
       </div>
 
+      {/* Dialogs */}
       {showUserUI && (
         <>
           <OtpDialog
@@ -259,18 +305,9 @@ export default function MyPage() {
             actions={actions}
             handleOtpConfirm={handleOtpConfirm}
           />
-
           <BackupCodeDialog backup={backup} />
-          
-          <UpdateUserDialog
-            open={updateUserOpen}
-            onOpenChange={setUpdateUserOpen}
-          />
-          
-          <DeleteUserDialog
-            open={deleteUserOpen}
-            onOpenChange={setDeleteUserOpen}
-          />
+          <UpdateUserDialog open={updateUserOpen} onOpenChange={setUpdateUserOpen} />
+          <DeleteUserDialog open={deleteUserOpen} onOpenChange={setDeleteUserOpen} />
         </>
       )}
     </div>

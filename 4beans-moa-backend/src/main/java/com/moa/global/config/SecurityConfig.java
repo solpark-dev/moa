@@ -59,6 +59,7 @@ public class SecurityConfig {
 								"/api/auth/login/backup-verify",
 								"/api/auth/refresh",
 								"/api/auth/verify-email",
+								"/api/auth/resend-verification",
 								"/api/auth/unlock",
 								 "/api/auth/restore",
 								 "/api/auth/exists-by-email",
@@ -83,6 +84,7 @@ public class SecurityConfig {
 								"/api/oauth/connect-by-phone",
 								"/swagger-ui/**",
 								"/v3/api-docs/**",
+								"/actuator/health",
 								"/uploads/**")
 						.permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/community/notice/**").permitAll()

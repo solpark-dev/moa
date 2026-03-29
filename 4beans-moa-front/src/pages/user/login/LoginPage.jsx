@@ -1,93 +1,133 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useLoginPageLogic } from "@/hooks/auth/useLogin";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
 import { LoginForm } from "./components/LoginForm";
 import { SocialLoginButtons } from "./components/SocialLoginButtons";
 import { LoginOtpDialog } from "./components/LoginOtpDialog";
-import { useThemeStore } from "@/store/themeStore";
-import { themeClasses } from "@/utils/themeUtils";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const {
-    email,
-    password,
-    remember,
-    otpModalOpen,
-    otpCode,
-    otpMode,
-    setField,
-    handleEmailLogin,
-    handleKakaoLogin,
-    handleGoogleLogin,
-    handleOtpChange,
-    handleOtpConfirm,
-    closeOtpModal,
-    handleUnlockByCertification,
-    switchToOtpMode,
-    switchToBackupMode,
-    loginLoading,
-    otpLoading,
-    errors,
-    handleEmailChange,
-    handlePasswordChange,
+    email, password, remember, otpModalOpen, otpCode, otpMode,
+    setField, handleEmailLogin, handleKakaoLogin, handleGoogleLogin,
+    handleOtpChange, handleOtpConfirm, closeOtpModal,
+    handleUnlockByCertification, switchToOtpMode, switchToBackupMode,
+    loginLoading, otpLoading, errors,
+    handleEmailChange, handlePasswordChange,
   } = useLoginPageLogic();
 
-  // Theme
-  const { theme } = useThemeStore();
-
-  const isBackupMode = otpMode === "backup";
+  const isBackupMode  = otpMode === "backup";
   const isLoginDisabled = loginLoading || !email.trim() || !password.trim();
 
-  useEffect(() => {
-    setField("password", "");
-  }, [setField]);
+  useEffect(() => { setField("password", ""); }, [setField]);
 
   return (
-    <div className={`min-h-screen bg-transparent pb-20 relative z-10`}>
-      <section className="min-h-screen flex items-center justify-center px-4 py-8 sm:py-12">
-        <div className="w-full max-w-md">
-          <Card className={`${themeClasses.card.elevated} overflow-hidden`}>
-            <CardHeader className={`px-6 sm:px-10 pt-8 sm:pt-10 pb-4 border-b border-[var(--theme-border-light)]`}>
-              <CardTitle className={`text-xl sm:text-2xl font-black tracking-tight text-[var(--theme-primary)] text-center`}>
-                로그인
-              </CardTitle>
-            </CardHeader>
+    <div className="relative min-h-screen flex flex-col overflow-hidden"
+         style={{ background: "var(--theme-bg)" }}>
 
-            <CardContent className="px-6 sm:px-10 pt-5 sm:pt-6 pb-5 sm:pb-6 space-y-5 sm:space-y-6">
-              <LoginForm
-                email={email}
-                password={password}
-                remember={remember}
-                errors={errors}
-                onEmailChange={handleEmailChange}
-                onPasswordChange={handlePasswordChange}
-                onRememberChange={(v) => setField("remember", v)}
-                onSubmit={handleEmailLogin}
-                onUnlock={handleUnlockByCertification}
-                isLoginDisabled={isLoginDisabled}
-                loginLoading={loginLoading}
-                theme={theme}
-              />
-            </CardContent>
+      {/* Orb blobs */}
+      <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full pointer-events-none"
+           style={{ background: "var(--orb-1)", opacity: 0.22, filter: "blur(80px)" }} />
+      <div className="absolute bottom-20 -right-16 w-64 h-64 rounded-full pointer-events-none"
+           style={{ background: "var(--orb-2)", opacity: 0.18, filter: "blur(80px)" }} />
 
-            <CardFooter className="flex flex-col gap-3 px-6 sm:px-10 pb-8 sm:pb-10 pt-0">
-              <SocialLoginButtons
-                onKakao={handleKakaoLogin}
-                onGoogle={handleGoogleLogin}
-                loginLoading={loginLoading}
-                theme={theme}
-              />
-            </CardFooter>
-          </Card>
+      {/* Branding */}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="relative z-10 flex flex-col items-center pt-14 pb-8"
+      >
+        <div
+          className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
+          style={{ background: "var(--theme-primary)" }}
+        >
+          <span className="text-white text-2xl font-black">M</span>
         </div>
-      </section>
+        <h1 className="text-[22px] font-bold" style={{ color: "var(--theme-primary)" }}>MOA</h1>
+        <p className="text-[13px] mt-1" style={{ color: "var(--theme-text-muted)" }}>
+          구독을 함께, 더 스마트하게
+        </p>
+      </motion.div>
 
+      {/* Glass card */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.45, ease: "easeOut" }}
+        className="relative z-10 mx-5 rounded-3xl overflow-hidden"
+        style={{
+          background: "var(--glass-bg-card)",
+          backdropFilter: "blur(var(--glass-blur))",
+          WebkitBackdropFilter: "blur(var(--glass-blur))",
+          border: "1px solid var(--glass-border)",
+          boxShadow: "var(--shadow-glass)",
+        }}
+      >
+        <div className="px-6 pt-7 pb-2">
+          <h2 className="text-[20px] font-bold mb-1" style={{ color: "var(--theme-text)" }}>
+            로그인
+          </h2>
+          <p className="text-[13px]" style={{ color: "var(--theme-text-muted)" }}>
+            계정에 로그인하세요
+          </p>
+        </div>
+
+        <div className="px-6 pt-5 pb-6">
+          <LoginForm
+            email={email}
+            password={password}
+            remember={remember}
+            errors={errors}
+            onEmailChange={handleEmailChange}
+            onPasswordChange={handlePasswordChange}
+            onRememberChange={(v) => setField("remember", v)}
+            onSubmit={handleEmailLogin}
+            onUnlock={handleUnlockByCertification}
+            isLoginDisabled={isLoginDisabled}
+            loginLoading={loginLoading}
+          />
+        </div>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 px-6 mb-5">
+          <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
+          <span className="text-[11px]" style={{ color: "var(--theme-text-muted)" }}>
+            또는 소셜 로그인
+          </span>
+          <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
+        </div>
+
+        <div className="px-6 pb-7">
+          <SocialLoginButtons
+            onKakao={handleKakaoLogin}
+            onGoogle={handleGoogleLogin}
+            loginLoading={loginLoading}
+          />
+        </div>
+      </motion.div>
+
+      {/* Sign up link */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="relative z-10 flex items-center justify-center gap-1 mt-6 pb-10"
+      >
+        <span className="text-[13px]" style={{ color: "var(--theme-text-muted)" }}>
+          계정이 없으신가요?
+        </span>
+        <button
+          onClick={() => navigate("/signup")}
+          className="text-[13px] font-semibold"
+          style={{ color: "var(--theme-primary)" }}
+        >
+          회원가입
+        </button>
+      </motion.div>
+
+      {/* OTP Dialog — unchanged */}
       <LoginOtpDialog
         open={otpModalOpen}
         isBackupMode={isBackupMode}
@@ -99,7 +139,6 @@ export default function LoginPage() {
         onChangeCode={handleOtpChange}
         onConfirm={handleOtpConfirm}
         loading={otpLoading}
-        theme={theme}
       />
     </div>
   );

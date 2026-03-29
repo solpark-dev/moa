@@ -2,6 +2,7 @@ package com.moa.global.config;
 
 import java.nio.file.Paths;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@MapperScan(basePackages = "com.moa")
+@MapperScan(basePackages = "com.moa", annotationClass = Mapper.class)
 public class WebConfig implements WebMvcConfigurer {
 
 	@Value("${app.upload.user.profile-dir}")

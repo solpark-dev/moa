@@ -189,7 +189,8 @@ public class UserServiceImpl implements UserService {
 			throw new BusinessException(ErrorCode.DUPLICATED_USER, "이미 가입된 이메일입니다.");
 		}
 
-		if (userDao.existsByPhone(request.getPhone()) > 0) {
+		if (request.getPhone() != null && !request.getPhone().isBlank()
+				&& userDao.existsByPhone(request.getPhone()) > 0) {
 			throw new BusinessException(ErrorCode.DUPLICATED_PHONE, "이미 가입된 휴대폰 번호입니다.");
 		}
 
@@ -198,7 +199,7 @@ public class UserServiceImpl implements UserService {
 
 		User user = User.builder().userId(userId).password(encodedPassword).nickname(request.getNickname())
 				.phone(request.getPhone()).role("USER").status(isSocial ? UserStatus.ACTIVE : UserStatus.PENDING)
-				.provider(isSocial ? request.getProvider() : null).ci(request.getCi()).build();
+				.provider(isSocial ? request.getProvider() : null).build();
 
 		userDao.insertUser(user);
 

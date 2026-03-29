@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,7 +38,6 @@ import com.moa.user.service.LoginHistoryService;
 import com.moa.user.service.OAuthAccountService;
 import com.moa.user.service.UserService;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -236,6 +236,8 @@ public class OAuthRestController {
 
 		    var jwt = jwtProvider.generateToken(auth, provider);
 
+		    loginHistoryService.recordSuccess(exists.getUserId(), "GOOGLE", null, null);
+
 		    return ResponseEntity.status(HttpStatus.FOUND)
 		            .header(HttpHeaders.LOCATION, redirectBase + "?status=LOGIN")
 		            .header(HttpHeaders.SET_COOKIE,
@@ -355,11 +357,8 @@ public class OAuthRestController {
 	}
 
 	@GetMapping("/list")
-	public ApiResponse<List<OAuthAccount>> getOAuthList() {
-		ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-
-		HttpSession session = attrs.getRequest().getSession();
-		String userId = (String) session.getAttribute("LOGIN_USER_ID");
+	public ApiResponse<List<OAuthAccount>> getOAuthList(HttpServletRequest request) {
+		String userId = (String) request.getAttribute("LOGIN_USER_ID");
 
 		if (userId == null) {
 			return ApiResponse.error(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");

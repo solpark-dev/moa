@@ -4,7 +4,7 @@
 
 <mapper namespace="com.moa.admin.repository.AdminDao">
 
-	<resultMap id="blacklistMap" type="com.moa.domain.Blacklist">
+	<resultMap id="blacklistMap" type="com.moa.user.domain.Blacklist">
 		<id property="id" column="BLACKLIST_ID" />
 		<result property="userId" column="USER_ID" />
 		<result property="reason" column="REASON" />
@@ -14,7 +14,7 @@
 	</resultMap>
 
 	<select id="countAdminUsers"
-		parameterType="com.moa.dto.user.request.AdminUserSearchRequest"
+		parameterType="com.moa.user.dto.request.AdminUserSearchRequest"
 		resultType="long">
 		SELECT COUNT(*)
 		FROM USERS u
@@ -35,8 +35,8 @@
 	</select>
 
 	<select id="findAdminUsers"
-		parameterType="com.moa.dto.user.request.AdminUserSearchRequest"
-		resultType="com.moa.dto.user.response.AdminUserListItemResponse">
+		parameterType="com.moa.user.dto.request.AdminUserSearchRequest"
+		resultType="com.moa.user.dto.response.AdminUserListItemResponse">
 		SELECT
 		u.USER_ID AS userId,
 		u.NICKNAME AS nickname,

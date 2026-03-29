@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.moa.global.auth.provider.JwtProvider;
+import com.moa.global.auth.service.TokenBlacklistService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtProvider jwtProvider;
+	private final TokenBlacklistService tokenBlacklistService;
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -51,10 +53,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String jwt = resolveToken(request);
 
 			if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
-				Authentication authentication = jwtProvider.getAuthentication(jwt);
-				SecurityContextHolder.getContext().setAuthentication(authentication);
 
-				request.setAttribute("LOGIN_USER_ID", authentication.getName());
+				if (tokenBlacklistService.isTokenBlacklisted(jwt)) {
+					SecurityContextHolder.clearContext();
+					filterChain.doFilter(request, response);
+					return;
+				}
+
+				Authentication authentication = jwtProvider.getAuthentication(jwt);
+				String userId = authentication.getName();
+
+				long banTimestamp = tokenBlacklistService.getBanTimestamp(userId);
+				if (banTimestamp > 0) {
+					long tokenIssuedAt = jwtProvider.getIssuedAtMillis(jwt);
+					if (tokenIssuedAt < banTimestamp) {
+						SecurityContextHolder.clearContext();
+						filterChain.doFilter(request, response);
+						return;
+					}
+				}
+
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+				request.setAttribute("LOGIN_USER_ID", userId);
 				request.setAttribute("LOGIN_PROVIDER", jwtProvider.getProviderFromToken(jwt));
 			}
 		} catch (Exception e) {

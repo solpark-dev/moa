@@ -1,125 +1,39 @@
-import React from "react";
 import { motion } from "framer-motion";
-import { Users, Shield, Zap } from "lucide-react";
-import { useThemeStore } from "@/store/themeStore";
 
-// 테마별 Features 섹션 스타일
-const featuresThemeStyles = {
-  light: {
-    stickerBg: "bg-lime-400",
-    accentText: "text-pink-500",
-    cardColors: ["bg-cyan-400", "bg-lime-400", "bg-pink-400"],
-  },
-};
-
-function Sticker({ children, color = "bg-white", rotate = 0, className = "", isDark = false }) {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`
-        ${color}
-        ${isDark ? 'border-gray-600' : 'border-gray-200'}
-        shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-        hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]
-        transition-all duration-200
-        ${className}
-      `}
-      style={{ transform: `rotate(${rotate}deg)` }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-function BouncyCard({ children, className = "", delay = 0, isDark = false }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 40, rotate: -2 }}
-      whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay, type: "spring", stiffness: 220, damping: 16 }}
-      whileHover={{ y: -8, rotate: 1 }}
-      className={`
-        ${isDark ? 'bg-[#1a2332]' : 'bg-white'}
-        ${isDark ? 'border-gray-600' : 'border-gray-200'}
-        shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-        rounded-3xl
-        overflow-hidden
-        ${className}
-      `}
-    >
-      {children}
-    </motion.div>
-  );
-}
+const STATS = [
+  { value: "75%", label: "구독료 절감" },
+  { value: "1분",  label: "파티 참여"  },
+  { value: "자동", label: "정산 처리"  },
+];
 
 export default function MainFeaturesSection() {
-  const { theme } = useThemeStore();
-  const themeStyle = featuresThemeStyles[theme] || featuresThemeStyles.light;
-  const isDark = theme === "dark";
-
-  const features = [
-    {
-      icon: Users,
-      title: "파티 공유",
-      desc: "최대 4명과 함께 나눠요!",
-      color: themeStyle.cardColors[0],
-      emoji: "🎉",
-    },
-    {
-      icon: Shield,
-      title: "안전 보장",
-      desc: "검증/정산으로 안심!",
-      color: themeStyle.cardColors[1],
-      emoji: "🛡️",
-    },
-    {
-      icon: Zap,
-      title: "즉시 시작",
-      desc: "찾고 결제하면 바로!",
-      color: themeStyle.cardColors[2],
-      emoji: "⚡",
-    },
-  ];
-
   return (
-    <section className={`relative px-6 md:px-12 py-20 ${isDark ? 'bg-[#0B1120]' : 'bg-transparent'} ${isDark ? 'border-gray-700' : 'border-gray-200'} border-b`}>
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-14"
-        >
-          <Sticker
-            color={themeStyle.stickerBg}
-            rotate={-2}
-            className="inline-block px-6 py-3 rounded-xl mb-6"
-            isDark={isDark}
+    <section style={{ borderTop: "1px solid var(--glass-border)" }}>
+      <div className="flex">
+        {STATS.map(({ value, label }, i) => (
+          <motion.div
+            key={label}
+            initial={{ opacity: 0, y: 6 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.07, duration: 0.35, ease: "easeOut" }}
+            className="flex-1 flex flex-col items-center py-7"
+            style={i < STATS.length - 1 ? { borderRight: "1px solid var(--glass-border)" } : {}}
           >
-            <span className="text-xl md:text-2xl font-black">
-              WHY MoA? 🤔
+            <span
+              className="price text-[27px] font-black leading-none mb-1.5"
+              style={{ color: "var(--theme-primary)" }}
+            >
+              {value}
             </span>
-          </Sticker>
-          <h2 className="text-4xl md:text-6xl font-black tracking-tight">
-            이래서 <span className={themeStyle.accentText}>MoA</span>야!
-          </h2>
-        </motion.div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {features.map((f, i) => (
-            <BouncyCard key={f.title} className="p-6 sm:p-8 h-full text-center" delay={i * 0.08} isDark={isDark}>
-              <div
-                className={`w-16 h-16 sm:w-20 sm:h-20 ${f.color} rounded-xl sm:rounded-2xl ${isDark ? 'border-gray-600' : 'border-gray-200'} border flex items-center justify-center mb-4 sm:mb-6 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] mx-auto`}
-              >
-                <span className="text-3xl sm:text-4xl">{f.emoji}</span>
-              </div>
-              <h3 className={`text-xl sm:text-2xl font-black mb-2 sm:mb-3 ${isDark ? 'text-white' : ''}`}>{f.title}</h3>
-              <p className={`text-base sm:text-lg font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{f.desc}</p>
-            </BouncyCard>
-          ))}
-        </div>
+            <span
+              className="text-[12px] font-medium"
+              style={{ color: "var(--theme-text-muted)" }}
+            >
+              {label}
+            </span>
+          </motion.div>
+        ))}
       </div>
     </section>
   );

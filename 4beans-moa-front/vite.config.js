@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import fs from "fs";
 import path from "path";
 
 export default defineConfig({
@@ -15,10 +14,6 @@ export default defineConfig({
 
   server: {
     host: true,
-    https: {
-      pfx: fs.readFileSync("./moa-ssl.p12"),
-      passphrase: "moa1234",
-    },
 
     proxy: {
       "/api": {

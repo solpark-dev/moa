@@ -7,7 +7,6 @@ import {
     useTheme,
     ThemeSwitcher,
     ThemeBackground,
-    ThemeMarquee,
 } from '../../config/themeConfig';
 
 // Step 컴포넌트들 (Phase 2-3에서 구현)

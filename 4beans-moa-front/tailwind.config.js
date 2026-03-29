@@ -24,11 +24,19 @@ export default {
           'border': 'var(--theme-border)',
           'border-light': 'var(--theme-border-light)',
         },
+        'glass': {
+          'bg': 'var(--glass-bg)',
+          'card': 'var(--glass-bg-card)',
+          'overlay': 'var(--glass-bg-overlay)',
+          'border': 'var(--glass-border)',
+        },
       },
       boxShadow: {
         'theme': 'var(--theme-shadow)',
         'theme-hover': 'var(--theme-shadow-hover)',
         'theme-soft': 'var(--theme-shadow-soft)',
+        'glass': 'var(--shadow-glass)',
+        'glass-dark': 'var(--shadow-glass-dark)',
       },
       borderWidth: {
         'theme': 'var(--theme-border-width)',

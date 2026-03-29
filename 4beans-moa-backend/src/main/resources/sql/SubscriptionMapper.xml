@@ -23,7 +23,7 @@
     </resultMap>
 
     <insert id="addSubscription"
-            parameterType="Subscription"
+            parameterType="com.moa.subscription.domain.Subscription"
             useGeneratedKeys="true"
             keyProperty="subscriptionId">
         INSERT INTO SUBSCRIPTION
@@ -78,7 +78,7 @@
     </select>
 
     <update id="updateSubscription"
-            parameterType="com.moa.dto.subscription.SubscriptionDTO">
+            parameterType="com.moa.subscription.dto.SubscriptionDTO">
         UPDATE SUBSCRIPTION
         SET
             SUBSCRIPTION_STATUS = #{subscriptionStatus},

@@ -16,6 +16,8 @@ public interface AuthService {
 
 	void verifyEmail(String token);
 
+	void resendVerificationEmail(String email);
+
 	TokenResponse verifyLoginOtp(OtpLoginVerifyRequest request);
 
 	TokenResponse verifyLoginBackupCode(BackupCodeLoginRequest request);

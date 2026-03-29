@@ -1,0 +1,35 @@
+services:
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  backend:
+    build:
+      context: ./4beans-moa-backend
+    restart: unless-stopped
+    # 포트를 호스트에 노출하지 않음 — nginx → frontend → backend 내부 통신만
+    env_file:
+      - .env
+    volumes:
+      - uploads_data:/opt/moa/uploads
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./4beans-moa-front
+    restart: unless-stopped
+    ports:
+      - "3000:80"   # 호스트 nginx가 여기로 프록시
+    depends_on:
+      - backend
+
+volumes:
+  uploads_data:

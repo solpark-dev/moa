@@ -26,11 +26,7 @@ public class UserCreateRequest {
 	@Pattern(regexp = "^[A-Za-z0-9가-힣]{2,10}$", message = "닉네임은 2~10자, 한글/영문/숫자만 가능합니다.")
 	private String nickname;
 
-	@NotBlank(message = "휴대폰 번호를 입력해 주세요.")
 	private String phone;
-
-	@NotBlank(message = "본인인증 정보(ci)가 누락되었습니다.")
-	private String ci;
 
 	private boolean agreeMarketing;
 

@@ -139,6 +139,16 @@ public class AuthRestController {
 		return ApiResponse.success(null);
 	}
 
+	@PostMapping("/resend-verification")
+	public ApiResponse<Void> resendVerificationEmail(@RequestBody Map<String, String> body) {
+		String email = body.get("email");
+		if (email == null || email.isBlank()) {
+			throw new BusinessException(ErrorCode.BAD_REQUEST, "이메일을 입력해 주세요.");
+		}
+		authService.resendVerificationEmail(email);
+		return ApiResponse.success(null);
+	}
+
 	@PostMapping("/verify-email")
 	public ApiResponse<Void> verifyEmail(@RequestParam("token") String token) {
 		authService.verifyEmail(token);
