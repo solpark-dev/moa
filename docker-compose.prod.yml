@@ -18,9 +18,16 @@ services:
       - .env
     volumes:
       - uploads_data:/opt/moa/uploads
+      - logs_data:/var/log/moa
     depends_on:
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   frontend:
     build:
@@ -29,7 +36,9 @@ services:
     ports:
       - "3000:80"   # 호스트 nginx가 여기로 프록시
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
   uploads_data:
+  logs_data:

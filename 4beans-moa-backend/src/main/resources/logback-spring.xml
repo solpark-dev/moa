@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="30 seconds">
 
-    <!-- 로그 저장 경로 -->
-    <property name="LOG_PATH" value="${user.dir}/logs"/>
+    <!-- 로그 저장 경로 — 환경변수 LOG_PATH 우선, 없으면 ./logs -->
+    <property name="LOG_PATH" value="${LOG_PATH:-${user.dir}/logs}"/>
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{traceId:-N/A}] [%X{userId:-anonymous}] [%thread] %-5level %logger{36} - %msg%n"/>
 
     <!-- ===== Console Appender ===== -->

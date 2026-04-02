@@ -73,7 +73,17 @@
 		<if test="dbSortList != null and dbSortList.size() > 0">
 			<foreach collection="dbSortList" item="sortItem"
 				separator=",">
-				${sortItem}
+				<choose>
+					<when test="sortItem == 'u.REG_DATE ASC'">u.REG_DATE ASC</when>
+					<when test="sortItem == 'u.REG_DATE DESC'">u.REG_DATE DESC</when>
+					<when test="sortItem == 'u.LAST_LOGIN_DATE ASC'">u.LAST_LOGIN_DATE ASC</when>
+					<when test="sortItem == 'u.LAST_LOGIN_DATE DESC'">u.LAST_LOGIN_DATE DESC</when>
+					<when test="sortItem == 'u.USER_ID ASC'">u.USER_ID ASC</when>
+					<when test="sortItem == 'u.USER_ID DESC'">u.USER_ID DESC</when>
+					<when test="sortItem == 'u.USER_STATUS ASC'">u.USER_STATUS ASC</when>
+					<when test="sortItem == 'u.USER_STATUS DESC'">u.USER_STATUS DESC</when>
+					<otherwise>u.REG_DATE DESC</otherwise>
+				</choose>
 			</foreach>
 		</if>
 		<if test="dbSortList == null or dbSortList.size() == 0">

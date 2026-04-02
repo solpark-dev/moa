@@ -54,3 +54,46 @@ export const disableOtpVerify = (code) =>
 
 export const connectSocial = (provider, providerUserId) =>
   httpClient.post("/users/me/oauth/connect", { provider, providerUserId });
+
+// 비밀번호 재설정 (Email OTP)
+export const sendResetPasswordOtp = (email) =>
+  httpClient.post("/auth/reset-password/send", { email });
+
+export const verifyResetPasswordOtp = (email, code) =>
+  httpClient.post("/auth/reset-password/verify", { email, code });
+
+export const confirmResetPassword = (token, password, passwordConfirm) =>
+  httpClient.post("/auth/reset-password/confirm", { token, password, passwordConfirm });
+
+// Magic Link 로그인
+export const sendMagicLink = (email) =>
+  httpClient.post("/auth/magic-link/send", { email });
+
+export const verifyMagicLink = (token) =>
+  httpClient.post("/auth/magic-link/verify", { token });
+
+// Passkey (WebAuthn)
+export const getPasskeyRegistrationOptions = () =>
+  httpClient.post("/passkey/register/options");
+
+export const submitPasskeyRegistration = (credentialJson) =>
+  httpClient.post("/passkey/register", credentialJson, {
+    headers: { "Content-Type": "application/json" },
+  });
+
+export const getPasskeyAuthOptions = () =>
+  httpClient.post("/passkey/authenticate/options");
+
+export const submitPasskeyAuthentication = (nonce, assertionJson) =>
+  httpClient.post("/passkey/authenticate", assertionJson, {
+    headers: {
+      "Content-Type": "application/json",
+      "X-Passkey-Nonce": nonce,
+    },
+  });
+
+export const listPasskeyCredentials = () =>
+  httpClient.get("/passkey/credentials");
+
+export const deletePasskeyCredential = (id) =>
+  httpClient.delete(`/passkey/credentials/${id}`);

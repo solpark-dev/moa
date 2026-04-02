@@ -57,8 +57,6 @@ public interface UserService {
 
 	void restoreByCertification(String userId, String phone, String ci);
 
-	String findUserIdByPhone(String phone);
-
 	PageResponse<AdminUserListItemResponse> getAdminUserList(AdminUserSearchRequest request);
 
 	UserResponse getUserDetailForAdmin(String userId);

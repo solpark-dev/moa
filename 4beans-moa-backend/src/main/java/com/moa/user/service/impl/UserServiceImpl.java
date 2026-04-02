@@ -341,12 +341,6 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public String findUserIdByPhone(String phone) {
-		return userDao.findUserIdByPhone(phone)
-				.orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "해당 휴대폰 번호로 가입된 계정이 없습니다."));
-	}
-
-	@Override
 	public Optional<User> findByPhone(String phone) {
 		return userDao.findByPhone(phone);
 	}

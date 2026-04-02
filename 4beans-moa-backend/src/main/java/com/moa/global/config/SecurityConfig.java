@@ -15,6 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -46,6 +48,16 @@ public class SecurityConfig {
 				.formLogin(login -> login.disable())
 				.httpBasic(basic -> basic.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.headers(headers -> headers
+						.frameOptions(frame -> frame.deny())
+						.contentTypeOptions(contentType -> {})
+						.httpStrictTransportSecurity(hsts -> hsts
+								.includeSubDomains(true)
+								.maxAgeInSeconds(31536000))
+						.referrerPolicy(referrer -> referrer
+								.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+						.addHeaderWriter(new StaticHeadersWriter(
+								"Permissions-Policy", "camera=(), microphone=(), geolocation=()")))
 				.securityContext(security -> security.requireExplicitSave(false))
 				.rememberMe(remember -> remember.disable())
 				.exceptionHandling(exception -> exception
@@ -61,8 +73,15 @@ public class SecurityConfig {
 								"/api/auth/verify-email",
 								"/api/auth/resend-verification",
 								"/api/auth/unlock",
-								 "/api/auth/restore",
-								 "/api/auth/exists-by-email",
+								"/api/auth/restore",
+								"/api/auth/exists-by-email",
+								"/api/auth/reset-password/send",
+								"/api/auth/reset-password/verify",
+								"/api/auth/reset-password/confirm",
+								"/api/auth/magic-link/send",
+								"/api/auth/magic-link/verify",
+								"/api/passkey/authenticate/options",
+								"/api/passkey/authenticate",
 								"/api/community/**")
 				.permitAll()
 				.requestMatchers(
@@ -77,7 +96,6 @@ public class SecurityConfig {
 								"/api/chatbot/**",
 								"/api/users/join",
 								"/api/users/check",
-								"/api/users/find-id",
 								"/api/users/pass/**",
 								"/api/users/resetPwd/**",
 								"/api/users/exists-by-phone",
@@ -93,7 +111,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.POST, "/api/signup/pass/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/signup/pass/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/users/check-nickname").permitAll()
-						
+
 						.requestMatchers(HttpMethod.POST, "/api/community/notice/**").hasAuthority("ADMIN")
 						.requestMatchers(HttpMethod.PUT, "/api/community/notice/**").hasAuthority("ADMIN")
 						.requestMatchers(HttpMethod.POST, "/api/community/faq/**").hasAuthority("ADMIN")
@@ -102,7 +120,7 @@ public class SecurityConfig {
 						.requestMatchers("/api/community/inquiry/**").authenticated()
 						.requestMatchers("/api/admin/**").hasAuthority("ADMIN")
 						.requestMatchers("/api/push/admin/**").hasAuthority("ADMIN")
-						
+
 						.requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/parties").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/parties/**").permitAll()
@@ -113,11 +131,11 @@ public class SecurityConfig {
 						.requestMatchers("/api/users/me").authenticated()
 
 						.requestMatchers(
-										"/api/auth/otp/setup",
-										"/api/auth/otp/verify",
-										"/api/auth/otp/disable",
-										"/api/auth/otp/disable-verify",
-										"/api/auth/otp/backup/**")
+								"/api/auth/otp/setup",
+								"/api/auth/otp/verify",
+								"/api/auth/otp/disable",
+								"/api/auth/otp/disable-verify",
+								"/api/auth/otp/backup/**")
 						.authenticated()
 
 						.requestMatchers("/api/auth/logout").authenticated()

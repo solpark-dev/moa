@@ -169,14 +169,8 @@ export const useLoginPageLogic = () => {
           return;
         }
 
+        // restore 응답은 토큰을 포함하지 않음 — HttpOnly 쿠키로 자동 처리
         const data = res.data || {};
-        if (data.accessToken && data.refreshToken) {
-          setTokens({
-            accessToken: data.accessToken,
-            refreshToken: data.refreshToken,
-            accessTokenExpiresIn: data.accessTokenExpiresIn,
-          });
-        }
 
         const me = await httpClient.get("/users/me");
         if (me?.success) {
@@ -190,7 +184,7 @@ export const useLoginPageLogic = () => {
         alert("계정 복구 처리 중 오류가 발생했습니다.");
       }
     },
-    [runPassCertification, setTokens, navigate]
+    [runPassCertification, navigate]
   );
 
   const handleEmailLogin = useCallback(async () => {
@@ -250,8 +244,8 @@ export const useLoginPageLogic = () => {
         return;
       }
 
-      const { accessToken, refreshToken, accessTokenExpiresIn } = data;
-      setTokens({ accessToken, refreshToken, accessTokenExpiresIn });
+      const { accessToken, accessTokenExpiresIn } = data;
+      setTokens({ accessToken, accessTokenExpiresIn });
 
       const me = await httpClient.get("/users/me");
       if (me?.success) {
@@ -335,8 +329,8 @@ export const useLoginPageLogic = () => {
         return;
       }
 
-      const { accessToken, refreshToken, accessTokenExpiresIn } = res.data;
-      setTokens({ accessToken, refreshToken, accessTokenExpiresIn });
+      const { accessToken, accessTokenExpiresIn } = res.data;
+      setTokens({ accessToken, accessTokenExpiresIn });
 
       const me = await httpClient.get("/users/me");
       if (me?.success) {

@@ -5,6 +5,8 @@ import { useGlobalLinkHandler } from "@/hooks/common/useGlobalLinkHandler";
 import ScrollToTop from "./components/common/ScrollToTop";
 import MobileNavBar from "./components/common/MobileNavBar";
 import BottomNavigation from "./components/common/BottomNavigation";
+import ErrorBoundary from "./components/common/ErrorBoundary";
+import ToastContainer from "./components/common/ToastContainer";
 
 // Admin layout components (kept full-width)
 import Header from "./components/common/Header";
@@ -26,7 +28,8 @@ import PartyCreatePage from "./pages/party/PartyCreatePage";
 import PartyDetailPage from "./pages/party/PartyDetailPage";
 import AddUserPage from "./pages/user/register/AddUserPage";
 import LoginPage from "./pages/user/login/LoginPage";
-import FindIdPage from "./pages/user/findId/FindIdPage";
+import MagicLinkPage from "./pages/user/login/MagicLinkPage";
+import MagicLinkCallbackPage from "./pages/user/login/MagicLinkCallbackPage";
 import ResetPwdPage from "./pages/user/resetPwd/ResetPwdPage";
 import UpdatePwdPage from "./pages/user/resetPwd/UpdatePwdPage";
 import DeleteUserPage from "./pages/user/register/DeleteUserPage";
@@ -65,6 +68,7 @@ import ListFaq from "./pages/community/ListFaq";
 import AddFaq from "./pages/community/AddFaq";
 import Inquiry from "./pages/community/Inquiry";
 import InquiryAdmin from "./pages/community/InquiryAdmin";
+import NotFoundPage from "./pages/error/NotFoundPage";
 
 import { useAuthStore } from "./store/authStore";
 import { useThemeStore } from "./store/themeStore";
@@ -74,8 +78,9 @@ import { themeConfig } from "./config/themeConfig";
 const NO_NAV_PATHS = [
   "/login",
   "/signup",
-  "/find-email",
   "/reset-password",
+  "/login/magic",
+  "/auth/magic",
   "/email-verified",
   "/register/social",
   "/user/register/social",
@@ -103,8 +108,9 @@ function AppRoutes() {
 
       {/* Auth (public) */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/login/magic" element={<MagicLinkPage />} />
+      <Route path="/auth/magic" element={<MagicLinkCallbackPage />} />
       <Route path="/signup" element={<AddUserPage />} />
-      <Route path="/find-email" element={<FindIdPage />} />
       <Route path="/register/social" element={<SocialRegisterPage />} />
       <Route path="/reset-password" element={<ResetPwdPage />} />
       <Route path="/email-verified" element={<EmailVerifiedPage />} />
@@ -162,6 +168,9 @@ function AppRoutes() {
       <Route path="/admin/users/:userId" element={<AdminAuthGuard><AdminUserDetailPage /></AdminAuthGuard>} />
       <Route path="/admin/blacklist/delete" element={<AdminAuthGuard><AdminBlacklistDeletePage /></AdminAuthGuard>} />
       <Route path="/admin/users/:userId/login-history" element={<AdminAuthGuard><AdminLoginHistoryPage /></AdminAuthGuard>} />
+
+      {/* 404 Catch-all */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
@@ -263,5 +272,10 @@ function AppContent() {
 }
 
 export default function App() {
-  return <AppContent />;
+  return (
+    <ErrorBoundary>
+      <AppContent />
+      <ToastContainer />
+    </ErrorBoundary>
+  );
 }

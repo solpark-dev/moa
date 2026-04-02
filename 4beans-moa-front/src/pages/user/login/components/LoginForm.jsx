@@ -12,7 +12,6 @@ export function LoginForm({
   onPasswordChange,
   onRememberChange,
   onSubmit,
-  onUnlock,
   isLoginDisabled,
   loginLoading,
 }) {
@@ -100,11 +99,11 @@ export function LoginForm({
         <div className="flex gap-3">
           <button
             type="button"
-            onClick={() => navigate("/find-email")}
+            onClick={() => navigate("/reset-password")}
             className="text-[11px] font-medium"
             style={{ color: "var(--theme-text-muted)" }}
           >
-            이메일 찾기
+            비밀번호 찾기
           </button>
         </div>
       </div>
@@ -119,16 +118,6 @@ export function LoginForm({
       >
         {loginLoading ? "로그인 중..." : "로그인"}
       </Button>
-
-      {/* Unlock */}
-      <button
-        type="button"
-        onClick={onUnlock}
-        className="w-full text-[11px] text-center pt-1"
-        style={{ color: "var(--theme-text-muted)" }}
-      >
-        잠금 계정 풀기
-      </button>
     </form>
   );
 }

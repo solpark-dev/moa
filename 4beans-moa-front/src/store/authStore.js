@@ -32,20 +32,16 @@ export const useAuthStore = create(
   persist(
     (set, get) => ({
       user: null,
+      // accessToken은 메모리에만 유지 — localStorage에 저장하지 않음 (XSS 방어)
+      // 페이지 새로고침 후에는 HttpOnly 쿠키(ACCESS_TOKEN)로 백엔드 인증 처리
       accessToken: null,
-      refreshToken: null,
-      accessTokenExpiresIn: null,
       loading: false,
 
       /* =========================
        * TOKEN SET
        * ========================= */
-      setTokens: ({ accessToken, refreshToken, accessTokenExpiresIn }) => {
-        set({
-          accessToken,
-          refreshToken,
-          accessTokenExpiresIn: Number(accessTokenExpiresIn),
-        });
+      setTokens: ({ accessToken, accessTokenExpiresIn }) => {
+        set({ accessToken });
         get().fetchSession();
       },
 
@@ -55,8 +51,6 @@ export const useAuthStore = create(
         set({
           user: null,
           accessToken: null,
-          refreshToken: null,
-          accessTokenExpiresIn: null,
           loading: false,
         });
         localStorage.removeItem("auth-storage");
@@ -97,15 +91,13 @@ export const useAuthStore = create(
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
+      // user 정보만 persist — 토큰은 절대 localStorage에 저장하지 않음
       partialize: (state) => ({
         user: state.user,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-        accessTokenExpiresIn: state.accessTokenExpiresIn,
       }),
       onRehydrateStorage: () => (state) => {
-        // localStorage에서 상태 복원 후 세션 확인
-        if (state?.accessToken) {
+        // localStorage 복원 후 쿠키 기반으로 세션 검증
+        if (state?.user) {
           state.fetchSession();
         }
       },

@@ -171,6 +171,40 @@ public class EmailServiceImpl implements EmailService {
 		}
 	}
 
+	@Override
+	public void sendResetPasswordOtp(String email, String otp) {
+		String from = fromName + " <" + fromAddress + ">";
+		String template = loadClasspathTemplate("templates/email/reset-password-otp.html");
+		String htmlContent = template
+				.replace("{{otp}}", escapeHtml(otp));
+		try {
+			CreateEmailOptions params = CreateEmailOptions.builder()
+					.from(from).to(email)
+					.subject("[MOA] 비밀번호 재설정 인증 코드")
+					.html(htmlContent).build();
+			resend.emails().send(params);
+		} catch (Exception e) {
+			throw new IllegalStateException("비밀번호 재설정 이메일 발송 실패", e);
+		}
+	}
+
+	@Override
+	public void sendMagicLink(String email, String magicUrl) {
+		String from = fromName + " <" + fromAddress + ">";
+		String template = loadClasspathTemplate("templates/email/magic-link.html");
+		String htmlContent = template
+				.replace("{{magicUrl}}", escapeHtml(magicUrl));
+		try {
+			CreateEmailOptions params = CreateEmailOptions.builder()
+					.from(from).to(email)
+					.subject("[MOA] 로그인 링크가 도착했습니다")
+					.html(htmlContent).build();
+			resend.emails().send(params);
+		} catch (Exception e) {
+			throw new IllegalStateException("Magic Link 이메일 발송 실패", e);
+		}
+	}
+
 	private String loadClasspathTemplate(String path) {
 		String normalized = path == null ? "" : path.trim();
 		if (normalized.startsWith("classpath:"))

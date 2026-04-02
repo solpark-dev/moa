@@ -220,12 +220,10 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
 
       const { signupType } = res.data || {};
       if (signupType === "SOCIAL") {
-        const { accessToken, refreshToken, accessTokenExpiresIn, expiresIn } =
-          res.data;
+        const { accessToken, accessTokenExpiresIn, expiresIn } = res.data;
 
         setTokens({
           accessToken,
-          refreshToken,
           accessTokenExpiresIn: accessTokenExpiresIn ?? expiresIn,
         });
 

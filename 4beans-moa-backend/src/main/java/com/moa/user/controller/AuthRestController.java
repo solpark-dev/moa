@@ -31,11 +31,16 @@ import com.moa.user.dto.TokenResponse;
 import com.moa.user.dto.UnlockAccountRequest;
 import com.moa.user.dto.request.LoginRequest;
 import com.moa.user.dto.response.LoginResponse;
+import com.moa.user.dto.request.ResetPasswordVerifyRequest;
+import com.moa.user.dto.request.PasswordResetRequest;
 import com.moa.user.service.AuthService;
 import com.moa.user.service.BackupCodeService;
 import com.moa.user.service.LoginHistoryService;
 import com.moa.user.service.OtpService;
+import com.moa.user.service.ResetPasswordService;
+import com.moa.user.service.MagicLinkService;
 import com.moa.global.service.passauth.PassAuthService;
+import com.moa.user.repository.UserDao;
 import com.moa.user.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,8 +59,11 @@ public class AuthRestController {
 	private final OtpService otpService;
 	private final PassAuthService passAuthService;
 	private final UserService userService;
+	private final UserDao userDao;
 	private final LoginHistoryService loginHistoryService;
 	private final BackupCodeService backupCodeService;
+	private final ResetPasswordService resetPasswordService;
+	private final MagicLinkService magicLinkService;
 
 	@PostMapping("/login")
 	public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request, HttpServletRequest httpRequest,
@@ -115,8 +123,34 @@ public class AuthRestController {
 	}
 
 	@PostMapping("/refresh")
-	public ApiResponse<TokenResponse> refresh(@RequestHeader("Refresh-Token") String refreshToken) {
-		return ApiResponse.success(authService.refresh(refreshToken));
+	public ApiResponse<TokenResponse> refresh(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+		String refreshToken = null;
+		if (httpRequest.getCookies() != null) {
+			for (var cookie : httpRequest.getCookies()) {
+				if ("REFRESH_TOKEN".equals(cookie.getName())) {
+					refreshToken = cookie.getValue();
+					break;
+				}
+			}
+		}
+		if (refreshToken == null || refreshToken.isBlank()) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED, "Refresh token이 없습니다.");
+		}
+
+		TokenResponse tokenResponse = authService.refresh(refreshToken);
+
+		boolean isHttps = "https".equalsIgnoreCase(httpRequest.getHeader("X-Forwarded-Proto")) || httpRequest.isSecure();
+		ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", tokenResponse.getAccessToken())
+				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax")
+				.path("/").maxAge(tokenResponse.getAccessTokenExpiresIn()).build();
+		ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", tokenResponse.getRefreshToken())
+				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax")
+				.path("/").maxAge(60 * 60 * 24 * 14).build();
+
+		httpResponse.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+		httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+		return ApiResponse.success(tokenResponse);
 	}
 
 	@PostMapping("/logout")
@@ -253,6 +287,72 @@ public class AuthRestController {
 		return ApiResponse.success(null);
 	}
 
+	// ── 비밀번호 재설정 (Email OTP) ──────────────────────────────────────────
+
+	@PostMapping("/reset-password/send")
+	public ApiResponse<Void> sendResetPasswordOtp(@RequestBody Map<String, String> body) {
+		String email = body.get("email");
+		if (email == null || email.isBlank()) {
+			throw new BusinessException(ErrorCode.BAD_REQUEST, "이메일을 입력해주세요.");
+		}
+		resetPasswordService.sendOtp(email.toLowerCase());
+		return ApiResponse.success(null);
+	}
+
+	@PostMapping("/reset-password/verify")
+	public ApiResponse<Map<String, String>> verifyResetPasswordOtp(
+			@RequestBody @Valid ResetPasswordVerifyRequest request) {
+		String resetToken = resetPasswordService.verifyOtp(request.getEmail(), request.getCode());
+		return ApiResponse.success(Map.of("resetToken", resetToken));
+	}
+
+	@PostMapping("/reset-password/confirm")
+	public ApiResponse<Void> confirmResetPassword(@RequestBody PasswordResetRequest request) {
+		if (request.getToken() == null || request.getToken().isBlank()) {
+			throw new BusinessException(ErrorCode.BAD_REQUEST, "재설정 토큰이 없습니다.");
+		}
+		resetPasswordService.confirmReset(request.getToken(), request.getPassword(), request.getPasswordConfirm());
+		return ApiResponse.success(null);
+	}
+
+	// ── Magic Link 로그인 ─────────────────────────────────────────────────────
+
+	@PostMapping("/magic-link/send")
+	public ApiResponse<Void> sendMagicLink(@RequestBody Map<String, String> body) {
+		String email = body.get("email");
+		if (email == null || email.isBlank()) {
+			throw new BusinessException(ErrorCode.BAD_REQUEST, "이메일을 입력해주세요.");
+		}
+		magicLinkService.sendMagicLink(email.toLowerCase());
+		return ApiResponse.success(null);
+	}
+
+	@PostMapping("/magic-link/verify")
+	public ApiResponse<TokenResponse> verifyMagicLink(@RequestBody Map<String, String> body,
+			HttpServletResponse httpResponse, HttpServletRequest httpRequest) {
+		String token = body.get("token");
+		if (token == null || token.isBlank()) {
+			throw new BusinessException(ErrorCode.BAD_REQUEST, "토큰이 없습니다.");
+		}
+		TokenResponse tokenResponse = magicLinkService.verifyMagicLink(token);
+
+		boolean isHttps = "https".equalsIgnoreCase(httpRequest.getHeader("X-Forwarded-Proto"))
+				|| httpRequest.isSecure();
+
+		ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", tokenResponse.getAccessToken())
+				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax")
+				.path("/").maxAge(tokenResponse.getAccessTokenExpiresIn()).build();
+
+		ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", tokenResponse.getRefreshToken())
+				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax")
+				.path("/").maxAge(60 * 60 * 24 * 14).build();
+
+		httpResponse.addHeader("Set-Cookie", accessCookie.toString());
+		httpResponse.addHeader("Set-Cookie", refreshCookie.toString());
+
+		return ApiResponse.success(tokenResponse);
+	}
+
 	@PostMapping("/exists-by-email")
 	public ApiResponse<Void> existsByEmail(@RequestBody Map<String, String> body) {
 
@@ -262,40 +362,46 @@ public class AuthRestController {
 			throw new BusinessException(ErrorCode.INVALID_REQUEST, "이메일을 입력해주세요.");
 		}
 
-		try {
-			userService.unlockByCertification(email, "__CHECK_ONLY__", null);
-		} catch (BusinessException e) {
-
-			if (e.getErrorCode() == ErrorCode.USER_NOT_FOUND) {
-				throw e;
-			}
-
+		if (userDao.existsByUserId(email.toLowerCase()) == 0) {
+			throw new BusinessException(ErrorCode.USER_NOT_FOUND, "등록된 계정이 없습니다.");
 		}
 
 		return ApiResponse.success(null);
 	}
 
 	private String extractClientIp(HttpServletRequest request) {
-		String ip = request.getHeader("X-Forwarded-For");
-		if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
-			int commaIndex = ip.indexOf(',');
-			if (commaIndex > 0) {
-				ip = ip.substring(0, commaIndex);
+		String remoteAddr = request.getRemoteAddr();
+
+		if (isTrustedProxy(remoteAddr)) {
+			String xff = request.getHeader("X-Forwarded-For");
+			if (xff != null && !xff.isBlank() && !"unknown".equalsIgnoreCase(xff)) {
+				return xff.split(",")[0].trim();
 			}
-			return ip.trim();
+			String xri = request.getHeader("X-Real-IP");
+			if (xri != null && !xri.isBlank() && !"unknown".equalsIgnoreCase(xri)) {
+				return xri.trim();
+			}
 		}
 
-		ip = request.getHeader("X-Real-IP");
-		if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
-			return ip.trim();
-		}
+		return "0:0:0:0:0:0:0:1".equals(remoteAddr) ? "127.0.0.1" : remoteAddr;
+	}
 
-		ip = request.getRemoteAddr();
-		if ("0:0:0:0:0:0:0:1".equals(ip)) {
-			return "127.0.0.1";
-		}
+	private boolean isTrustedProxy(String ip) {
+		if (ip == null) return false;
+		return ip.equals("127.0.0.1")
+				|| ip.equals("0:0:0:0:0:0:0:1")
+				|| ip.startsWith("10.")
+				|| ip.startsWith("192.168.")
+				|| (ip.startsWith("172.") && isDockerRange(ip));
+	}
 
-		return ip;
+	private boolean isDockerRange(String ip) {
+		try {
+			int second = Integer.parseInt(ip.split("\\.")[1]);
+			return second >= 16 && second <= 31;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	private String extractUserIdFromLoginRequest(LoginRequest request) {
@@ -349,8 +455,7 @@ public class AuthRestController {
 		String userAgent = httpRequest.getHeader("User-Agent");
 		loginHistoryService.recordSuccess(userId, "RESTORE", clientIp, userAgent);
 
-		return ApiResponse.success(Map.of("restored", true, "userId", userId, "accessToken", token.getAccessToken(),
-				"refreshToken", token.getRefreshToken(), "accessTokenExpiresIn", token.getAccessTokenExpiresIn()));
+		return ApiResponse.success(Map.of("restored", true, "userId", userId));
 	}
 
 }

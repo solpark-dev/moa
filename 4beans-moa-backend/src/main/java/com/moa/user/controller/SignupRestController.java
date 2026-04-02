@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.moa.global.common.exception.ApiResponse;
-import com.moa.global.common.exception.BusinessException;
-import com.moa.global.common.exception.ErrorCode;
 import com.moa.user.dto.request.CommonCheckRequest;
 import com.moa.user.dto.request.UserCreateRequest;
 import com.moa.user.dto.response.CommonCheckResponse;
@@ -61,19 +59,6 @@ public class SignupRestController {
 		return ApiResponse.success(passAuthService.verifyCertification(impUid));
 	}
 
-	@PostMapping("/find-id")
-	public ApiResponse<Map<String, String>> findIdByPhone(@RequestBody Map<String, String> request) {
-
-		String phone = request.get("phone");
-		String userId = userService.findUserIdByPhone(phone);
-
-		if (userId == null) {
-			throw new BusinessException(ErrorCode.USER_NOT_FOUND, "해당 번호로 가입된 아이디가 존재하지 않습니다.");
-		}
-
-		return ApiResponse.success(Map.of("email", userId));
-	}
-
 	@GetMapping("/exists-by-phone")
 	public ApiResponse<Map<String, Object>> existsByPhone(@RequestParam("phone") String phone) {
 
@@ -82,7 +67,7 @@ public class SignupRestController {
 			return ApiResponse.success(Map.of("exists", false));
 		}
 
-		var user = userOpt.get();
-		return ApiResponse.success(Map.of("exists", true, "userId", user.getUserId()));
+		// userId는 응답에 포함하지 않음 — 계정 열거 공격 방지
+		return ApiResponse.success(Map.of("exists", true));
 	}
 }

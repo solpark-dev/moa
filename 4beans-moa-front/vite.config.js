@@ -1,10 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import basicSsl from "@vitejs/plugin-basic-ssl";
 import path from "path";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), basicSsl()],
 
   resolve: {
     alias: {
@@ -14,12 +15,13 @@ export default defineConfig({
 
   server: {
     host: true,
+    https: true,  // WebAuthn requires secure context — matches app.webauthn.allowed-origins=https://localhost:5173
 
     proxy: {
       "/api": {
-        target: "http://localhost:8080",
+        target: "https://localhost:8443",  // backend: SSL on port 8443 (application-local.properties)
         changeOrigin: true,
-        secure: false,
+        secure: false,  // self-signed cert 허용
 
         rewrite: (path) => {
           return path;
@@ -41,7 +43,7 @@ export default defineConfig({
       },
 
       "/uploads": {
-        target: "http://localhost:8080",
+        target: "https://localhost:8443",
         changeOrigin: true,
         secure: false,
       },

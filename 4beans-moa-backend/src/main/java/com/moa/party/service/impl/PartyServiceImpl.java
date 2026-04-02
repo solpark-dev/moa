@@ -250,6 +250,7 @@ public class PartyServiceImpl implements PartyService {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public PartyMemberResponse joinParty(Integer partyId, String userId, PaymentRequest paymentRequest) {
 
 		// 1. 초기 검증 및 파티/멤버 기본 정보 설정

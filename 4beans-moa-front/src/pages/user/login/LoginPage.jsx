@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useLoginPageLogic } from "@/hooks/auth/useLogin";
+import { usePasskey } from "@/hooks/auth/usePasskey";
 import { LoginForm } from "./components/LoginForm";
 import { SocialLoginButtons } from "./components/SocialLoginButtons";
 import { LoginOtpDialog } from "./components/LoginOtpDialog";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -19,6 +21,19 @@ export default function LoginPage() {
 
   const isBackupMode  = otpMode === "backup";
   const isLoginDisabled = loginLoading || !email.trim() || !password.trim();
+
+  const { authenticate: passkeyAuth, loading: passkeyLoading } = usePasskey();
+  const [passkeyError, setPasskeyError] = useState(null);
+
+  const handlePasskeyLogin = async () => {
+    setPasskeyError(null);
+    const result = await passkeyAuth();
+    if (result.success) {
+      navigate("/");
+    } else if (!result.cancelled) {
+      setPasskeyError(result.message);
+    }
+  };
 
   useEffect(() => { setField("password", ""); }, [setField]);
 
@@ -84,10 +99,41 @@ export default function LoginPage() {
             onPasswordChange={handlePasswordChange}
             onRememberChange={(v) => setField("remember", v)}
             onSubmit={handleEmailLogin}
-            onUnlock={handleUnlockByCertification}
             isLoginDisabled={isLoginDisabled}
             loginLoading={loginLoading}
           />
+        </div>
+
+        {/* Magic Link + Passkey */}
+        <div className="px-6 pb-4 flex flex-col gap-2">
+          <Button
+            type="button"
+            onClick={() => navigate("/login/magic")}
+            className="w-full h-11 text-[14px] font-semibold rounded-xl"
+            style={{
+              background: "var(--glass-bg-overlay)",
+              border: "1px solid var(--glass-border)",
+              color: "var(--theme-text)",
+            }}
+          >
+            ✉️ &nbsp;이메일 링크로 로그인
+          </Button>
+          <Button
+            type="button"
+            onClick={handlePasskeyLogin}
+            disabled={passkeyLoading}
+            className="w-full h-11 text-[14px] font-semibold rounded-xl"
+            style={{
+              background: "var(--glass-bg-overlay)",
+              border: "1px solid var(--glass-border)",
+              color: "var(--theme-text)",
+            }}
+          >
+            {passkeyLoading ? "인증 중..." : "🔑 패스키로 로그인"}
+          </Button>
+          {passkeyError && (
+            <p className="text-[12px] text-red-500 text-center">{passkeyError}</p>
+          )}
         </div>
 
         {/* Divider */}

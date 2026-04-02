@@ -2,6 +2,7 @@ import React from "react";
 import { Link2, Shield, Smartphone } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 import { formatPhoneNumber } from "@/utils/format";
+import { PasskeySection } from "./PasskeySection";
 
 const ROW = "flex items-center justify-between py-3";
 
@@ -135,6 +136,8 @@ export function ConnectionStatusCard({
             {otp?.enabled ? "OTP 해제" : "OTP 설정"}
           </button>
         </div>
+
+        <PasskeySection />
       </div>
     </div>
   );

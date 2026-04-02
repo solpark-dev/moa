@@ -595,60 +595,134 @@ ECR_REGISTRY
 
 ---
 
-### 3-2. Frontend Error Boundary `MEDIUM`
+### 3-2. Frontend Error Boundary `MEDIUM` ✅
 
 **목표**: 예상치 못한 렌더링 오류 시 앱 전체 크래시 방지.
 
+#### 구현 내용
+
+- `ErrorBoundary.jsx` — React 클래스 컴포넌트, `getDerivedStateFromError`로 에러 캐치
+- `ErrorFallback.jsx` — 에러 대체 UI (에러 메시지 표시 + "다시 시도" / "홈으로" 버튼)
+- `NotFoundPage.jsx` — 404 전용 페이지 (잘못된 URL 접근 시 표시)
+- `ServerErrorPage.jsx` — 500 에러 페이지 (traceId 표시로 로그 추적 가능)
+- `NetworkErrorPage.jsx` — 네트워크 연결 실패 페이지
+
+> ⚠️ ~~`App.jsx`에 `<ErrorBoundary>` wrapping 및 404 catch-all 라우트 추가는 Passkey(Phase 4) 작업 완료 후 진행 예정.~~ → ✅ 완료
+
 ```
-작업 파일:
-  src/components/common/ErrorBoundary.jsx    ← 클래스 컴포넌트 (신규)
-  src/components/common/ErrorFallback.jsx   ← 에러 UI 컴포넌트 (신규)
-  src/App.jsx                               ← ErrorBoundary로 라우터 감싸기
-```
+완료 파일:
+  src/components/common/ErrorBoundary.jsx    ← 클래스 컴포넌트
+  src/components/common/ErrorFallback.jsx    ← 에러 UI 컴포넌트
+  src/pages/error/NotFoundPage.jsx           ← 404 페이지
+  src/pages/error/ServerErrorPage.jsx        ← 500 페이지 (traceId 표시)
+  src/pages/error/NetworkErrorPage.jsx       ← 네트워크 에러 페이지
 
-```jsx
-// ErrorBoundary.jsx
-class ErrorBoundary extends React.Component {
-  state = { hasError: false, error: null };
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  render() {
-    if (this.state.hasError) return <ErrorFallback error={this.state.error} />;
-    return this.props.children;
-  }
-}
+대기 중:
+  src/App.jsx                                ← ErrorBoundary wrapping + catch-all 라우트
 ```
 
 ---
 
-### 3-3. Rate Limiting (Bucket4j) `LOW`
+### 3-3. Rate Limiting (Bucket4j) `HIGH` ✅
 
-**목표**: API 어뷰징 및 브루트포스 공격 방어. 포트폴리오 보안 어필.
+**목표**: API 어뷰징 및 브루트포스 공격 방어.
 
-#### pom.xml 추가
+#### 구현 내용
 
-```xml
-<dependency>
-    <groupId>com.bucket4j</groupId>
-    <artifactId>bucket4j-core</artifactId>
-    <version>8.10.1</version>
-</dependency>
-```
+- `pom.xml`에 `bucket4j-core:8.10.1` 의존성 추가
+- `RateLimitFilter.java` — IP 기반 엔드포인트별 차등 Rate Limiting 필터
+  - `@Component` + `@Order(HIGHEST_PRECEDENCE + 10)`으로 독립 동작 (SecurityConfig 미수정)
+  - ConcurrentHashMap으로 IP별 버킷 관리
+  - 초과 시 `429 Too Many Requests` + `Retry-After: 60` 헤더 반환
 
 #### 적용 엔드포인트
 
 | 엔드포인트 | 제한 | 이유 |
 |-----------|------|------|
 | `POST /api/auth/login` | 5회/분 | 브루트포스 방어 |
-| `POST /api/auth/signup` | 3회/분 | 계정 무더기 생성 방어 |
+| `POST /api/signup/**` | 3회/분 | 계정 남용 방어 |
 | `POST /api/payment/**` | 10회/분 | 결제 API 어뷰징 방어 |
+| `POST /api/chatbot/**` | 20회/분 | AI API 비용 방어 |
+| 기타 전체 API | 100회/분 | 일반 DDoS 방어 |
 
 ---
 
-### 3-4. Lighthouse 성능 최적화 + 웹 접근성 `LOW`
+### 3-4. 보안 강화 — XSS 방어 + SQL Injection 수정 + Security Headers `HIGH` ✅
+
+**목표**: 지속적인 공격에 대비한 Defense-in-Depth 보안 계층 구축.
+
+#### 구현 내용
+
+**XSS 방어**
+- `XssFilter.java` — 모든 요청 파라미터/헤더에서 HTML 특수 문자(`&`, `<`, `>`, `"`, `'`)를 이스케이프
+- `XssRequestWrapper.java` — `HttpServletRequestWrapper` 상속, `getParameter()`, `getParameterValues()`, `getHeader()` 오버라이드
+- multipart 파일 업로드 요청은 자동 제외
+
+**SQL Injection 수정**
+- `AdminMapper.xml` — `${sortItem}` (MyBatis 문자열 치환) → `<choose>` 화이트리스트 정적 블록으로 교체
+- Java 측 `AdminUserSearchRequest.setSort()`에서도 화이트리스트 검증하여 이중 방어
+
+**MDC 중복 제거**
+- `MdcLoggingFilter.java` 삭제 — `LoggingFilter`와 기능 완전 중복
+
+> ⚠️ ~~HTTP Security Headers (CSP, X-Frame-Options, HSTS 등)는 `SecurityConfig.java` 수정이 필요하여 Passkey 작업 완료 후 진행 예정.~~ → ✅ 완료
+
+---
+
+### 3-5. 에러 처리 고도화 — GlobalExceptionHandler + 토스트 시스템 `HIGH` ✅
+
+**목표**: 개발자도 사용자도 에러를 명확히 인지할 수 있는 시스템 구축.
+
+#### Backend 구현 내용
+
+**GlobalExceptionHandler 6개 핸들러 추가**
+
+| 예외 | HTTP 상태 | 메시지 |
+|------|----------|--------|
+| `AccessDeniedException` | 403 | "접근 권한이 없습니다." |
+| `MissingServletRequestParameterException` | 400 | "필수 파라미터 '{name}'이(가) 누락되었습니다." |
+| `HttpRequestMethodNotSupportedException` | 405 | "'{method}' 메서드는 지원하지 않습니다." |
+| `NoHandlerFoundException` | 404 | "요청하신 페이지를 찾을 수 없습니다." |
+| `MaxUploadSizeExceededException` | 413 | "파일 크기가 제한(20MB)을 초과합니다." |
+| 기존 핸들러들 | — | `request.getRequestURI()` path 추가 |
+
+**ApiError/ApiResponse 확장**
+- `ApiError.java` — `timestamp`, `path` 필드 추가
+- `ApiResponse.java` — `error(ErrorCode, message, path)` 오버로드 추가
+- `ErrorCode.java` — `RATE_LIMIT_EXCEEDED`, `METHOD_NOT_ALLOWED`, `FILE_SIZE_EXCEEDED`, `MISSING_PARAMETER` 추가
+
+**에러 응답 형태 (개선 후)**
+```json
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "E429",
+    "message": "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.",
+    "traceId": "a1b2c3d4e5f6",
+    "timestamp": "2026-03-30T18:15:00.123",
+    "path": "/api/auth/login"
+  }
+}
+```
+
+#### Frontend 구현 내용
+
+**Toast 알림 시스템**
+- `toastStore.js` — Zustand 기반 토스트 상태 관리 (error/success/warning 타입, 자동 제거)
+- `ToastContainer.jsx` — framer-motion 애니메이션 토스트 렌더링 (타입별 그라디언트 배경)
+
+**httpClient.js 글로벌 에러 처리 강화**
+- 네트워크 에러 → 에러 토스트 + 콘솔 로깅
+- `429` (Rate Limit) → 경고 토스트
+- `403` (권한 없음) → 에러 토스트
+- `500` (서버 에러) → traceId 콘솔 로깅 + 에러 토스트
+
+> ⚠️ ~~`App.jsx`에 `<ToastContainer />` 추가는 Passkey 작업 완료 후 진행 예정.~~ → ✅ 완료
+
+---
+
+### 3-6. Lighthouse 성능 최적화 + 웹 접근성 `LOW`
 
 **목표**: Lighthouse 점수 각 항목 80점 이상.
 
@@ -670,6 +744,237 @@ class ErrorBoundary extends React.Component {
 - 키보드 탐색 (Tab 순서) 검증
 - <html lang="ko"> 확인
 ```
+
+---
+
+### 3-7. 로그인 UI 개선 `LOW` ✅
+
+**목표**: 로그인 화면 UX 개선 및 불필요한 기능 제거.
+
+#### 구현 내용
+
+**제거된 기능**
+- "잠금 계정 풀기" 버튼 제거 — `LoginForm.jsx`에서 `onUnlock` prop 및 버튼 삭제
+- `LoginPage.jsx`에서 `handleUnlockByCertification` 전달 제거
+
+**확인된 기능**
+- 회원가입 버튼은 이미 `LoginPage.jsx` 하단에 정상 존재 ("계정이 없으신가요? 회원가입")
+
+---
+
+### 3-8. Vite HTTPS 개발 환경 설정 `LOW` ✅
+
+**목표**: WebAuthn(패스키) 기능을 위한 HTTPS 개발 환경 구성.
+
+#### 구현 내용
+
+**패키지 설치**
+- `@vitejs/plugin-basic-ssl` 설치 — Vite에서 자체 서명 인증서 자동 생성
+
+**vite.config.js 수정**
+```javascript
+import basicSsl from "@vitejs/plugin-basic-ssl";
+
+export default defineConfig({
+  plugins: [react(), tailwindcss(), basicSsl()],
+  server: {
+    https: true,  // WebAuthn requires secure context
+    // ...
+  }
+});
+```
+
+**사용 방법**
+1. 개발 서버 실행: `npm run dev`
+2. `https://localhost:5173` 접속
+3. 브라우저 보안 경고 시 "고급" → "안전하지 않음(계속)" 클릭
+
+**해결된 문제**
+- `Unsafe attempt to load URL https://localhost:5173/` 에러 해결
+- 자체 서명 인증서로 HTTPS 개발 환경 제공
+- WebAuthn API 정상 작동 가능
+
+---
+
+## Phase 3-9. 구독 도메인 코드 정리 `MEDIUM`
+
+> **이유**: 분석 결과 구독 도메인이 결제 도메인 대비 일관성이 부족함. 채용 담당자가 코드를 읽을 때 바로 눈에 띄는 부분.
+
+### 현황 vs 목표
+
+| 항목 | 현재 (구독) | 목표 (결제 기준) |
+|------|------------|----------------|
+| 응답 래퍼 | `Map.of("success", true)` / `ResponseEntity<?>` | `ApiResponse<T>` |
+| 유효성 검증 | `@Valid` 없음, DTO에 어노테이션 없음 | `@Valid` + `@NotBlank`, `@NotNull` |
+| 트랜잭션 | `@Transactional` 없음 | `@Transactional` |
+| 로깅 | `LoggerFactory.getLogger()` | `@Slf4j` |
+
+### 작업 파일
+
+```
+subscription/
+  controller/SubscriptionRestController.java  ← ResponseEntity<?> → ApiResponse<T>
+  service/impl/SubscriptionServiceImpl.java   ← @Transactional 추가
+  dto/SubscriptionDTO.java                    ← @NotBlank, @Size 등 추가
+```
+
+### 완료 기준
+- [ ] 구독 컨트롤러 응답 형식이 결제 컨트롤러와 동일
+- [ ] DTO 필드에 유효성 검증 어노테이션 적용
+- [ ] `mvn test` 통과 유지
+
+---
+
+## Phase 3-10. 로깅 스타일 통일 `LOW`
+
+> **이유**: `@Slf4j` vs `LoggerFactory.getLogger()` 혼재. 코드 리뷰 시 "컨벤션이 없다"는 인상을 줌.
+
+```
+전수 교체:
+LoggerFactory.getLogger(Foo.class) → @Slf4j (Lombok)
+```
+
+### 완료 기준
+- [ ] 전체 Java 파일에서 `LoggerFactory.getLogger` 0건
+
+---
+
+## Phase 5 — 테스트 커버리지 확대
+
+> **목표**: 현재 ~15% 커버리지를 40~50%로 끌어올린다. 테스트 퀄리티는 이미 증명됐으므로 **양**이 핵심.
+> **임팩트**: 채용 포트폴리오에서 CI 배지와 함께 가장 먼저 눈에 띄는 항목.
+
+### 5-1. 백엔드 컨트롤러 통합 테스트 `HIGH`
+
+**전략**: `@SpringBootTest` + `MockMvc` + H2 인메모리 DB로 실제 HTTP 요청/응답 검증.
+
+#### 파일 구조
+
+```
+src/test/java/com/moa/
+  payment/controller/PaymentRestControllerTest.java
+  party/controller/PartyRestControllerTest.java
+  settlement/controller/SettlementRestControllerTest.java
+  user/controller/AuthRestControllerTest.java
+  deposit/controller/DepositRestControllerTest.java
+```
+
+#### 기본 패턴
+
+```java
+@SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
+class PaymentRestControllerTest {
+
+    @Autowired MockMvc mockMvc;
+    @Autowired ObjectMapper objectMapper;
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = "USER")
+    @DisplayName("결제 승인 요청 - 정상 처리")
+    void confirmPayment_success() throws Exception {
+        mockMvc.perform(post("/api/payment/confirm")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+    }
+}
+```
+
+#### 테스트 케이스 목표
+
+| 컨트롤러 | 테스트 수 | 핵심 케이스 |
+|---------|---------|-----------|
+| `AuthRestController` | 5개 | 로그인 성공/실패, 토큰 갱신, 비밀번호 재설정 |
+| `PartyRestController` | 5개 | 파티 생성, 가입, 탈퇴, 목록 조회 |
+| `PaymentRestController` | 4개 | 결제 승인, 재시도 현황 조회 |
+| `SettlementRestController` | 3개 | 정산 내역 조회, 상태 조회 |
+| `DepositRestController` | 3개 | 보증금 상태 조회, 환불 처리 |
+
+#### 완료 기준
+- [ ] 컨트롤러 테스트 20개 이상 GREEN
+- [ ] 인증 필요 엔드포인트에 `@WithMockUser` 적용
+- [ ] 400/404/403 오류 케이스 각 2개 이상 포함
+
+---
+
+### 5-2. 백엔드 추가 서비스 테스트 `MEDIUM`
+
+현재 4개 서비스 테스트 외 미커버 영역:
+
+| 테스트 파일 | 핵심 케이스 |
+|------------|-----------|
+| `MagicLinkServiceTest.java` | 토큰 생성·검증, 1회용 삭제, TTL 만료 |
+| `ResetPasswordServiceTest.java` | OTP 발급·검증, 토큰 교환, 비밀번호 변경 |
+| `OtpServiceTest.java` | TOTP 코드 검증, 백업 코드 소진 |
+| `SubscriptionServiceTest.java` | 구독 추가/삭제, 지출 합계 계산 |
+
+#### 완료 기준
+- [ ] 서비스 테스트 총 8개 이상
+
+---
+
+### 5-3. 프론트엔드 컴포넌트 테스트 `MEDIUM`
+
+**전략**: Vitest + React Testing Library. 기존 `dateUtils.test.js` 패턴 확장.
+
+#### 파일 구조
+
+```
+src/
+  __tests__/
+    components/
+      PartyCard.test.jsx
+      SubscriptionCard.test.jsx
+    pages/
+      LoginPage.test.jsx
+    utils/
+      phoneUtils.test.js     ← formatPhone(null) 케이스 포함
+      format.test.js
+```
+
+#### 핵심 테스트 케이스
+
+```javascript
+// phoneUtils.test.js — 방금 수정한 버그 재발 방지
+describe("formatPhone", () => {
+  it("null을 빈 문자열로 반환", () => {
+    expect(formatPhone(null)).toBe("");
+  });
+  it("undefined를 빈 문자열로 반환", () => {
+    expect(formatPhone(undefined)).toBe("");
+  });
+  it("11자리 숫자를 하이픈 형식으로 변환", () => {
+    expect(formatPhone("01012345678")).toBe("010-1234-5678");
+  });
+});
+```
+
+#### 완료 기준
+- [ ] 유틸 함수 테스트 100% (phoneUtils, format, dateUtils)
+- [ ] 핵심 컴포넌트 렌더링 테스트 5개 이상
+
+---
+
+### Phase 5 작업 순서
+
+```
+Step 1  phoneUtils.test.js 등 유틸 테스트    (1시간)  — 빠른 승리
+Step 2  AuthRestControllerTest              (2시간)  — 인증 흐름 검증
+Step 3  PartyRestControllerTest             (2시간)  — 핵심 도메인
+Step 4  PaymentRestControllerTest           (1시간)  — 임팩트 높은 도메인
+Step 5  나머지 서비스/컨트롤러 테스트        (4시간)  — 커버리지 채우기
+```
+
+### Phase 5 완료 기준
+
+| 항목 | 검증 방법 |
+|------|---------|
+| 백엔드 | `mvn test` → 테스트 총 30개 이상 GREEN |
+| 프론트 | `npm run test` → 유틸/컴포넌트 테스트 GREEN |
+| 커버리지 | JaCoCo 리포트 서비스 레이어 40% 이상 |
 
 ---
 
@@ -760,10 +1065,17 @@ graph LR
 |------|---------|------|
 | 구독 대시보드 고도화 | HIGH | ✅ 완료 |
 | AI 챗봇 SSE 스트리밍 | MEDIUM | ⬜ 미시작 |
-| Frontend Error Boundary | MEDIUM | ⬜ 미시작 |
-| Rate Limiting (Bucket4j) | LOW | ⬜ 미시작 |
+| Frontend Error Boundary + 에러 페이지 | MEDIUM | ✅ 완료 |
+| Rate Limiting (Bucket4j) | HIGH | ✅ 완료 |
+| XSS 방어 + SQL Injection 수정 | HIGH | ✅ 완료 |
+| 에러 처리 고도화 (Backend + Frontend) | HIGH | ✅ 완료 |
+| HTTP Security Headers (CSP 등) | HIGH | ✅ 완료 |
+| 로그인 UI 개선 (잠금 계정 풀기 제거) | LOW | ✅ 완료 |
+| Vite HTTPS 개발 환경 설정 | LOW | ✅ 완료 |
 | Lighthouse 성능 최적화 | LOW | ⬜ 미시작 |
 | WCAG 2.1 접근성 적용 | LOW | ⬜ 미시작 |
+| **구독 도메인 코드 정리** (3-9) | MEDIUM | ⬜ 미시작 |
+| **로깅 스타일 통일** @Slf4j (3-10) | LOW | ⬜ 미시작 |
 
 ### Phase 4 — 최종 마감
 
@@ -797,4 +1109,4 @@ Phase별 샘플 데이터 SQL 파일 (`4beans-moa-backend/src/main/resources/dat
 
 ---
 
-*최종 업데이트: 2026-03-29*
+*최종 업데이트: 2026-03-30*
