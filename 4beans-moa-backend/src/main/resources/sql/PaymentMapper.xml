@@ -358,4 +358,39 @@
         WHERE PAYMENT_STATUS = 'COMPLETED'
     </select>
 
+    <!-- 월간 리포트 스케줄러: 해당 월에 완료 결제가 있는 유저 ID 목록 -->
+    <select id="findDistinctUserIdsByTargetMonth" resultType="string">
+        SELECT DISTINCT USER_ID
+        FROM PAYMENT
+        WHERE TARGET_MONTH = #{targetMonth}
+          AND PAYMENT_STATUS = 'COMPLETED'
+    </select>
+
+    <!-- 월간 리포트: 특정 유저의 특정 월 완료 결제 내역 -->
+    <select id="findByUserIdAndTargetMonth" resultMap="PaymentResponseResultMap">
+        SELECT
+            PAY.PAYMENT_ID,
+            PAY.PARTY_ID,
+            PAY.USER_ID,
+            PAY.PARTY_MEMBER_ID,
+            PAY.PAYMENT_TYPE,
+            PAY.PAYMENT_AMOUNT,
+            PAY.PAYMENT_STATUS,
+            PAY.PAYMENT_METHOD,
+            PAY.PAYMENT_DATE,
+            PAY.TARGET_MONTH,
+            PROD.PRODUCT_NAME,
+            LEADER.NICKNAME AS PARTY_LEADER_NICKNAME,
+            U.NICKNAME      AS USER_NICKNAME
+        FROM PAYMENT PAY
+        INNER JOIN PARTY P      ON PAY.PARTY_ID       = P.PARTY_ID
+        INNER JOIN USERS LEADER ON P.PARTY_LEADER_ID  = LEADER.USER_ID
+        INNER JOIN PRODUCT PROD ON P.PRODUCT_ID       = PROD.PRODUCT_ID
+        INNER JOIN USERS U      ON PAY.USER_ID        = U.USER_ID
+        WHERE PAY.USER_ID      = #{userId}
+          AND PAY.TARGET_MONTH = #{targetMonth}
+          AND PAY.PAYMENT_STATUS = 'COMPLETED'
+        ORDER BY PAY.PAYMENT_DATE ASC
+    </select>
+
 </mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.ai.report.repository.MonthlyReportDao">
+
+    <resultMap id="MonthlyReportResultMap" type="com.moa.ai.report.domain.MonthlyReport">
+        <id     property="reportId"     column="REPORT_ID"/>
+        <result property="userId"       column="USER_ID"/>
+        <result property="targetMonth"  column="TARGET_MONTH"/>
+        <result property="summary"      column="SUMMARY"/>
+        <result property="totalPaid"    column="TOTAL_PAID"/>
+        <result property="paymentCount" column="PAYMENT_COUNT"/>
+        <result property="createdAt"    column="CREATED_AT"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.moa.ai.report.domain.MonthlyReport"
+            useGeneratedKeys="true" keyProperty="reportId">
+        INSERT INTO AI_MONTHLY_REPORT
+            (USER_ID, TARGET_MONTH, SUMMARY, TOTAL_PAID, PAYMENT_COUNT)
+        VALUES
+            (#{userId}, #{targetMonth}, #{summary}, #{totalPaid}, #{paymentCount})
+        ON DUPLICATE KEY UPDATE
+            SUMMARY       = VALUES(SUMMARY),
+            TOTAL_PAID    = VALUES(TOTAL_PAID),
+            PAYMENT_COUNT = VALUES(PAYMENT_COUNT),
+            CREATED_AT    = CURRENT_TIMESTAMP
+    </insert>
+
+    <select id="findByUserIdAndMonth" resultMap="MonthlyReportResultMap">
+        SELECT * FROM AI_MONTHLY_REPORT
+        WHERE USER_ID = #{userId} AND TARGET_MONTH = #{targetMonth}
+    </select>
+
+    <select id="findByUserId" resultMap="MonthlyReportResultMap">
+        SELECT * FROM AI_MONTHLY_REPORT
+        WHERE USER_ID = #{userId}
+        ORDER BY TARGET_MONTH DESC
+        LIMIT 12
+    </select>
+
+</mapper>

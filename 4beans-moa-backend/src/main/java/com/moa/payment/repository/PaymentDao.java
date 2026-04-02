@@ -41,4 +41,12 @@ public interface PaymentDao {
 
 	Optional<Payment> findLastMonthlyPayment(@Param("partyId") Integer partyId,
 			@Param("partyMemberId") Integer partyMemberId);
+
+	/** 월간 리포트 스케줄러: 해당 월에 완료 결제가 있는 유저 ID 목록 */
+	List<String> findDistinctUserIdsByTargetMonth(@Param("targetMonth") String targetMonth);
+
+	/** 월간 리포트: 특정 유저의 특정 월 완료 결제 내역 */
+	List<PaymentResponse> findByUserIdAndTargetMonth(
+			@Param("userId") String userId,
+			@Param("targetMonth") String targetMonth);
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.ai.fraud.repository.FraudAlertDao">
+
+    <resultMap id="FraudAlertResultMap" type="com.moa.ai.fraud.domain.FraudAlert">
+        <id     property="alertId"     column="ALERT_ID"/>
+        <result property="paymentId"   column="PAYMENT_ID"/>
+        <result property="userId"      column="USER_ID"/>
+        <result property="partyId"     column="PARTY_ID"/>
+        <result property="amount"      column="AMOUNT"/>
+        <result property="targetMonth" column="TARGET_MONTH"/>
+        <result property="riskLevel"   column="RISK_LEVEL"/>
+        <result property="reasons"     column="REASONS"/>
+        <result property="aiAnalysis"  column="AI_ANALYSIS"/>
+        <result property="createdAt"   column="CREATED_AT"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.moa.ai.fraud.domain.FraudAlert"
+            useGeneratedKeys="true" keyProperty="alertId">
+        INSERT INTO AI_FRAUD_ALERT
+            (PAYMENT_ID, USER_ID, PARTY_ID, AMOUNT, TARGET_MONTH, RISK_LEVEL, REASONS, AI_ANALYSIS)
+        VALUES
+            (#{paymentId}, #{userId}, #{partyId}, #{amount}, #{targetMonth}, #{riskLevel}, #{reasons}, #{aiAnalysis})
+    </insert>
+
+    <select id="findRecent" resultMap="FraudAlertResultMap">
+        SELECT * FROM AI_FRAUD_ALERT
+        ORDER BY CREATED_AT DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findByUserId" resultMap="FraudAlertResultMap">
+        SELECT * FROM AI_FRAUD_ALERT
+        WHERE USER_ID = #{userId}
+        ORDER BY CREATED_AT DESC
+    </select>
+
+</mapper>

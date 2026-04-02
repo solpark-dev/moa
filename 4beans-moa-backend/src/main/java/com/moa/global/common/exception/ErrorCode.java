@@ -93,7 +93,22 @@ public enum ErrorCode {
 	INVALID_PARAMETER("E400", "잘못된 요청 파라미터입니다.", HttpStatus.BAD_REQUEST),
 	INVALID_INPUT_VALUE("E444", "잘못된 입력값입니다.", HttpStatus.BAD_REQUEST),
 	INVALID_REQUEST("E445", "이메일을 입력해주세요.",HttpStatus.NOT_FOUND),
-	INVALID_CURRENT_PASSWORD("U400", "현재 비밀번호가 올바르지 않습니다.", HttpStatus.BAD_REQUEST);
+	INVALID_CURRENT_PASSWORD("U400", "현재 비밀번호가 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+
+	// 보안 (Security)
+	RATE_LIMIT_EXCEEDED("E429", "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.", HttpStatus.TOO_MANY_REQUESTS),
+	METHOD_NOT_ALLOWED("E405", "지원하지 않는 HTTP 메서드입니다.", HttpStatus.METHOD_NOT_ALLOWED),
+	FILE_SIZE_EXCEEDED("E413", "파일 크기가 제한을 초과합니다.", HttpStatus.PAYLOAD_TOO_LARGE),
+	MISSING_PARAMETER("E400", "필수 파라미터가 누락되었습니다.", HttpStatus.BAD_REQUEST),
+
+	// 토큰 / 인증
+	INVALID_TOKEN("E401", "유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
+	NOT_FOUND_USER("U404", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+	// AI / LLM
+	AI_CALL_FAILED("AI500", "AI 서비스 호출에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	AI_TIMEOUT("AI408", "AI 서비스 응답 시간이 초과되었습니다.", HttpStatus.REQUEST_TIMEOUT),
+	AI_RATE_LIMIT("AI429", "AI 서비스 요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.TOO_MANY_REQUESTS);
 	private final String code;
 	private final String message;
 	private final HttpStatus httpStatus;

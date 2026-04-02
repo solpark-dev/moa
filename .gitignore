@@ -2,6 +2,9 @@
 # MOA 프로젝트 통합 .gitignore
 # =============================================
 
+# Claude Code 메모리 (로컬 전용)
+.claude/
+
 
 ### 1. Spring Boot & Maven (Backend) ###
 target/
@@ -37,6 +40,8 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+.env.staging
 application-secret.properties
 
 
