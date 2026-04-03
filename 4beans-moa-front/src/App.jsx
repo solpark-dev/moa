@@ -6,7 +6,7 @@ import ScrollToTop from "./components/common/ScrollToTop";
 import MobileNavBar from "./components/common/MobileNavBar";
 import BottomNavigation from "./components/common/BottomNavigation";
 import ErrorBoundary from "./components/common/ErrorBoundary";
-import ToastContainer from "./components/common/ToastContainer";
+import { Toaster } from "@/components/ui/sonner";
 
 // Admin layout components (kept full-width)
 import Header from "./components/common/Header";
@@ -46,7 +46,6 @@ import AdminUserDetailPage from "@/pages/admin/AdminUserDetailPage";
 import AdminBlacklistDeletePage from "@/pages/admin/RemoveBlacklistPage";
 import AdminLoginHistoryPage from "@/pages/admin/AdminLoginHistoryPage";
 import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
-import ChartComparisonPage from "@/pages/admin/ChartComparisonPage";
 import GetProductList from "./pages/product/GetProductList";
 import GetProduct from "./pages/product/GetProduct";
 import DeleteProduct from "./pages/product/DeleteProduct";
@@ -150,21 +149,22 @@ function AppRoutes() {
       <Route path="/payment/billing/success" element={<BillingSuccessPage />} />
       <Route path="/payment/billing/fail" element={<BillingFailPage />} />
 
-      {/* Community */}
+      {/* Community (public) */}
       <Route path="/community/notice" element={<ListNotice />} />
       <Route path="/community/notice/:communityId" element={<GetNotice />} />
-      <Route path="/community/notice/add" element={<AddNotice />} />
-      <Route path="/community/notice/update/:communityId" element={<UpdateNotice />} />
       <Route path="/community/faq" element={<ListFaq />} />
-      <Route path="/community/faq/add" element={<AddFaq />} />
-      <Route path="/community/inquiry" element={<Inquiry />} />
-      <Route path="/community/inquiry/admin" element={<InquiryAdmin />} />
+      <Route path="/community/inquiry" element={<ProtectedRoute element={<Inquiry />} />} />
+
+      {/* Community (admin only) */}
+      <Route path="/community/notice/add" element={<AdminAuthGuard><AddNotice /></AdminAuthGuard>} />
+      <Route path="/community/notice/update/:communityId" element={<AdminAuthGuard><UpdateNotice /></AdminAuthGuard>} />
+      <Route path="/community/faq/add" element={<AdminAuthGuard><AddFaq /></AdminAuthGuard>} />
+      <Route path="/community/inquiry/admin" element={<AdminAuthGuard><InquiryAdmin /></AdminAuthGuard>} />
 
       {/* Admin */}
       <Route path="/admin/blacklist/add" element={<AdminAuthGuard><AddBlacklistPage /></AdminAuthGuard>} />
       <Route path="/admin/users" element={<AdminAuthGuard><AdminUserListPage /></AdminAuthGuard>} />
       <Route path="/admin/dashboard" element={<AdminAuthGuard><AdminDashboardPage /></AdminAuthGuard>} />
-      <Route path="/admin/chart-comparison" element={<AdminAuthGuard><ChartComparisonPage /></AdminAuthGuard>} />
       <Route path="/admin/users/:userId" element={<AdminAuthGuard><AdminUserDetailPage /></AdminAuthGuard>} />
       <Route path="/admin/blacklist/delete" element={<AdminAuthGuard><AdminBlacklistDeletePage /></AdminAuthGuard>} />
       <Route path="/admin/users/:userId/login-history" element={<AdminAuthGuard><AdminLoginHistoryPage /></AdminAuthGuard>} />
@@ -275,7 +275,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AppContent />
-      <ToastContainer />
+      <Toaster />
     </ErrorBoundary>
   );
 }
