@@ -1,56 +1,20 @@
 package com.moa.global.common.filter;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-
-import jakarta.servlet.ReadListener;
-import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 
 /**
  * XSS 방어용 HttpServletRequest 래퍼.
- * getParameter(), getParameterValues(), getHeader() 뿐만 아니라
- * getInputStream() / getReader() (JSON body)도 HTML 이스케이프 처리합니다.
+ * getParameter(), getParameterValues(), getHeader() 에서 HTML 태그를 이스케이프합니다.
+ *
+ * JSON 바디(getInputStream/getReader)는 처리하지 않습니다.
+ * JSON은 백엔드에서 데이터로만 처리되므로 HTML 이스케이프 대상이 아니며,
+ * 적용 시 큰따옴표(")가 &quot;로 변환되어 Jackson 파싱 오류가 발생합니다.
  */
 public class XssRequestWrapper extends HttpServletRequestWrapper {
 
-	private byte[] cachedBody;
-
-	public XssRequestWrapper(HttpServletRequest request) throws IOException {
+	public XssRequestWrapper(HttpServletRequest request) {
 		super(request);
-		String contentType = request.getContentType();
-		boolean isJson = contentType != null && contentType.contains("application/json");
-		if (isJson) {
-			String body = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-			this.cachedBody = sanitize(body).getBytes(StandardCharsets.UTF_8);
-		}
-	}
-
-	@Override
-	public ServletInputStream getInputStream() throws IOException {
-		if (cachedBody != null) {
-			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(cachedBody);
-			return new ServletInputStream() {
-				@Override public boolean isFinished() { return byteArrayInputStream.available() == 0; }
-				@Override public boolean isReady() { return true; }
-				@Override public void setReadListener(ReadListener listener) {}
-				@Override public int read() { return byteArrayInputStream.read(); }
-			};
-		}
-		return super.getInputStream();
-	}
-
-	@Override
-	public BufferedReader getReader() throws IOException {
-		if (cachedBody != null) {
-			return new BufferedReader(new InputStreamReader(new ByteArrayInputStream(cachedBody), StandardCharsets.UTF_8));
-		}
-		return super.getReader();
 	}
 
 	@Override

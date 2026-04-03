@@ -86,15 +86,20 @@ public class AuthRestController {
 			}
 
 			if (!response.isOtpRequired()) {
+				boolean isHttps = "https".equalsIgnoreCase(httpRequest.getHeader("X-Forwarded-Proto")) || httpRequest.isSecure();
+				String origin = httpRequest.getHeader("Origin");
+				if (origin != null && origin.startsWith("http://")) isHttps = false;
+
+				long accessMaxAge = Math.max(0, (response.getAccessTokenExpiresIn() - System.currentTimeMillis()) / 1000);
 				ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", response.getAccessToken())
-						.httpOnly(true).secure(true).sameSite("None").path("/")
-						.maxAge(response.getAccessTokenExpiresIn()).build();
+						.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax").path("/")
+						.maxAge(accessMaxAge).build();
 
 				ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", response.getRefreshToken())
-						.httpOnly(true).secure(true).sameSite("None").path("/").maxAge(60 * 60 * 24 * 14).build();
+						.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax").path("/").maxAge(60 * 60 * 24 * 14).build();
 
-				httpResponse.addHeader("Set-Cookie", accessCookie.toString());
-				httpResponse.addHeader("Set-Cookie", refreshCookie.toString());
+				httpResponse.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+				httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 			}
 
 			return ApiResponse.success(response);
@@ -106,7 +111,7 @@ public class AuthRestController {
 
 	@PostMapping("/login/otp-verify")
 	public ApiResponse<TokenResponse> verifyLoginOtp(@RequestBody @Valid OtpLoginVerifyRequest request,
-			HttpServletRequest httpRequest) {
+			HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 
 		String clientIp = extractClientIp(httpRequest);
 		String userAgent = httpRequest.getHeader("User-Agent");
@@ -118,6 +123,21 @@ public class AuthRestController {
 
 		TokenResponse tokenResponse = authService.verifyLoginOtp(request);
 		loginHistoryService.recordSuccess(userId, loginType, clientIp, userAgent);
+
+		boolean isHttps = "https".equalsIgnoreCase(httpRequest.getHeader("X-Forwarded-Proto")) || httpRequest.isSecure();
+		String origin = httpRequest.getHeader("Origin");
+		if (origin != null && origin.startsWith("http://")) isHttps = false;
+
+		long accessMaxAge = Math.max(0, (tokenResponse.getAccessTokenExpiresIn() - System.currentTimeMillis()) / 1000);
+		ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", tokenResponse.getAccessToken())
+				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax").path("/")
+				.maxAge(accessMaxAge).build();
+
+		ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", tokenResponse.getRefreshToken())
+				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax").path("/").maxAge(60 * 60 * 24 * 14).build();
+
+		httpResponse.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+		httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
 		return ApiResponse.success(tokenResponse);
 	}
@@ -140,9 +160,13 @@ public class AuthRestController {
 		TokenResponse tokenResponse = authService.refresh(refreshToken);
 
 		boolean isHttps = "https".equalsIgnoreCase(httpRequest.getHeader("X-Forwarded-Proto")) || httpRequest.isSecure();
+		String origin = httpRequest.getHeader("Origin");
+		if (origin != null && origin.startsWith("http://")) isHttps = false;
+
+		long accessMaxAge = Math.max(0, (tokenResponse.getAccessTokenExpiresIn() - System.currentTimeMillis()) / 1000);
 		ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", tokenResponse.getAccessToken())
 				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax")
-				.path("/").maxAge(tokenResponse.getAccessTokenExpiresIn()).build();
+				.path("/").maxAge(accessMaxAge).build();
 		ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", tokenResponse.getRefreshToken())
 				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax")
 				.path("/").maxAge(60 * 60 * 24 * 14).build();
@@ -160,6 +184,8 @@ public class AuthRestController {
 		authService.logout(accessToken, refreshToken);
 
 		boolean isHttps = "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto")) || request.isSecure();
+		String origin = request.getHeader("Origin");
+		if (origin != null && origin.startsWith("http://")) isHttps = false;
 
 		ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", "").httpOnly(true).secure(isHttps)
 				.sameSite(isHttps ? "None" : "Lax").path("/").maxAge(0).build();
@@ -222,7 +248,7 @@ public class AuthRestController {
 
 	@PostMapping("/login/backup-verify")
 	public ApiResponse<TokenResponse> verifyLoginBackup(@RequestBody @Valid BackupCodeLoginRequest request,
-			HttpServletRequest httpRequest) {
+			HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 		String clientIp = extractClientIp(httpRequest);
 		String userAgent = httpRequest.getHeader("User-Agent");
 		String loginType = "OTP_BACKUP";
@@ -239,6 +265,21 @@ public class AuthRestController {
 		if (userId != null && !userId.isBlank()) {
 			loginHistoryService.recordSuccess(userId, loginType, clientIp, userAgent);
 		}
+
+		boolean isHttps = "https".equalsIgnoreCase(httpRequest.getHeader("X-Forwarded-Proto")) || httpRequest.isSecure();
+		String origin = httpRequest.getHeader("Origin");
+		if (origin != null && origin.startsWith("http://")) isHttps = false;
+
+		long accessMaxAge = Math.max(0, (tokenResponse.getAccessTokenExpiresIn() - System.currentTimeMillis()) / 1000);
+		ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", tokenResponse.getAccessToken())
+				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax").path("/")
+				.maxAge(accessMaxAge).build();
+
+		ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", tokenResponse.getRefreshToken())
+				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax").path("/").maxAge(60 * 60 * 24 * 14).build();
+
+		httpResponse.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+		httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
 		return ApiResponse.success(tokenResponse);
 	}
@@ -338,10 +379,13 @@ public class AuthRestController {
 
 		boolean isHttps = "https".equalsIgnoreCase(httpRequest.getHeader("X-Forwarded-Proto"))
 				|| httpRequest.isSecure();
+		String origin = httpRequest.getHeader("Origin");
+		if (origin != null && origin.startsWith("http://")) isHttps = false;
 
+		long accessMaxAge = Math.max(0, (tokenResponse.getAccessTokenExpiresIn() - System.currentTimeMillis()) / 1000);
 		ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", tokenResponse.getAccessToken())
 				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax")
-				.path("/").maxAge(tokenResponse.getAccessTokenExpiresIn()).build();
+				.path("/").maxAge(accessMaxAge).build();
 
 		ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", tokenResponse.getRefreshToken())
 				.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax")
@@ -440,9 +484,12 @@ public class AuthRestController {
 
 		boolean isHttps = "https".equalsIgnoreCase(httpRequest.getHeader("X-Forwarded-Proto"))
 				|| httpRequest.isSecure();
+		String origin = httpRequest.getHeader("Origin");
+		if (origin != null && origin.startsWith("http://")) isHttps = false;
 
+		long accessMaxAge = Math.max(0, (token.getAccessTokenExpiresIn() - System.currentTimeMillis()) / 1000);
 		ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", token.getAccessToken()).httpOnly(true)
-				.secure(isHttps).sameSite(isHttps ? "None" : "Lax").path("/").maxAge(token.getAccessTokenExpiresIn())
+				.secure(isHttps).sameSite(isHttps ? "None" : "Lax").path("/").maxAge(accessMaxAge)
 				.build();
 
 		ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", token.getRefreshToken()).httpOnly(true)

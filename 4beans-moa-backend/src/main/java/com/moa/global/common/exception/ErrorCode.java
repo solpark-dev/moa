@@ -87,6 +87,8 @@ public enum ErrorCode {
 	USER_NOT_FOUND("U404", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	DUPLICATED_PHONE("D013", "이미 사용중인 휴대폰번호입니다.", HttpStatus.CONFLICT),
 	DUPLICATED_USER("D014", "이미 사용중인 휴대폰번호입니다.", HttpStatus.CONFLICT),
+	ALREADY_BLACKLISTED("BL409", "이미 블랙리스트에 등록된 회원입니다.", HttpStatus.CONFLICT),
+	NOT_BLACKLISTED("BL404", "블랙리스트에 등록되지 않은 회원입니다.", HttpStatus.NOT_FOUND),
 	ACCOUNT_WITHDRAW("R410", "탈퇴한 계정입니다.", HttpStatus.FORBIDDEN),
 	ACCOUNT_BLOCKED("B403", "블랙리스트 계정입니다. 이용이 제한되었습니다.", HttpStatus.FORBIDDEN),
 	INVALID_LOGIN("N401", "아이디 또는 비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED),

@@ -119,8 +119,9 @@ public class PasskeyController {
             @RequestBody String credentialJson) {
 
         String userId = authentication.getName();
-        String optionsJson = redisTemplate.opsForValue()
-                .getAndDelete(REG_OPTIONS_KEY + userId);
+        String regKey = REG_OPTIONS_KEY + userId;
+        String optionsJson = redisTemplate.opsForValue().get(regKey);
+        redisTemplate.delete(regKey);
 
         if (optionsJson == null) {
             throw new BusinessException(ErrorCode.INVALID_TOKEN,
@@ -188,8 +189,9 @@ public class PasskeyController {
             @RequestBody String assertionJson,
             HttpServletResponse httpResponse) {
 
-        String optionsJson = redisTemplate.opsForValue()
-                .getAndDelete(AUTH_OPTIONS_KEY + nonce);
+        String authKey = AUTH_OPTIONS_KEY + nonce;
+        String optionsJson = redisTemplate.opsForValue().get(authKey);
+        redisTemplate.delete(authKey);
 
         if (optionsJson == null) {
             throw new BusinessException(ErrorCode.INVALID_TOKEN,
