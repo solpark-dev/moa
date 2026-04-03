@@ -9,7 +9,10 @@ import httpClient from "@/api/httpClient";
 import {
   KeyRound, Clock, CreditCard, Users, Wallet,
   UserMinus, UserPen, ChevronRight, LogOut, Shield,
+  Bell, HelpCircle, MessageSquare, BellRing,
 } from "lucide-react";
+
+import { Switch } from "@/components/ui/switch";
 
 import { AccountInfoCard } from "./components/AccountInfoCard";
 import { ConnectionStatusCard } from "./components/ConnectionStatusCard";
@@ -224,13 +227,11 @@ export default function MyPage() {
 
             {/* Account info */}
             <Section title="계정 정보" delay={0.15}>
-              <div className="px-5 pb-5">
-                <AccountInfoCard
-                  user={user}
-                  marketingAgreed={marketingAgreed}
-                  formatDate={actions.formatDate}
-                />
-              </div>
+              <AccountInfoCard
+                user={user}
+                marketingAgreed={marketingAgreed}
+                formatDate={actions.formatDate}
+              />
             </Section>
 
             {/* Connection & security */}
@@ -246,6 +247,50 @@ export default function MyPage() {
                   actions={actions}
                 />
               </div>
+            </Section>
+
+            {/* 알림 및 앱 환경 */}
+            <Section title="알림 및 환경 설정" delay={0.22}>
+              <div className="px-5 py-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style={{ background: "var(--glass-bg-overlay)" }}
+                    >
+                      <BellRing className="w-4 h-4" style={{ color: "var(--theme-primary)" }} />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold" style={{ color: "var(--theme-text)" }}>마케팅 정보 수신 동의</p>
+                      <p className="text-[11px]" style={{ color: "var(--theme-text-muted)" }}>이벤트 및 혜택 정보를 받아보세요</p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={marketingAgreed}
+                    onCheckedChange={() => actions.handleMarketingToggle?.(marketingAgreed)}
+                    className="data-[state=checked]:bg-[var(--theme-primary)]"
+                  />
+                </div>
+              </div>
+            </Section>
+
+            {/* Customer center */}
+            <Section title="고객센터" delay={0.25}>
+              <MenuItem
+                icon={Bell}
+                label="공지사항"
+                onClick={() => actions.navigate("/community/notice")}
+              />
+              <MenuItem
+                icon={HelpCircle}
+                label="자주 묻는 질문"
+                onClick={() => actions.navigate("/community/faq")}
+              />
+              <MenuItem
+                icon={MessageSquare}
+                label="문의하기"
+                onClick={() => actions.navigate("/community/inquiry")}
+              />
             </Section>
           </>
         )}

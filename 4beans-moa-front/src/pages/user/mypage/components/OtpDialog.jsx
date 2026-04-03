@@ -7,82 +7,71 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { KeyRound } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { useThemeStore } from "@/store/themeStore";
 
-// 테마별 스타일
-const otpDialogThemeStyles = {
-  light: {
-    content: "bg-white border border-gray-200",
-    title: "text-black",
-    description: "text-slate-600",
-    qrBorder: "bg-white border-slate-200",
-    input: "bg-white border-gray-200 text-black",
-    primaryButton: "bg-[#635bff] hover:bg-[#5851e8]",
-    secondaryButton: "bg-white border-gray-200 text-black hover:bg-slate-50",
-  },
-  dark: {
-    content: "bg-[#1E293B] border border-gray-700",
-    title: "text-gray-100",
-    description: "text-gray-400",
-    qrBorder: "bg-white border-gray-300",
-    input: "bg-[#0F172A] border-gray-700 text-gray-100",
-    primaryButton: "bg-[#635bff] hover:bg-[#5851e8]",
-    secondaryButton: "bg-[#0F172A] border-gray-700 text-gray-200 hover:bg-gray-800",
-  },
-};
-
-export function OtpDialog({
-  open,
-  onOpenChange,
-  otp,
-  actions,
-  handleOtpConfirm,
-}) {
-  const { theme } = useThemeStore();
-  const themeStyle = otpDialogThemeStyles[theme] || otpDialogThemeStyles.light;
-
+export function OtpDialog({ open, onOpenChange, otp, actions, handleOtpConfirm }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`max-w-md ${themeStyle.content}`}>
+      <DialogContent
+        className="max-w-md rounded-2xl"
+        style={{
+          background: "var(--glass-bg-card)",
+          border: "1px solid var(--glass-border)",
+          boxShadow: "var(--shadow-glass)",
+        }}
+      >
         <DialogHeader>
-          <DialogTitle className={themeStyle.title}>
+          <DialogTitle style={{ color: "var(--theme-text)" }}>
             {otp.mode === "disable" ? "Google OTP 해제" : "Google OTP 설정"}
           </DialogTitle>
-          <DialogDescription className={`mt-2 text-sm leading-relaxed ${themeStyle.description}`}>
+          <DialogDescription className="mt-2 text-sm leading-relaxed" style={{ color: "var(--theme-text-muted)" }}>
             {otp.mode === "disable"
               ? "등록된 Google OTP를 해제하려면 아래에 인증용 6자리 코드를 입력해주세요."
               : "Google Authenticator 앱을 켜고 QR 코드를 스캔한 뒤 인증용 6자리 코드를 입력해주세요."}
           </DialogDescription>
         </DialogHeader>
+
         <div className="space-y-5">
           {otp.mode === "enable" && otp.qrUrl && (
             <div className="flex justify-center">
-              <div className={`p-3 border rounded-2xl ${themeStyle.qrBorder}`}>
+              <div
+                className="p-3 rounded-2xl"
+                style={{
+                  background: "#fff",
+                  border: "1px solid var(--glass-border)",
+                }}
+              >
                 <QRCodeSVG value={otp.qrUrl} size={180} />
               </div>
             </div>
           )}
+
           <Input
             type="text"
             value={otp.code}
             maxLength={6}
             inputMode="numeric"
-            className={`text-center tracking-[0.4em] text-lg rounded-xl ${themeStyle.input}`}
-            onChange={(e) => actions.otp.changeCode(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleOtpConfirm();
-              }
+            className="text-center tracking-[0.4em] text-lg rounded-xl"
+            style={{
+              background: "var(--glass-bg-overlay)",
+              border: "1px solid var(--glass-border)",
+              color: "var(--theme-text)",
             }}
+            onChange={(e) => actions.otp.changeCode(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") handleOtpConfirm(); }}
           />
+
           <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={actions.otp.closeModal}
-              className={`rounded-xl ${themeStyle.secondaryButton}`}
+              className="rounded-xl"
+              style={{
+                background: "var(--glass-bg-overlay)",
+                border: "1px solid var(--glass-border)",
+                color: "var(--theme-text)",
+              }}
             >
               취소
             </Button>
@@ -90,7 +79,8 @@ export function OtpDialog({
               type="button"
               onClick={handleOtpConfirm}
               disabled={otp.loading || otp.code.length !== 6}
-              className={`${themeStyle.primaryButton} text-white rounded-xl`}
+              className="text-white rounded-xl"
+              style={{ background: "var(--theme-primary)" }}
             >
               인증 완료
             </Button>

@@ -1,9 +1,9 @@
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LayoutDashboard, ListChecks, CreditCard, Wallet } from "lucide-react";
+import { LayoutDashboard, ListChecks } from "lucide-react";
 import OutlineCard from "./OutlineCard";
 import MenuButton from "./MenuButton";
 
-export default function AdminUserDetailSidebar({ userEmail, goLoginHistory }) {
+export default function AdminUserDetailSidebar({ goLoginHistory }) {
   return (
     <OutlineCard>
       <CardHeader className="pb-3">
@@ -18,24 +18,6 @@ export default function AdminUserDetailSidebar({ userEmail, goLoginHistory }) {
           label="로그인 이력"
           onClick={goLoginHistory}
           active
-        />
-        <MenuButton
-          icon={<CreditCard className="w-4 h-4" />}
-          label="구독·약정 관리"
-          onClick={() =>
-            window.location.assign(
-              `/admin/subscription?user=${encodeURIComponent(userEmail)}`
-            )
-          }
-        />
-        <MenuButton
-          icon={<Wallet className="w-4 h-4" />}
-          label="결제/정산 내역"
-          onClick={() =>
-            window.location.assign(
-              `/admin/financial-history?user=${encodeURIComponent(userEmail)}`
-            )
-          }
         />
       </CardContent>
     </OutlineCard>

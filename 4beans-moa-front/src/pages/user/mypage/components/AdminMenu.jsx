@@ -1,48 +1,57 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShieldCheck, User, UserX, LayoutDashboard } from "lucide-react";
-import { MenuButton } from "./MenuButton";
-import { useThemeStore } from "@/store/themeStore";
+import { ShieldCheck, User, UserX, LayoutDashboard, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-// 테마별 스타일
-const adminMenuThemeStyles = {
-  light: {
-    cardShadow: "shadow-2xl",
-  },
-  dark: {
-    cardShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.3)]",
-  },
-};
+function AdminMenuItem({ icon: Icon, label, onClick, danger }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full flex items-center justify-between px-5 py-3.5 transition-opacity active:opacity-70"
+      style={{ borderBottom: "1px solid var(--glass-border)" }}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: danger ? "rgba(239,68,68,0.1)" : "var(--glass-bg-overlay)" }}
+        >
+          <Icon className="w-4 h-4" style={{ color: danger ? "#ef4444" : "var(--theme-primary)" }} />
+        </div>
+        <span
+          className="text-[14px] font-semibold"
+          style={{ color: danger ? "#ef4444" : "var(--theme-text)" }}
+        >
+          {label}
+        </span>
+      </div>
+      <ChevronRight className="w-4 h-4" style={{ color: "var(--theme-text-muted)" }} />
+    </button>
+  );
+}
 
 export function AdminMenu({ actions }) {
-  const { theme } = useThemeStore();
-  const themeStyle = adminMenuThemeStyles[theme] || adminMenuThemeStyles.light;
+  const navigate = useNavigate();
 
   return (
-    <Card className={`bg-white border border-gray-200 ${themeStyle.cardShadow} rounded-3xl`}>
-      <CardHeader className="pb-2 pt-6 px-6">
-        <CardTitle className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
-          <ShieldCheck className="w-4 h-4" />
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{
+        background: "var(--glass-bg-card)",
+        backdropFilter: "blur(var(--glass-blur))",
+        WebkitBackdropFilter: "blur(var(--glass-blur))",
+        border: "1px solid var(--glass-border)",
+        boxShadow: "var(--shadow-glass)",
+      }}
+    >
+      <div className="px-5 pt-4 pb-2">
+        <p className="text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5"
+          style={{ color: "var(--theme-text-muted)" }}>
+          <ShieldCheck className="w-3.5 h-3.5" />
           Admin Zone
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-6 flex flex-col gap-2">
-        <MenuButton
-          icon={<User className="w-4 h-4" />}
-          label="회원 관리"
-          onClick={actions.goAdminUserList}
-        />
-        <MenuButton
-          icon={<UserX className="w-4 h-4" />}
-          label="블랙리스트 관리"
-          variant="destructive"
-          onClick={actions.goAdminBlacklist}
-        />
-        <MenuButton
-          icon={<LayoutDashboard className="w-4 h-4" />}
-          label="관리자 홈"
-          onClick={actions.goAdminHome}
-        />
-      </CardContent>
-    </Card>
+        </p>
+      </div>
+      <AdminMenuItem icon={LayoutDashboard} label="관리자 홈" onClick={() => navigate("/admin/dashboard")} />
+      <AdminMenuItem icon={User} label="회원 관리" onClick={() => navigate("/admin/users")} />
+      <AdminMenuItem icon={UserX} label="블랙리스트 관리" onClick={() => navigate("/admin/blacklist/add")} danger />
+    </div>
   );
 }

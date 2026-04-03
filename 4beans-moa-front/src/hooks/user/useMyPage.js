@@ -1,9 +1,10 @@
-﻿import { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import httpClient from "@/api/httpClient";
 import { useAuthStore } from "@/store/authStore";
 import { useOtpStore } from "@/store/user/otpStore";
 import { otpHandlers } from "@/hooks/user/useOtp";
+import { toast } from "@/utils/toast";
 
 function formatDate(value) {
   if (!value) return "";
@@ -38,31 +39,14 @@ export const useMyPage = () => {
   };
 
   /* ===============================
-   * 사용자 정보 로딩
+   * 사용자 정보 동기화
+   * authStore가 자동으로 세션을 복구하므로
+   * 여기서는 OTP 설정만 동기화
    * =============================== */
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await httpClient.get("/users/me");
-        const { success, data } = res;
-
-        if (!success || !data) {
-          navigate("/login", { replace: true });
-          return;
-        }
-
-        setUser(data);
-        setEnabled(!!data.otpEnabled);
-      } catch {
-        navigate("/login", { replace: true });
-      }
-    };
-
-    if (!user) fetchUserData();
-  }, [user, setUser, setEnabled, navigate]);
-
-  useEffect(() => {
-    setEnabled(!!user?.otpEnabled);
+    if (user) {
+      setEnabled(!!user.otpEnabled);
+    }
   }, [user, setEnabled]);
 
   /* ===============================
@@ -104,36 +88,107 @@ export const useMyPage = () => {
    * =============================== */
   const handlers = {
     oauthConnect: async (provider) => {
-      const res = await httpClient.get(`/oauth/${provider}/auth`, {
-        params: { mode: "connect" },
-      });
+      try {
+        const res = await httpClient.get(`/oauth/${provider}/auth`, {
+          params: { mode: "connect" },
+        });
 
-      const body = res?.data;
-      const url =
-        typeof body === "string"
-          ? body
-          : body?.url || body?.data?.url || body?.redirectUrl;
+        const body = res?.data;
+        const url =
+          typeof body === "string"
+            ? body
+            : body?.url || body?.data?.url || body?.redirectUrl;
 
-      if (!url) {
-        alert("연동을 시작할 수 없습니다.");
-        return;
+        if (!url) {
+          toast.error("연동을 시작할 수 없습니다.");
+          return;
+        }
+
+        window.location.assign(url);
+      } catch (err) {
+        toast.error(err?.response?.data?.error?.message || "소셜 연동 중 오류가 발생했습니다.");
       }
-
-      window.location.assign(url);
     },
 
     oauthRelease: async (oauthId) => {
       if (!oauthId) {
-        alert("현재 로그인 계정은 해제할 수 없습니다.");
+        toast.warning("현재 로그인 계정은 해제할 수 없습니다.");
         return;
       }
 
-      const res = await httpClient.post("/oauth/release", { oauthId });
+      // Optimistic Update
+      const originalUser = useAuthStore.getState().user;
+      const updatedConnections = originalUser.oauthConnections?.filter(c => c.oauthId !== oauthId);
+      setUser({ ...originalUser, oauthConnections: updatedConnections });
 
-      if (res.success) {
-        await useAuthStore.getState().fetchSession();
-      } else {
-        alert("소셜 계정 연동 해제 실패");
+      let aborted = false;
+
+      toast.success("소셜 계정 연동이 해제되었습니다.", {
+        duration: 5000,
+        action: {
+          label: "실행 취소",
+          onClick: () => {
+            aborted = true;
+            setUser(originalUser); // Revert
+            toast.info("연동 해제가 취소되었습니다.");
+          }
+        }
+      });
+
+      // Execute API call after 5 seconds if not aborted
+      setTimeout(async () => {
+        if (aborted) return;
+        try {
+          const res = await httpClient.post("/oauth/release", { oauthId });
+          if (res.success) {
+            await useAuthStore.getState().fetchSession();
+          } else {
+            setUser(originalUser); // Revert on failure
+            toast.error(res?.error?.message || "소셜 계정 연동 해제에 실패했습니다.");
+          }
+        } catch (err) {
+          setUser(originalUser);
+          toast.error(err?.response?.data?.error?.message || "연동 해제 중 오류가 발생했습니다.");
+        }
+      }, 5000);
+    },
+
+    handleMarketingToggle: async (currentValue) => {
+      const newValue = !currentValue;
+      
+      // Optimistic update
+      setUser({ ...user, agreeMarketing: newValue });
+      
+      try {
+        const formData = new FormData();
+        formData.append("agreeMarketing", newValue);
+        // send minimal update
+        await httpClient.put("/users/me", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        
+        toast.success(
+          `마케팅 정보 수신 동의가 ${newValue ? "설정" : "해제"}되었습니다.`,
+          {
+            duration: 4000,
+            action: {
+              label: "실행 취소",
+              onClick: async () => {
+                // Revert
+                setUser({ ...user, agreeMarketing: currentValue });
+                const revertData = new FormData();
+                revertData.append("agreeMarketing", currentValue);
+                await httpClient.put("/users/me", revertData, {
+                  headers: { "Content-Type": "multipart/form-data" },
+                });
+                toast.info("원래 설정으로 복구되었습니다.");
+              }
+            }
+          }
+        );
+      } catch (err) {
+        setUser({ ...user, agreeMarketing: currentValue });
+        toast.error("변경에 실패했습니다.");
       }
     },
 
@@ -152,7 +207,7 @@ export const useMyPage = () => {
 
   const handleKakaoClick = () => {
     if ((user?.loginProvider || "").toLowerCase() === "kakao") {
-      alert("카카오는 현재 로그인 계정이므로 해제할 수 없습니다.");
+      toast.warning("카카오는 현재 로그인 계정이므로 해제할 수 없습니다.");
       return;
     }
 
@@ -190,6 +245,10 @@ export const useMyPage = () => {
       handleGoogleClick,
       handleKakaoClick,
       handleOtpModalChange,
+      goChangePwd:    () => navigate("/mypage/password"),
+      goSubscription: () => navigate("/subscription"),
+      goMyParties:    () => navigate("/my-parties"),
+      goWallet:       () => navigate("/user/wallet"),
     },
   };
 };

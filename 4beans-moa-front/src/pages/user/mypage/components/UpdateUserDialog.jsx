@@ -10,59 +10,25 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { User, Upload, BellRing, Phone } from "lucide-react";
-import { useThemeStore } from "@/store/themeStore";
+import { User, Upload, BellRing } from "lucide-react";
 import { formatPhone } from "@/utils/phoneUtils";
+import { toast } from "@/utils/toast";
 import httpClient from "@/api/httpClient";
 import { useAuthStore } from "@/store/authStore";
 
-// 테마별 스타일
-const dialogThemeStyles = {
-  light: {
-    content: "bg-white border border-gray-200",
-    title: "text-black",
-    label: "text-black",
-    input: "bg-white border-gray-200 text-black",
-    inputReadonly: "bg-slate-100 border-gray-200 text-gray-700",
-    switchBg: "data-[state=checked]:bg-[#635bff]",
-    primaryBtn: "bg-[#635bff] hover:bg-[#5851e8] text-white",
-    secondaryBtn: "bg-white border-gray-200 text-black hover:bg-slate-50",
-    sectionBg: "bg-slate-100 border-gray-200",
-    mutedText: "text-gray-600",
-  },
-  dark: {
-    content: "bg-[#1E293B] border border-gray-700",
-    title: "text-gray-100",
-    label: "text-gray-200",
-    input: "bg-[#0F172A] border-gray-700 text-gray-100",
-    inputReadonly: "bg-[#0F172A] border-gray-700 text-gray-400",
-    switchBg: "data-[state=checked]:bg-[#635bff]",
-    primaryBtn: "bg-[#635bff] hover:bg-[#5851e8] text-white",
-    secondaryBtn: "bg-[#0F172A] border-gray-700 text-gray-200 hover:bg-gray-800",
-    sectionBg: "bg-[#0F172A] border-gray-700",
-    mutedText: "text-gray-400",
-  },
-};
-
 export function UpdateUserDialog({ open, onOpenChange }) {
-  const { theme } = useThemeStore();
-  const themeStyle = dialogThemeStyles[theme] || dialogThemeStyles.light;
   const { user, setUser } = useAuthStore();
-  
+
   const fileRef = useRef(null);
   const [nickname, setNickname] = useState("");
-  const [agreeMarketing, setAgreeMarketing] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [nickMsg, setNickMsg] = useState({ text: "", isError: false });
   const [loading, setLoading] = useState(false);
 
-  // 초기값 설정
   useEffect(() => {
     if (open && user) {
       setNickname(user.nickname || "");
-      setAgreeMarketing(user.agreeMarketing ?? user.marketing ?? false);
       setPreviewUrl(user.profileImage || null);
       setImageFile(null);
       setNickMsg({ text: "", isError: false });
@@ -99,50 +65,69 @@ export function UpdateUserDialog({ open, onOpenChange }) {
 
   const onSave = async () => {
     if (nickMsg.isError) {
-      alert("닉네임을 확인해주세요.");
+      toast.warning("닉네임을 확인해주세요.");
       return;
     }
 
-    setLoading(true);
-    try {
+    const saveAction = async () => {
       const formData = new FormData();
       formData.append("nickname", nickname);
-      formData.append("agreeMarketing", agreeMarketing);
-      if (imageFile) {
-        formData.append("profileImage", imageFile);
-      }
+      // agreeMarketing moves to another handler
+      if (imageFile) formData.append("profileImage", imageFile);
 
       const res = await httpClient.put("/users/me", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (res?.success) {
-        // 사용자 정보 갱신
-        const meRes = await httpClient.get("/users/me");
-        if (meRes?.success && meRes?.data) {
-          setUser(meRes.data);
-        }
-        alert("회원정보가 수정되었습니다.");
-        onOpenChange(false);
-      } else {
-        alert(res?.error?.message || "수정에 실패했습니다.");
-      }
-    } catch (err) {
-      alert(err?.response?.data?.error?.message || "수정 중 오류가 발생했습니다.");
-    } finally {
+      if (!res?.success) throw new Error(res?.error?.message || "수정에 실패했습니다.");
+      
+      const meRes = await httpClient.get("/users/me");
+      if (meRes?.success && meRes?.data) setUser(meRes.data);
+      onOpenChange(false);
+    };
+
+    setLoading(true);
+    toast.promise(saveAction(), {
+      loading: "회원정보를 저장하는 중...",
+      success: "회원정보가 성공적으로 수정되었습니다.",
+      error: (err) => err.message || "수정 중 오류가 발생했습니다.",
+    }).finally(() => {
       setLoading(false);
-    }
+    });
   };
 
-  const onPassVerify = () => {
-    window.open("https://nice.checkplus.co.kr", "_blank");
+  const onPassVerify = () => window.open("https://nice.checkplus.co.kr", "_blank");
+
+  const inputStyle = {
+    background: "var(--glass-bg-card)",
+    border: "1px solid var(--glass-border)",
+    color: "var(--theme-text)",
+  };
+
+  const inputReadonlyStyle = {
+    background: "var(--glass-bg-overlay)",
+    border: "1px solid var(--glass-border)",
+    color: "var(--theme-text-muted)",
+  };
+
+  const outlineBtnStyle = {
+    background: "var(--glass-bg-overlay)",
+    border: "1px solid var(--glass-border)",
+    color: "var(--theme-text)",
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`max-w-md ${themeStyle.content}`}>
+      <DialogContent
+        className="max-w-md rounded-2xl"
+        style={{
+          background: "var(--glass-bg-card)",
+          border: "1px solid var(--glass-border)",
+          boxShadow: "var(--shadow-glass)",
+        }}
+      >
         <DialogHeader>
-          <DialogTitle className={`flex items-center gap-2 ${themeStyle.title}`}>
+          <DialogTitle className="flex items-center gap-2" style={{ color: "var(--theme-text)" }}>
             <User className="w-5 h-5" />
             회원정보 수정
           </DialogTitle>
@@ -152,9 +137,9 @@ export function UpdateUserDialog({ open, onOpenChange }) {
           {/* 프로필 이미지 */}
           <div className="flex flex-col items-center gap-3">
             <div className="relative group cursor-pointer" onClick={openFilePicker}>
-              <Avatar className="w-20 h-20 border border-gray-200">
+              <Avatar className="w-20 h-20" style={{ border: "1px solid var(--glass-border)" }}>
                 <AvatarImage src={displayImage} className="object-cover" />
-                <AvatarFallback className="bg-slate-200 text-slate-700">
+                <AvatarFallback style={{ background: "var(--glass-bg-overlay)", color: "var(--theme-text-muted)" }}>
                   <User className="w-8 h-8" />
                 </AvatarFallback>
               </Avatar>
@@ -169,43 +154,40 @@ export function UpdateUserDialog({ open, onOpenChange }) {
               variant="outline"
               size="sm"
               onClick={openFilePicker}
-              className={`${themeStyle.secondaryBtn} rounded-xl`}
+              className="rounded-xl"
+              style={outlineBtnStyle}
             >
               이미지 변경
             </Button>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              onChange={onImageSelect}
-              className="hidden"
-            />
+            <input ref={fileRef} type="file" accept="image/*" onChange={onImageSelect} className="hidden" />
           </div>
 
-          <Separator className={theme === "dark" ? "bg-gray-700" : "bg-gray-200"} />
+          <div style={{ borderTop: "1px solid var(--glass-border)" }} />
 
           {/* 이메일 (읽기전용) */}
           <div className="space-y-2">
-            <Label className={`text-sm font-bold ${themeStyle.label}`}>이메일 (ID)</Label>
+            <Label className="text-sm font-bold" style={{ color: "var(--theme-text)" }}>이메일 (ID)</Label>
             <Input
               readOnly
               value={user?.userId || ""}
-              className={`${themeStyle.inputReadonly} rounded-xl cursor-not-allowed`}
+              className="rounded-xl cursor-not-allowed"
+              style={inputReadonlyStyle}
             />
           </div>
 
           {/* 닉네임 */}
           <div className="space-y-2">
-            <Label className={`text-sm font-bold ${themeStyle.label}`}>닉네임</Label>
+            <Label className="text-sm font-bold" style={{ color: "var(--theme-text)" }}>닉네임</Label>
             <Input
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               onBlur={() => checkNickname(nickname)}
               placeholder="변경할 닉네임 입력"
-              className={`${themeStyle.input} rounded-xl`}
+              className="rounded-xl"
+              style={inputStyle}
             />
             {nickMsg.text && (
-              <p className={`text-xs ${nickMsg.isError ? "text-red-500" : "text-emerald-600"}`}>
+              <p className={`text-xs ${nickMsg.isError ? "text-red-500" : "text-emerald-500"}`}>
                 {nickMsg.text}
               </p>
             )}
@@ -213,43 +195,26 @@ export function UpdateUserDialog({ open, onOpenChange }) {
 
           {/* 휴대폰 번호 */}
           <div className="space-y-2">
-            <Label className={`text-sm font-bold ${themeStyle.label}`}>휴대폰 번호</Label>
+            <Label className="text-sm font-bold" style={{ color: "var(--theme-text)" }}>휴대폰 번호</Label>
             <div className="flex gap-2">
               <Input
                 readOnly
                 value={formatPhone(user?.phone) || "-"}
-                className={`flex-1 ${themeStyle.inputReadonly} rounded-xl cursor-not-allowed`}
+                className="flex-1 rounded-xl cursor-not-allowed"
+                style={inputReadonlyStyle}
               />
               <Button
                 type="button"
                 variant="outline"
                 onClick={onPassVerify}
-                className={`${themeStyle.secondaryBtn} rounded-xl px-4`}
+                className="rounded-xl px-4"
+                style={outlineBtnStyle}
               >
                 본인인증
               </Button>
             </div>
           </div>
 
-          <Separator className={theme === "dark" ? "bg-gray-700" : "bg-gray-200"} />
-
-          {/* 마케팅 동의 */}
-          <div className={`${themeStyle.sectionBg} border rounded-xl p-4`}>
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <BellRing className="w-4 h-4" />
-                <div>
-                  <p className={`text-sm font-bold ${themeStyle.label}`}>마케팅 정보 수신 동의</p>
-                  <p className={`text-xs ${themeStyle.mutedText}`}>이벤트 및 혜택 정보를 받아보세요</p>
-                </div>
-              </div>
-              <Switch
-                checked={agreeMarketing}
-                onCheckedChange={setAgreeMarketing}
-                className={themeStyle.switchBg}
-              />
-            </div>
-          </div>
 
           {/* 버튼 */}
           <div className="flex gap-3 pt-2">
@@ -257,7 +222,8 @@ export function UpdateUserDialog({ open, onOpenChange }) {
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className={`flex-1 ${themeStyle.secondaryBtn} rounded-xl`}
+              className="flex-1 rounded-xl"
+              style={outlineBtnStyle}
             >
               취소
             </Button>
@@ -265,7 +231,8 @@ export function UpdateUserDialog({ open, onOpenChange }) {
               type="button"
               onClick={onSave}
               disabled={loading}
-              className={`flex-1 ${themeStyle.primaryBtn} rounded-xl`}
+              className="flex-1 text-white rounded-xl"
+              style={{ background: "var(--theme-primary)" }}
             >
               {loading ? "저장 중..." : "저장하기"}
             </Button>

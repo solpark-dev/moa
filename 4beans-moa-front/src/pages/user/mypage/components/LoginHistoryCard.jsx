@@ -1,38 +1,6 @@
 import React from "react";
-import { useThemeStore } from "@/store/themeStore";
-
-// 테마별 스타일
-const loginHistoryThemeStyles = {
-  light: {
-    titleText: "text-black",
-    titleBar: "h-[2px] bg-gray-200",
-    subtitleText: "text-slate-700",
-    tableBorder: "border border-gray-200",
-    headerBg: "bg-white",
-    headerBorder: "border-b border-gray-200",
-    headerText: "text-black",
-    rowBorder: "border-b border-gray-200",
-    cellText: "text-slate-800",
-    emptyText: "text-slate-700",
-  },
-  dark: {
-    titleText: "text-gray-200",
-    titleBar: "h-[2px] bg-gray-700",
-    subtitleText: "text-gray-400",
-    tableBorder: "border border-gray-700",
-    headerBg: "bg-[#0F172A]",
-    headerBorder: "border-b border-gray-700",
-    headerText: "text-gray-200",
-    rowBorder: "border-b border-gray-700",
-    cellText: "text-gray-300",
-    emptyText: "text-gray-400",
-  },
-};
 
 export function LoginHistoryCard({ loginHistory, onBack }) {
-  const { theme } = useThemeStore();
-  const themeStyle =
-    loginHistoryThemeStyles[theme] || loginHistoryThemeStyles.light;
   const items =
     loginHistory?.items ||
     loginHistory?.data?.items ||
@@ -48,52 +16,62 @@ export function LoginHistoryCard({ loginHistory, onBack }) {
 
   return (
     <div className="w-full">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className={`font-black tracking-widest text-sm ${themeStyle.titleText}`}>로그인 이력</p>
-          <div className={`mt-4 ${themeStyle.titleBar} w-full`} />
-        </div>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-[14px] font-bold" style={{ color: "var(--theme-text)" }}>
+          로그인 이력
+        </p>
+        {onBack && (
+          <button
+            type="button"
+            className="text-[13px] font-medium"
+            style={{ color: "var(--theme-primary)" }}
+            onClick={onBack}
+          >
+            ← 돌아가기
+          </button>
+        )}
       </div>
 
-      <p className={`mt-6 text-sm font-bold ${themeStyle.subtitleText}`}>
+      <p className="text-[12px] mb-3" style={{ color: "var(--theme-text-muted)" }}>
         최근 로그인 이력 {total ?? 0}건
       </p>
 
-      <div className={`mt-4 ${themeStyle.tableBorder} rounded-2xl overflow-hidden`}>
-        <table className="w-full text-sm">
-          <thead className={themeStyle.headerBg}>
-            <tr className={themeStyle.headerBorder}>
-              <th className={`text-left p-3 font-black ${themeStyle.headerText}`}>일시</th>
-              <th className={`text-left p-3 font-black ${themeStyle.headerText}`}>결과</th>
-              <th className={`text-left p-3 font-black ${themeStyle.headerText}`}>IP</th>
-              <th className={`text-left p-3 font-black ${themeStyle.headerText}`}>유형</th>
-              <th className={`text-left p-3 font-black ${themeStyle.headerText}`}>User-Agent</th>
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{ border: "1px solid var(--glass-border)" }}
+      >
+        <table className="w-full text-[12px]">
+          <thead>
+            <tr style={{ background: "var(--glass-bg-overlay)", borderBottom: "1px solid var(--glass-border)" }}>
+              {["일시", "결과", "IP", "유형", "User-Agent"].map((h) => (
+                <th key={h} className="text-left p-3 font-bold" style={{ color: "var(--theme-text)" }}>
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {Array.isArray(items) && items.length > 0 ? (
               items.map((row, idx) => (
-                <tr key={idx} className={themeStyle.rowBorder}>
-                  <td className={`p-3 font-bold ${themeStyle.cellText}`}>
+                <tr key={idx} style={{ borderBottom: "1px solid var(--glass-border)" }}>
+                  <td className="p-3 font-medium" style={{ color: "var(--theme-text)" }}>
                     {row?.createdAt || row?.dateTime || row?.loginAt || "-"}
                   </td>
-                  <td className={`p-3 font-black ${themeStyle.cellText}`}>
-                    {row?.success === false || row?.result === "FAIL"
-                      ? "실패"
-                      : "성공"}
+                  <td className="p-3 font-bold" style={{ color: row?.success === false || row?.result === "FAIL" ? "#ef4444" : "#10b981" }}>
+                    {row?.success === false || row?.result === "FAIL" ? "실패" : "성공"}
                   </td>
-                  <td className={`p-3 font-bold ${themeStyle.cellText}`}>{row?.loginIp ?? "-"}</td>
-                  <td className={`p-3 font-bold ${themeStyle.cellText}`}>
+                  <td className="p-3" style={{ color: "var(--theme-text-muted)" }}>{row?.loginIp ?? "-"}</td>
+                  <td className="p-3" style={{ color: "var(--theme-text-muted)" }}>
                     {row?.provider || row?.type || "-"}
                   </td>
-                  <td className={`p-3 font-bold truncate max-w-[220px] ${themeStyle.cellText}`}>
+                  <td className="p-3 truncate max-w-[200px]" style={{ color: "var(--theme-text-muted)" }}>
                     {row?.userAgent || "-"}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className={`p-4 font-bold ${themeStyle.emptyText}`} colSpan={5}>
+                <td className="p-4 text-center" colSpan={5} style={{ color: "var(--theme-text-muted)" }}>
                   로그인 이력이 없습니다.
                 </td>
               </tr>

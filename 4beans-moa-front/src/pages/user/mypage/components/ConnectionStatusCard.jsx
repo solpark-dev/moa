@@ -1,138 +1,105 @@
-import React from "react";
 import { Link2, Shield, Smartphone } from "lucide-react";
-import { useThemeStore } from "@/store/themeStore";
 import { formatPhoneNumber } from "@/utils/format";
 import { PasskeySection } from "./PasskeySection";
 
 const ROW = "flex items-center justify-between py-3";
 
-// 테마별 스타일
-const connectionThemeStyles = {
-  light: {
-    sectionTitle: "text-sm font-bold text-black",
-    sectionBorder: "border-t border-gray-200",
-    dividerBorder: "border-t border-gray-200",
-    labelText: "text-sm text-slate-600 font-bold",
-    valueText: "text-sm font-black text-black",
-    badgeBg: "border border-gray-200 bg-white text-black",
-    btn: "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]",
-    btnDanger: "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-red-600 font-black text-sm active:translate-y-[1px]",
-    buttonHover: "hover:bg-slate-50",
-    otpBox: "border border-gray-200 bg-white",
-  },
-  dark: {
-    sectionTitle: "text-sm font-bold text-gray-200",
-    sectionBorder: "border-t border-gray-700",
-    dividerBorder: "border-t border-gray-700",
-    labelText: "text-sm text-gray-400 font-bold",
-    valueText: "text-sm font-black text-gray-200",
-    badgeBg: "border border-gray-700 bg-[#0F172A] text-gray-200",
-    btn: "px-4 py-2 rounded-2xl border border-gray-700 bg-[#0F172A] text-gray-200 font-black text-sm active:translate-y-[1px]",
-    btnDanger: "px-4 py-2 rounded-2xl border border-gray-700 bg-[#0F172A] text-red-400 font-black text-sm active:translate-y-[1px]",
-    buttonHover: "hover:bg-[#635bff]/10",
-    otpBox: "border border-gray-700 bg-[#0F172A]",
-  },
-};
+const divider = { borderTop: "1px solid var(--glass-border)" };
 
-export function ConnectionStatusCard({
-  user,
-  loginProvider,
-  googleConn,
-  kakaoConn,
-  otp,
-  actions,
-}) {
-  const { theme } = useThemeStore();
-  const themeStyle = connectionThemeStyles[theme] || connectionThemeStyles.light;
+export function ConnectionStatusCard({ user, loginProvider, googleConn, kakaoConn, otp, actions }) {
   const phone = user?.phone || "-";
 
-  const toggleGoogle = () => {
-    if (typeof actions?.handleGoogleClick === "function") {
-      return actions.handleGoogleClick();
-    }
-  };
-
-  const toggleKakao = () => {
-    if (typeof actions?.handleKakaoClick === "function") {
-      return actions.handleKakaoClick();
-    }
-  };
+  const toggleGoogle = () => actions?.handleGoogleClick?.();
+  const toggleKakao  = () => actions?.handleKakaoClick?.();
 
   const openOtp = () => {
     if (!otp?.enabled) actions?.otp?.openSetup?.();
     else actions?.otp?.prepareDisable?.();
-
     actions?.handleOtpModalChange?.(true);
   };
 
+  const btnBase = {
+    padding: "6px 16px",
+    borderRadius: "1rem",
+    border: "1px solid var(--glass-border)",
+    background: "var(--glass-bg-overlay)",
+    color: "var(--theme-text)",
+    fontWeight: 700,
+    fontSize: "0.875rem",
+    cursor: "pointer",
+  };
+
+  const btnDanger = { ...btnBase, color: "#ef4444" };
+
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Smartphone className="w-4 h-4" />
-        <p className={themeStyle.sectionTitle}>로그인 정보</p>
+    <div className="px-5 pb-5">
+      {/* 로그인 정보 */}
+      <div className="flex items-center gap-2 mb-3">
+        <Smartphone className="w-4 h-4" style={{ color: "var(--theme-primary)" }} />
+        <p className="text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--theme-text-muted)" }}>
+          로그인 정보
+        </p>
       </div>
 
-      <div className={themeStyle.sectionBorder}>
+      <div style={divider}>
         <div className={ROW}>
-          <p className={themeStyle.labelText}>전화번호</p>
-          <p className={themeStyle.valueText}>{formatPhoneNumber(phone)}</p>
+          <p className="text-[13px] font-medium" style={{ color: "var(--theme-text-muted)" }}>전화번호</p>
+          <p className="text-[13px] font-bold" style={{ color: "var(--theme-text)" }}>{formatPhoneNumber(phone)}</p>
         </div>
-
-        <div className={themeStyle.dividerBorder} />
-
+        <div style={divider} />
         <div className={ROW}>
-          <p className={themeStyle.labelText}>로그인 방식</p>
-          <span className={`px-3 py-1 rounded-full text-xs font-black ${themeStyle.badgeBg}`}>
+          <p className="text-[13px] font-medium" style={{ color: "var(--theme-text-muted)" }}>로그인 방식</p>
+          <span
+            className="px-3 py-1 rounded-full text-[11px] font-bold"
+            style={{
+              background: "var(--glass-bg-overlay)",
+              border: "1px solid var(--glass-border)",
+              color: "var(--theme-text)",
+            }}
+          >
             {loginProvider || "LOCAL"}
           </span>
         </div>
       </div>
 
-      <div className={`mt-6 ${themeStyle.sectionBorder} pt-5`}>
+      {/* 소셜 연결 */}
+      <div className="mt-5 pt-4" style={divider}>
         <div className="flex items-center gap-2 mb-3">
-          <Link2 className="w-4 h-4" />
-          <p className={themeStyle.sectionTitle}>소셜 연결</p>
+          <Link2 className="w-4 h-4" style={{ color: "var(--theme-primary)" }} />
+          <p className="text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--theme-text-muted)" }}>
+            소셜 연결
+          </p>
         </div>
-
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            className={`${googleConn ? themeStyle.btnDanger : themeStyle.btn} ${
-              themeStyle.buttonHover
-            }`}
-            onClick={toggleGoogle}
-          >
+        <div className="flex flex-wrap gap-2">
+          <button type="button" style={googleConn ? btnDanger : btnBase} onClick={toggleGoogle}>
             {googleConn ? "GOOGLE 해제" : "GOOGLE 연동"}
           </button>
-
-          <button
-            type="button"
-            className={`${kakaoConn ? themeStyle.btnDanger : themeStyle.btn} ${
-              themeStyle.buttonHover
-            }`}
-            onClick={toggleKakao}
-          >
+          <button type="button" style={kakaoConn ? btnDanger : btnBase} onClick={toggleKakao}>
             {kakaoConn ? "KAKAO 해제" : "KAKAO 연동"}
           </button>
         </div>
       </div>
 
-      <div className={`mt-6 ${themeStyle.sectionBorder} pt-5`}>
+      {/* 보안 설정 */}
+      <div className="mt-5 pt-4" style={divider}>
         <div className="flex items-center gap-2 mb-3">
-          <Shield className="w-4 h-4" />
-          <p className={themeStyle.sectionTitle}>보안 설정</p>
+          <Shield className="w-4 h-4" style={{ color: "var(--theme-primary)" }} />
+          <p className="text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--theme-text-muted)" }}>
+            보안 설정
+          </p>
         </div>
 
-        <div className={`flex items-center justify-between gap-3 rounded-2xl p-4 ${themeStyle.otpBox}`}>
-          <span className={themeStyle.valueText}>
+        <div
+          className="flex items-center justify-between gap-3 rounded-2xl p-4 mb-3"
+          style={{
+            background: "var(--glass-bg-overlay)",
+            border: "1px solid var(--glass-border)",
+          }}
+        >
+          <span className="text-[13px] font-bold" style={{ color: "var(--theme-text)" }}>
             {otp?.enabled ? "OTP 사용중" : "OTP 미사용"}
           </span>
-
-          <button
-            type="button"
-            className={`${themeStyle.btn} ${themeStyle.buttonHover}`}
-            onClick={openOtp}
-          >
+          <button type="button" style={btnBase} onClick={openOtp}>
             {otp?.enabled ? "OTP 해제" : "OTP 설정"}
           </button>
         </div>

@@ -1,24 +1,15 @@
 import { useEffect, useState } from "react";
 import { KeyRound, Plus, Trash2 } from "lucide-react";
-import { useThemeStore } from "@/store/themeStore";
+import { toast } from "@/utils/toast";
 import { usePasskey } from "@/hooks/auth/usePasskey";
 
-/**
- * PasskeySection – 마이페이지 보안 설정 내 패스키 관리 컴포넌트.
- *
- * - 등록된 패스키 목록 표시
- * - 새 패스키 등록
- * - 패스키 삭제
- */
 export function PasskeySection() {
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
-
   const { loading, error, credentials, register, loadCredentials, deleteCredential } =
     usePasskey();
 
   const [registerError, setRegisterError] = useState(null);
   const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
   useEffect(() => {
     loadCredentials();
@@ -38,23 +29,34 @@ export function PasskeySection() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("이 패스키를 삭제하시겠습니까?")) return;
+    if (pendingDeleteId !== id) {
+      setPendingDeleteId(id);
+      toast.warning("한 번 더 누르면 패스키가 삭제됩니다.");
+      return;
+    }
+    setPendingDeleteId(null);
     await deleteCredential(id);
   };
 
-  // ── 테마 스타일 ──────────────────────────────────────────────
-  const box    = isDark
-    ? "border border-gray-700 bg-[#0F172A] rounded-2xl p-4"
-    : "border border-gray-200 bg-white rounded-2xl p-4";
-  const label  = isDark ? "text-sm text-gray-400 font-bold" : "text-sm text-slate-600 font-bold";
-  const value  = isDark ? "text-sm font-black text-gray-200" : "text-sm font-black text-black";
-  const muted  = isDark ? "text-xs text-gray-500" : "text-xs text-gray-400";
-  const btn    = isDark
-    ? "px-3 py-1.5 rounded-xl border border-gray-700 bg-[#0F172A] text-gray-200 font-black text-xs active:translate-y-[1px]"
-    : "px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-black font-black text-xs active:translate-y-[1px]";
-  const btnDanger = isDark
-    ? "px-3 py-1.5 rounded-xl border border-gray-700 bg-[#0F172A] text-red-400 font-black text-xs active:translate-y-[1px]"
-    : "px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-red-600 font-black text-xs active:translate-y-[1px]";
+  const boxStyle = {
+    border: "1px solid var(--glass-border)",
+    background: "var(--glass-bg-overlay)",
+    borderRadius: "1rem",
+    padding: "1rem",
+  };
+
+  const btnStyle = {
+    padding: "6px 12px",
+    borderRadius: "0.75rem",
+    border: "1px solid var(--glass-border)",
+    background: "var(--glass-bg-overlay)",
+    color: "var(--theme-text)",
+    fontWeight: 900,
+    fontSize: "0.75rem",
+    cursor: "pointer",
+  };
+
+  const btnDangerStyle = { ...btnStyle, color: "#ef4444" };
 
   const formatDate = (iso) =>
     iso ? new Date(iso).toLocaleDateString("ko-KR", { year: "numeric", month: "short", day: "numeric" }) : "-";
@@ -64,7 +66,7 @@ export function PasskeySection() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <KeyRound className="w-4 h-4" style={{ color: "var(--theme-text-muted)" }} />
-          <p className={isDark ? "text-sm font-bold text-gray-200" : "text-sm font-bold text-black"}>
+          <p className="text-sm font-bold" style={{ color: "var(--theme-text)" }}>
             패스키 (Passkey)
           </p>
         </div>
@@ -72,7 +74,7 @@ export function PasskeySection() {
           type="button"
           onClick={handleRegister}
           disabled={loading}
-          className={`${btn} flex items-center gap-1`}
+          style={{ ...btnStyle, display: "flex", alignItems: "center", gap: "4px" }}
         >
           <Plus className="w-3 h-3" />
           {loading ? "등록 중..." : "패스키 추가"}
@@ -87,26 +89,26 @@ export function PasskeySection() {
       )}
 
       {credentials.length === 0 ? (
-        <div className={`${box} text-center`}>
-          <p className={muted}>등록된 패스키가 없습니다.</p>
-          <p className={`${muted} mt-1`}>
+        <div className="text-center" style={boxStyle}>
+          <p className="text-xs" style={{ color: "var(--theme-text-muted)" }}>등록된 패스키가 없습니다.</p>
+          <p className="text-xs mt-1" style={{ color: "var(--theme-text-muted)" }}>
             패스키를 등록하면 비밀번호 없이 지문·얼굴 인식으로 로그인할 수 있습니다.
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
           {credentials.map((cred) => (
-            <div key={cred.id} className={`${box} flex items-center justify-between`}>
+            <div key={cred.id} className="flex items-center justify-between" style={boxStyle}>
               <div className="flex flex-col gap-0.5">
-                <span className={value}>{cred.label || "패스키"}</span>
-                <span className={muted}>
+                <span className="text-sm font-black" style={{ color: "var(--theme-text)" }}>{cred.label || "패스키"}</span>
+                <span className="text-xs" style={{ color: "var(--theme-text-muted)" }}>
                   등록일: {formatDate(cred.createdAt)}
                   {cred.lastUsedAt && ` · 최근 사용: ${formatDate(cred.lastUsedAt)}`}
                 </span>
               </div>
               <button
                 type="button"
-                className={btnDanger}
+                style={pendingDeleteId === cred.id ? { ...btnDangerStyle, border: "1px solid #ef4444" } : btnDangerStyle}
                 onClick={() => handleDelete(cred.id)}
                 disabled={loading}
               >

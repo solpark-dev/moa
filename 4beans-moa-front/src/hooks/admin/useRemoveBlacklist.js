@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteUserBlacklist } from "@/api/adminUserApi";
 import { useRemoveBlacklistStore } from "@/store/admin/removeBlacklistStore";
+import { toast } from "@/utils/toast";
 
 export const useRemoveBlacklistLogic = () => {
   const navigate = useNavigate();
@@ -33,12 +34,12 @@ export const useRemoveBlacklistLogic = () => {
   const handleSubmit = async () => {
     if (submitting) return;
     if (!userId) {
-      alert("회원 정보가 없습니다.");
+      toast.warning("회원 정보가 없습니다.");
       return;
     }
     const trimmedReason = (reason || "").trim();
     if (!trimmedReason) {
-      alert("삭제 사유를 입력해주세요.");
+      toast.warning("해제 사유를 입력해주세요.");
       return;
     }
 
@@ -46,23 +47,18 @@ export const useRemoveBlacklistLogic = () => {
       setSubmitting(true);
       setError(null);
 
-      const res = await deleteUserBlacklist({
-        userId,
-        deleteReason: trimmedReason,
-      });
+      const res = await deleteUserBlacklist({ userId, deleteReason: trimmedReason });
 
       if (!res.success) {
-        throw new Error(
-          res.error?.message || "블랙리스트 해제에 실패했습니다."
-        );
+        throw new Error(res.error?.message || "블랙리스트 해제에 실패했습니다.");
       }
 
-      alert("블랙리스트가 해제되었습니다.");
+      toast.success("블랙리스트가 해제되었습니다.");
       reset();
       navigate(`/admin/users/${encodeURIComponent(userId)}`, { replace: true });
     } catch (e) {
       setError(e.message);
-      alert(e.message);
+      toast.error(e.message);
     } finally {
       setSubmitting(false);
     }

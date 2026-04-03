@@ -92,7 +92,6 @@ export default function AdminUserDetailPage() {
             <div className="grid lg:grid-cols-[minmax(0,280px)_1fr] gap-8">
               <aside className="w-full">
                 <AdminUserDetailSidebar
-                  userEmail={user.userId}
                   goLoginHistory={goLoginHistory}
                 />
               </aside>

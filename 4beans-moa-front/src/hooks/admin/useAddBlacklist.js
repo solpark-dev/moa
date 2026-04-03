@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { addUserBlacklist } from "@/api/adminUserApi";
 import { useAddBlacklistStore } from "@/store/admin/addBlacklistStore";
+import { toast } from "@/utils/toast";
 
 export const useAddBlacklistLogic = () => {
   const navigate = useNavigate();
@@ -43,11 +44,11 @@ export const useAddBlacklistLogic = () => {
   const handleSubmit = async () => {
     if (submitting) return;
     if (!userId) {
-      alert("회원 아이디를 입력해주세요.");
+      toast.warning("회원 아이디를 입력해주세요.");
       return;
     }
     if (!reasonType) {
-      alert("사유 구분을 선택해주세요.");
+      toast.warning("사유 구분을 선택해주세요.");
       return;
     }
 
@@ -55,22 +56,18 @@ export const useAddBlacklistLogic = () => {
       setSubmitting(true);
       setError(null);
 
-      const body = await addUserBlacklist({
-        userId,
-        reasonType,
-        reasonDetail,
-      });
+      const body = await addUserBlacklist({ userId, reasonType, reasonDetail });
 
       if (!body.success) {
         throw new Error(body.error?.message || "블랙리스트 등록에 실패했습니다.");
       }
 
-      alert("블랙리스트에 등록되었습니다.");
-      navigate(`/admin/users/${encodeURIComponent(userId)}`);
+      toast.success("블랙리스트에 등록되었습니다.");
       reset();
+      navigate(`/admin/users/${encodeURIComponent(userId)}`);
     } catch (e) {
       setError(e.message);
-      alert(e.message);
+      toast.error(e.message);
     } finally {
       setSubmitting(false);
     }
