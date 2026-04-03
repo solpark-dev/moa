@@ -168,6 +168,13 @@
 		AND DELETE_DATE IS NULL
 	</update>
 
+	<update id="updatePhone">
+		UPDATE USERS
+		SET PHONE = #{phone}
+		WHERE USER_ID = #{userId}
+		AND DELETE_DATE IS NULL
+	</update>
+
 	<update id="softDeleteUser">
 		UPDATE USERS
 		SET

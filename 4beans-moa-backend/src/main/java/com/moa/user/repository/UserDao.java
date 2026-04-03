@@ -51,6 +51,8 @@ public interface UserDao {
 
 	int updateProfileImage(@Param("userId") String userId, @Param("imageUrl") String imageUrl);
 
+	int updatePhone(@Param("userId") String userId, @Param("phone") String phone);
+
 	int updateUserProfile(User user);
 
 	void softDeleteUser(@Param("userId") String userId, @Param("status") UserStatus status,

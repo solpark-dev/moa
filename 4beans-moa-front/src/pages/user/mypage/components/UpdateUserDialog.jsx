@@ -8,10 +8,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { User, Upload, BellRing } from "lucide-react";
-import { formatPhone } from "@/utils/phoneUtils";
+import { User, Upload } from "lucide-react";
 import { toast } from "@/utils/toast";
 import httpClient from "@/api/httpClient";
 import { useAuthStore } from "@/store/authStore";
@@ -70,17 +68,30 @@ export function UpdateUserDialog({ open, onOpenChange }) {
     }
 
     const saveAction = async () => {
-      const formData = new FormData();
-      formData.append("nickname", nickname);
-      // agreeMarketing moves to another handler
-      if (imageFile) formData.append("profileImage", imageFile);
+      let finalImageUrl = user.profileImage;
+      if (imageFile) {
+        const fileData = new FormData();
+        fileData.append("file", imageFile);
+        const uploadRes = await httpClient.post("/users/uploadProfileImage", fileData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        if (uploadRes?.success && uploadRes?.data) {
+          finalImageUrl = uploadRes.data;
+          setUser({ ...user, profileImage: finalImageUrl });
+        } else {
+          throw new Error("이미지 업로드 실패했습니다.");
+        }
+      }
 
-      const res = await httpClient.put("/users/me", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const res = await httpClient.put("/users/me", {
+        nickname: nickname,
+        phone: user?.phone,
+        profileImage: finalImageUrl,
+        agreeMarketing: user?.agreeMarketing,
       });
 
       if (!res?.success) throw new Error(res?.error?.message || "수정에 실패했습니다.");
-      
+
       const meRes = await httpClient.get("/users/me");
       if (meRes?.success && meRes?.data) setUser(meRes.data);
       onOpenChange(false);
@@ -95,8 +106,6 @@ export function UpdateUserDialog({ open, onOpenChange }) {
       setLoading(false);
     });
   };
-
-  const onPassVerify = () => window.open("https://nice.checkplus.co.kr", "_blank");
 
   const inputStyle = {
     background: "var(--glass-bg-card)",
@@ -192,29 +201,6 @@ export function UpdateUserDialog({ open, onOpenChange }) {
               </p>
             )}
           </div>
-
-          {/* 휴대폰 번호 */}
-          <div className="space-y-2">
-            <Label className="text-sm font-bold" style={{ color: "var(--theme-text)" }}>휴대폰 번호</Label>
-            <div className="flex gap-2">
-              <Input
-                readOnly
-                value={formatPhone(user?.phone) || "-"}
-                className="flex-1 rounded-xl cursor-not-allowed"
-                style={inputReadonlyStyle}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onPassVerify}
-                className="rounded-xl px-4"
-                style={outlineBtnStyle}
-              >
-                본인인증
-              </Button>
-            </div>
-          </div>
-
 
           {/* 버튼 */}
           <div className="flex gap-3 pt-2">

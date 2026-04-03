@@ -138,7 +138,7 @@ public class OAuthRestController {
 		            .secure(true)
 		            .sameSite("None")
 		            .path("/")
-		            .maxAge(token.getAccessTokenExpiresIn())
+		            .maxAge(Math.max(0, (token.getAccessTokenExpiresIn() - System.currentTimeMillis()) / 1000))
 		            .build();
 
 		    ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", token.getRefreshToken())
@@ -246,7 +246,7 @@ public class OAuthRestController {
 		                            .secure(true)
 		                            .sameSite("None")
 		                            .path("/")
-		                            .maxAge(jwt.getAccessTokenExpiresIn())
+		                            .maxAge(Math.max(0, (jwt.getAccessTokenExpiresIn() - System.currentTimeMillis()) / 1000))
 		                            .build()
 		                            .toString())
 		            .header(HttpHeaders.SET_COOKIE,
