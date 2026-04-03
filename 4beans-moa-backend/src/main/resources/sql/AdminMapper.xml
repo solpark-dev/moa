@@ -9,6 +9,7 @@
 		<result property="userId" column="USER_ID" />
 		<result property="reason" column="REASON" />
 		<result property="status" column="STATUS" />
+		<result property="prevStatus" column="PREV_STATUS" />
 		<result property="regDate" column="REG_DATE" />
 		<result property="releaseDate" column="RELEASE_DATE" />
 	</resultMap>
@@ -95,26 +96,23 @@
 	</select>
 
 	<insert id="insertBlacklist">
-		INSERT INTO BLACKLIST (USER_ID, REASON, STATUS,
-		REG_DATE)
-		VALUES (#{userId}, #{reason}, 'ACTIVE', NOW())
+		INSERT INTO BLACKLIST (USER_ID, REASON, STATUS, PREV_STATUS, REG_DATE)
+		VALUES (#{userId}, #{reason}, 'ACTIVE', #{prevStatus}, NOW())
 	</insert>
 
-	<select id="findActiveBlacklistByUserId"
-		resultMap="blacklistMap">
+	<select id="findActiveBlacklistByUserId" resultMap="blacklistMap">
 		SELECT
 		BLACKLIST_ID,
 		USER_ID,
 		REASON,
 		STATUS,
+		PREV_STATUS,
 		REG_DATE,
 		RELEASE_DATE
 		FROM BLACKLIST
 		WHERE USER_ID = #{userId}
-		AND STATUS =
-		'ACTIVE'
-		ORDER BY
-		REG_DATE DESC
+		AND STATUS = 'ACTIVE'
+		ORDER BY REG_DATE DESC
 		LIMIT 1
 	</select>
 

@@ -16,7 +16,7 @@ public interface AdminDao {
 
 	List<AdminUserListItemResponse> findAdminUsers(AdminUserSearchRequest request);
 
-	void insertBlacklist(@Param("userId") String userId, @Param("reason") String reason);
+	void insertBlacklist(@Param("userId") String userId, @Param("reason") String reason, @Param("prevStatus") String prevStatus);
 
 	Blacklist findActiveBlacklistByUserId(@Param("userId") String userId);
 

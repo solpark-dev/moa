@@ -18,6 +18,7 @@ public class Blacklist {
 	private String userId;
 	private String reason;
 	private String status;
+	private String prevStatus;
 	private LocalDateTime regDate;
 	private LocalDateTime releaseDate;
 }
