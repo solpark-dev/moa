@@ -143,10 +143,11 @@ export const usePushNotification = () => {
   );
 
   useEffect(() => {
+    if (!accessToken || !user) return;
     fetchUnreadCount();
     const interval = setInterval(fetchUnreadCount, 60000);
     return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
+  }, [fetchUnreadCount, accessToken, user]);
 
   useEffect(() => {
     if (!accessToken || !user || isAdmin) return;

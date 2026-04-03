@@ -2,34 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
 import { useAuthStore } from '@/store/authStore';
-import { useThemeStore } from '@/store/themeStore';
 import FaqItem from '../../components/community/FaqItem';
 import { NeoButton, NeoPagination } from '@/components/common/neo';
+import { toast } from '@/utils/toast';
 import { Search } from 'lucide-react';
 
-// 테마별 스타일
-const communityThemeStyles = {
-    light: {
-        button: 'bg-[#635bff] hover:bg-indigo-600 text-white',
-        searchIconHover: 'hover:text-[#635bff]',
-        categoryButtonActive: 'bg-[#635bff] text-white',
-        categoryButtonInactive: 'bg-white text-black hover:bg-indigo-50',
-        focusRing: 'focus:ring-[#635bff]',
-    },
-    dark: {
-        button: 'bg-[#635bff] hover:bg-indigo-600 text-white',
-        searchIconHover: 'hover:text-[#635bff]',
-        categoryButtonActive: 'bg-[#635bff] text-white',
-        categoryButtonInactive: 'bg-gray-700 text-gray-200 hover:bg-gray-600',
-        focusRing: 'focus:ring-[#635bff]',
-    },
-};
+const CATEGORIES = ['전체', '회원', '결제', '구독', '파티', '정산', '기타'];
 
 const ListFaq = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
-    const { theme } = useThemeStore();
-    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.light;
     const [faqs, setFaqs] = useState([]);
     const [filteredFaqs, setFilteredFaqs] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -41,8 +23,6 @@ const ListFaq = () => {
 
     const isAdmin = user?.role === 'ADMIN';
 
-    const categories = ['전체', '회원', '결제', '구독', '파티', '정산', '기타'];
-
     useEffect(() => {
         loadFaqList();
     }, []);
@@ -50,17 +30,13 @@ const ListFaq = () => {
     const loadFaqList = async () => {
         try {
             const response = await fetch(`/api/community/faq?page=1&size=100`);
-
-            if (!response.ok) {
-                setFaqs([]);
-                return;
-            }
-
+            if (!response.ok) { setFaqs([]); return; }
             const data = await response.json();
-            setFaqs(data.content || []);
-            setFilteredFaqs(data.content || []);
-            updatePagination(data.content || []);
-        } catch (error) {
+            const list = data.content || [];
+            setFaqs(list);
+            setFilteredFaqs(list);
+            updatePagination(list);
+        } catch {
             setFaqs([]);
         }
     };
@@ -81,6 +57,21 @@ const ListFaq = () => {
         return '기타';
     };
 
+    const filterFaqs = (category, keyword) => {
+        let result = [...faqs];
+        if (category !== '전체') {
+            result = result.filter(faq => getCategoryFromTitle(faq.title) === category);
+        }
+        if (keyword.trim()) {
+            result = result.filter(faq =>
+                faq.title.toLowerCase().includes(keyword.toLowerCase()) ||
+                faq.content.toLowerCase().includes(keyword.toLowerCase())
+            );
+        }
+        setFilteredFaqs(result);
+        updatePagination(result);
+    };
+
     const handleCategoryChange = (category) => {
         setActiveCategory(category);
         filterFaqs(category, searchKeyword);
@@ -92,28 +83,8 @@ const ListFaq = () => {
         setOpenFaqId(null);
     };
 
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
-    };
-
-    const filterFaqs = (category, keyword) => {
-        let result = [...faqs];
-
-        if (category !== '전체') {
-            result = result.filter(faq => getCategoryFromTitle(faq.title) === category);
-        }
-
-        if (keyword.trim()) {
-            result = result.filter(faq =>
-                faq.title.toLowerCase().includes(keyword.toLowerCase()) ||
-                faq.content.toLowerCase().includes(keyword.toLowerCase())
-            );
-        }
-
-        setFilteredFaqs(result);
-        updatePagination(result);
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') handleSearch();
     };
 
     const handlePageChange = (page) => {
@@ -124,9 +95,8 @@ const ListFaq = () => {
     };
 
     const getCurrentPageData = () => {
-        const startIndex = (currentPage - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        return filteredFaqs.slice(startIndex, endIndex);
+        const start = (currentPage - 1) * pageSize;
+        return filteredFaqs.slice(start, start + pageSize);
     };
 
     const handleToggleFaq = (faqId) => {
@@ -135,86 +105,90 @@ const ListFaq = () => {
 
     const handleUpdateFaq = async (faqId, formData) => {
         try {
-            const userId = user?.userId || 'admin@moa.com';
-
+            const userId = user?.userId;
             const response = await fetch(`/api/community/faq/${faqId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userId: userId,
-                    title: formData.title,
-                    content: formData.content
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, title: formData.title, content: formData.content }),
             });
-
             if (response.ok) {
-                alert('수정되었습니다.');
+                toast.success('수정되었습니다.');
                 loadFaqList();
                 return true;
             } else {
-                alert('수정에 실패했습니다.');
+                toast.error('수정에 실패했습니다.');
                 return false;
             }
-        } catch (error) {
-            alert('수정 중 오류가 발생했습니다.');
+        } catch {
+            toast.error('수정 중 오류가 발생했습니다.');
             return false;
         }
     };
 
-    return (
-        <CommunityLayout>
-            <div className="pt-8">
-                {/* 카테고리 및 검색 영역 */}
-                <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-                    <div className="flex items-center gap-2">
-                        {categories.map((category) => (
-                            <button
-                                key={category}
-                                onClick={() => handleCategoryChange(category)}
-                                className={`
-                                    px-4 py-2 font-black text-sm rounded-lg
-                                    ${theme === 'dark' ? 'border border-gray-600' : 'border border-gray-200'}
-                                    transition-all duration-200
-                                    ${activeCategory === category
-                                        ? `${themeStyle.categoryButtonActive} shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`
-                                        : `${theme === 'dark' ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : themeStyle.categoryButtonInactive} shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] `
-                                    }
-                                `}
-                            >
-                                {category}
-                            </button>
-                        ))}
-                    </div>
+    const inputStyle = {
+        border: "1px solid var(--glass-border)",
+        background: "var(--glass-bg-overlay)",
+        color: "var(--theme-text)",
+        borderRadius: "0.75rem",
+        padding: "8px 40px 8px 16px",
+        fontSize: "0.875rem",
+        outline: "none",
+        width: "14rem",
+    };
 
+    const categoryBtnStyle = (active) => ({
+        padding: "6px 16px",
+        borderRadius: "0.5rem",
+        border: "1px solid var(--glass-border)",
+        background: active ? "var(--theme-primary)" : "var(--glass-bg-overlay)",
+        color: active ? "#fff" : "var(--theme-text)",
+        fontWeight: 900,
+        fontSize: "0.875rem",
+        cursor: "pointer",
+        transition: "all 0.15s",
+    });
+
+    return (
+        <CommunityLayout title="자주 묻는 질문">
+            {/* 카테고리 + 검색 */}
+            <div className="mb-5 pb-4 space-y-3" style={{ borderBottom: "1px solid var(--glass-border)" }}>
+                <div className="flex flex-wrap gap-2">
+                    {CATEGORIES.map((cat) => (
+                        <button
+                            key={cat}
+                            type="button"
+                            onClick={() => handleCategoryChange(cat)}
+                            style={categoryBtnStyle(activeCategory === cat)}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+                <div className="flex justify-end">
                     <div className="relative">
                         <input
                             type="text"
                             placeholder="검색어 입력"
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            className={`w-56 px-4 py-2 pr-10 font-bold
-                                border border-gray-200 rounded-xl
-                                shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                focus:outline-none focus:ring-2 ${themeStyle.focusRing}
-                                transition-all`}
+                            onKeyDown={handleKeyDown}
+                            style={inputStyle}
                         />
                         <button
                             onClick={handleSearch}
-                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400' : 'text-black'} ${themeStyle.searchIconHover} transition-colors`}
+                            className="absolute right-3 top-1/2 -translate-y-1/2"
+                            style={{ color: "var(--theme-text-muted)" }}
                         >
-                            <Search className="w-5 h-5" />
+                            <Search className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* FAQ 리스트 - 카드 레이어 없이 바로 표시 */}
+            {/* FAQ 리스트 */}
             <div>
                 {getCurrentPageData().length === 0 ? (
-                    <div className="py-16 text-center font-bold text-gray-400">
+                    <div className="py-16 text-center text-sm font-bold" style={{ color: "var(--theme-text-muted)" }}>
                         등록된 FAQ가 없습니다.
                     </div>
                 ) : (
@@ -233,7 +207,7 @@ const ListFaq = () => {
                 )}
             </div>
 
-            {/* 페이지네이션 및 등록 버튼 */}
+            {/* 페이지네이션 + 등록 버튼 */}
             <div className="flex items-center justify-center mt-8 relative">
                 {totalPages > 1 && (
                     <NeoPagination
@@ -242,12 +216,11 @@ const ListFaq = () => {
                         onPageChange={handlePageChange}
                     />
                 )}
-
                 {isAdmin && (
                     <div className="absolute right-0">
                         <NeoButton
                             onClick={() => navigate('/community/faq/add')}
-                            color={themeStyle.button}
+                            color="bg-[#635bff] hover:bg-[#5851e8] text-white"
                             size="sm"
                         >
                             FAQ 등록

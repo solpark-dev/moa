@@ -2,30 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
 import { useAuthStore } from '@/store/authStore';
-import { useThemeStore } from '@/store/themeStore';
 import NoticeItem from '../../components/community/NoticeItem';
 import { NeoButton, NeoPagination } from '@/components/common/neo';
 import { Search } from 'lucide-react';
 
-// 테마별 스타일
-const communityThemeStyles = {
-    light: {
-        button: 'bg-[#635bff] hover:bg-[#5851e8] text-white',
-        searchIconHover: 'hover:text-[#635bff]',
-        focusRing: 'focus:ring-[#635bff]',
-    },
-    dark: {
-        button: 'bg-[#635bff] hover:bg-[#5851e8] text-white',
-        searchIconHover: 'hover:text-[#635bff]',
-        focusRing: 'focus:ring-[#635bff]',
-    },
-};
-
 const ListNotice = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
-    const { theme } = useThemeStore();
-    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.light;
     const [notices, setNotices] = useState([]);
     const [filteredNotices, setFilteredNotices] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -42,20 +25,15 @@ const ListNotice = () => {
     const loadNoticeList = async () => {
         try {
             const response = await fetch(`/api/community/notice?page=1&size=100`);
-
-            if (!response.ok) {
-                setNotices([]);
-                return;
-            }
-
+            if (!response.ok) { setNotices([]); return; }
             const data = await response.json();
-            const sortedNotices = (data.content || []).sort((a, b) =>
+            const sorted = (data.content || []).sort((a, b) =>
                 new Date(b.createdAt) - new Date(a.createdAt)
             );
-            setNotices(sortedNotices);
-            setFilteredNotices(sortedNotices);
-            updatePagination(sortedNotices);
-        } catch (error) {
+            setNotices(sorted);
+            setFilteredNotices(sorted);
+            updatePagination(sorted);
+        } catch {
             setNotices([]);
         }
     };
@@ -71,19 +49,16 @@ const ListNotice = () => {
             updatePagination(notices);
             return;
         }
-
-        const filtered = notices.filter(notice =>
-            notice.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-            notice.content.toLowerCase().includes(searchKeyword.toLowerCase())
+        const filtered = notices.filter(n =>
+            n.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+            n.content.toLowerCase().includes(searchKeyword.toLowerCase())
         );
         setFilteredNotices(filtered);
         updatePagination(filtered);
     };
 
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') handleSearch();
     };
 
     const handlePageChange = (page) => {
@@ -93,63 +68,61 @@ const ListNotice = () => {
     };
 
     const getCurrentPageData = () => {
-        const startIndex = (currentPage - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        return filteredNotices.slice(startIndex, endIndex);
+        const start = (currentPage - 1) * pageSize;
+        return filteredNotices.slice(start, start + pageSize);
     };
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        }).replace(/\. /g, '.').replace(/\.$/, '');
+        return new Date(dateString)
+            .toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
+            .replace(/\. /g, '.').replace(/\.$/, '');
     };
 
-    const getNoticeId = (notice) => {
-        return notice.communityId || notice.id;
-    };
+    const getNoticeId = (notice) => notice.communityId || notice.id;
 
     const handleNoticeClick = (notice) => {
         const id = getNoticeId(notice);
-        if (id) {
-            navigate(`/community/notice/${id}`);
-        }
+        if (id) navigate(`/community/notice/${id}`);
+    };
+
+    const inputStyle = {
+        border: "1px solid var(--glass-border)",
+        background: "var(--glass-bg-overlay)",
+        color: "var(--theme-text)",
+        borderRadius: "0.75rem",
+        padding: "8px 40px 8px 16px",
+        fontSize: "0.875rem",
+        outline: "none",
+        width: "14rem",
     };
 
     return (
-        <CommunityLayout>
-            <div className="pt-8">
-                {/* 검색 영역 */}
-                <div className="flex items-center justify-end mb-6 pb-4 border-b border-gray-200">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="검색어 입력"
-                            value={searchKeyword}
-                            onChange={(e) => setSearchKeyword(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            className={`w-56 px-4 py-2 pr-10 font-bold
-                                border border-gray-200 rounded-xl
-                                shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                focus:outline-none focus:ring-2 ${themeStyle.focusRing}
-                                transition-all`}
-                        />
-                        <button
-                            onClick={handleSearch}
-                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400' : 'text-black'} ${themeStyle.searchIconHover} transition-colors`}
-                        >
-                            <Search className="w-5 h-5" />
-                        </button>
-                    </div>
+        <CommunityLayout title="공지사항">
+            {/* 검색 */}
+            <div className="flex items-center justify-end mb-5 pb-4" style={{ borderBottom: "1px solid var(--glass-border)" }}>
+                <div className="relative">
+                    <input
+                        type="text"
+                        placeholder="검색어 입력"
+                        value={searchKeyword}
+                        onChange={(e) => setSearchKeyword(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        style={inputStyle}
+                    />
+                    <button
+                        onClick={handleSearch}
+                        className="absolute right-3 top-1/2 -translate-y-1/2"
+                        style={{ color: "var(--theme-text-muted)" }}
+                    >
+                        <Search className="w-4 h-4" />
+                    </button>
                 </div>
             </div>
 
-            {/* 공지사항 리스트 */}
+            {/* 리스트 */}
             <div>
                 {getCurrentPageData().length === 0 ? (
-                    <div className="py-16 text-center font-bold text-gray-400">
+                    <div className="py-16 text-center text-sm font-bold" style={{ color: "var(--theme-text-muted)" }}>
                         등록된 공지사항이 없습니다.
                     </div>
                 ) : (
@@ -165,7 +138,7 @@ const ListNotice = () => {
                 )}
             </div>
 
-            {/* 페이지네이션 및 등록 버튼 */}
+            {/* 페이지네이션 + 등록 버튼 */}
             <div className="flex items-center justify-center mt-8 relative">
                 {totalPages > 1 && (
                     <NeoPagination
@@ -174,12 +147,11 @@ const ListNotice = () => {
                         onPageChange={handlePageChange}
                     />
                 )}
-
                 {isAdmin && (
                     <div className="absolute right-0">
                         <NeoButton
                             onClick={() => navigate('/community/notice/add')}
-                            color={themeStyle.button}
+                            color="bg-[#635bff] hover:bg-[#5851e8] text-white"
                             size="sm"
                         >
                             등록
