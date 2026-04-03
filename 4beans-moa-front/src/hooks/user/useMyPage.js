@@ -160,12 +160,8 @@ export const useMyPage = () => {
       setUser({ ...user, agreeMarketing: newValue });
       
       try {
-        const formData = new FormData();
-        formData.append("agreeMarketing", newValue);
-        // send minimal update
-        await httpClient.put("/users/me", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        // send JSON patch
+        await httpClient.patch("/users/me", { agreeMarketing: newValue });
         
         toast.success(
           `마케팅 정보 수신 동의가 ${newValue ? "설정" : "해제"}되었습니다.`,
@@ -176,11 +172,7 @@ export const useMyPage = () => {
               onClick: async () => {
                 // Revert
                 setUser({ ...user, agreeMarketing: currentValue });
-                const revertData = new FormData();
-                revertData.append("agreeMarketing", currentValue);
-                await httpClient.put("/users/me", revertData, {
-                  headers: { "Content-Type": "multipart/form-data" },
-                });
+                await httpClient.patch("/users/me", { agreeMarketing: currentValue });
                 toast.info("원래 설정으로 복구되었습니다.");
               }
             }
