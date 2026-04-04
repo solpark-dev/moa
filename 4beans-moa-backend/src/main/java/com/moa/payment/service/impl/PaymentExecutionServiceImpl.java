@@ -128,10 +128,10 @@ public class PaymentExecutionServiceImpl implements PaymentExecutionService {
 
 			TemplatePushRequest pushRequest = TemplatePushRequest.builder()
 					.receiverId(payment.getUserId())
-					.pushCode(PushCodeType.PAYMENT_SUCCESS.getCode())
+					.pushCode(PushCodeType.PAY_SUCCESS.getCode())
 					.params(params)
 					.moduleId(String.valueOf(payment.getPaymentId()))
-					.moduleType(PushCodeType.PAYMENT_SUCCESS.getModuleType())
+					.moduleType(PushCodeType.PAY_SUCCESS.getModuleType())
 					.build();
 
 			pushService.addTemplatePush(pushRequest);
@@ -153,10 +153,10 @@ public class PaymentExecutionServiceImpl implements PaymentExecutionService {
 
 			TemplatePushRequest pushRequest = TemplatePushRequest.builder()
 					.receiverId(payment.getUserId())
-					.pushCode(PushCodeType.PAYMENT_FAILED.getCode())
+					.pushCode(PushCodeType.PAY_FAILED_RETRY.getCode())
 					.params(params)
 					.moduleId(String.valueOf(payment.getPaymentId()))
-					.moduleType(PushCodeType.PAYMENT_FAILED.getModuleType())
+					.moduleType(PushCodeType.PAY_FAILED_RETRY.getModuleType())
 					.build();
 
 			pushService.addTemplatePush(pushRequest);
@@ -176,10 +176,10 @@ public class PaymentExecutionServiceImpl implements PaymentExecutionService {
 
 			TemplatePushRequest pushRequest = TemplatePushRequest.builder()
 					.receiverId(payment.getUserId())
-					.pushCode(PushCodeType.PAYMENT_FINAL_FAILED.getCode())
+					.pushCode(PushCodeType.PAY_FINAL_FAILED.getCode())
 					.params(params)
 					.moduleId(String.valueOf(payment.getPaymentId()))
-					.moduleType(PushCodeType.PAYMENT_FINAL_FAILED.getModuleType())
+					.moduleType(PushCodeType.PAY_FINAL_FAILED.getModuleType())
 					.build();
 
 			pushService.addTemplatePush(pushRequest);

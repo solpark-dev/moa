@@ -117,15 +117,14 @@ public class AuthServiceImpl implements AuthService {
 				throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그아웃된 토큰입니다.");
 			}
 
-			String userId = jwtProvider.getUserIdFromToken(refreshToken);
+			String userId = jwtProvider.parseClaims(refreshToken, true).getSubject();
 			if (tokenBlacklistService.getBanTimestamp(userId) > 0) {
 				throw new BusinessException(ErrorCode.UNAUTHORIZED, "밴된 계정입니다.");
 			}
 
 			TokenResponse newTokens = jwtProvider.refresh(refreshToken);
 
-			long remaining = jwtProvider.getRemainingTtlMillis(refreshToken);
-			tokenBlacklistService.blacklistToken(refreshToken, remaining);
+			tokenBlacklistService.blacklistToken(refreshToken, jwtProvider.getRefreshTokenExpirationMillis());
 
 			return newTokens;
 		} catch (BusinessException e) {
@@ -139,11 +138,11 @@ public class AuthServiceImpl implements AuthService {
 	public void logout(String accessToken, String refreshToken) {
 		if (accessToken != null && !accessToken.isBlank()) {
 			String token = accessToken.startsWith("Bearer ") ? accessToken.substring(7) : accessToken;
-			long remaining = jwtProvider.getRemainingTtlMillis(token);
+			long remaining = jwtProvider.getRemainingTtlMillis(token, false);
 			tokenBlacklistService.blacklistToken(token, remaining);
 		}
 		if (refreshToken != null && !refreshToken.isBlank()) {
-			long remaining = jwtProvider.getRemainingTtlMillis(refreshToken);
+			long remaining = jwtProvider.getRemainingTtlMillis(refreshToken, true);
 			tokenBlacklistService.blacklistToken(refreshToken, remaining);
 		}
 	}

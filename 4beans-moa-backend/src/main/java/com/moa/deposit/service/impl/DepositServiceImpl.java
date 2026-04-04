@@ -38,6 +38,10 @@ public class DepositServiceImpl implements DepositService {
     private final DepositDao depositDao;
     private final PartyDao partyDao;
     private final ProductNameResolver productNameResolver;
+    private final TossPaymentService tossPaymentService;
+    private final RefundRetryService refundRetryService;
+    private final ApplicationEventPublisher eventPublisher;
+    private final PushService pushService;
 
 	// 기존 PaymentRequest를 받는 createDeposit 메소드를 이 새로운 메소드로 대체
     @Override

@@ -37,14 +37,16 @@ public class JwtProvider {
 	private static final String BEARER_TYPE = "Bearer";
 
 	private final SecretKey secretKey;
+	private final SecretKey refreshSecretKey;
 	private final long accessTokenExpirationMillis;
 	private final long refreshTokenExpirationMillis;
 
 	public JwtProvider(@Value("${jwt.secret}") String secret,
+			@Value("${jwt.refresh-secret}") String refreshSecret,
 			@Value("${jwt.access-token-expiration-millis}") long accessTokenExpirationMillis,
 			@Value("${jwt.refresh-token-expiration-millis}") long refreshTokenExpirationMillis) {
-		byte[] keyBytes = Decoders.BASE64.decode(secret);
-		this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+		this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+		this.refreshSecretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshSecret));
 		this.accessTokenExpirationMillis = accessTokenExpirationMillis;
 		this.refreshTokenExpirationMillis = refreshTokenExpirationMillis;
 	}
@@ -65,7 +67,7 @@ public class JwtProvider {
 
 		String refreshToken = Jwts.builder().setSubject(authentication.getName()).claim(AUTHORITIES_KEY, authorities)
 				.claim(PROVIDER_KEY, provider == null || provider.isBlank() ? "email" : provider)
-				.setIssuedAt(issuedAt).setExpiration(refreshTokenExpiresIn).signWith(secretKey, SignatureAlgorithm.HS256).compact();
+				.setIssuedAt(issuedAt).setExpiration(refreshTokenExpiresIn).signWith(refreshSecretKey, SignatureAlgorithm.HS256).compact();
 
 		return TokenResponse.builder().grantType(BEARER_TYPE).accessToken(accessToken).refreshToken(refreshToken)
 				.accessTokenExpiresIn(accessTokenExpiresIn.getTime()).build();
@@ -76,7 +78,7 @@ public class JwtProvider {
 	}
 
 	public TokenResponse refresh(String refreshToken) {
-		Claims claims = parseClaims(refreshToken);
+		Claims claims = parseClaims(refreshToken, true);
 
 		String userId = claims.getSubject();
 		String authorities = claims.get(AUTHORITIES_KEY, String.class);
@@ -97,14 +99,14 @@ public class JwtProvider {
 
 		String newRefreshToken = Jwts.builder().setSubject(userId).claim(AUTHORITIES_KEY, authorities)
 				.claim(PROVIDER_KEY, provider == null || provider.isBlank() ? "email" : provider)
-				.setIssuedAt(issuedAt).setExpiration(newRefreshTokenExpiresIn).signWith(secretKey, SignatureAlgorithm.HS256).compact();
+				.setIssuedAt(issuedAt).setExpiration(newRefreshTokenExpiresIn).signWith(refreshSecretKey, SignatureAlgorithm.HS256).compact();
 
 		return TokenResponse.builder().grantType(BEARER_TYPE).accessToken(newAccessToken).refreshToken(newRefreshToken)
 				.accessTokenExpiresIn(accessTokenExpiresIn.getTime()).build();
 	}
 
 	public Authentication getAuthentication(String accessToken) {
-		Claims claims = parseClaims(accessToken);
+		Claims claims = parseClaims(accessToken, false);
 
 		if (claims.get(AUTHORITIES_KEY) == null) {
 			throw new RuntimeException("Authority information not found in the token.");
@@ -118,8 +120,12 @@ public class JwtProvider {
 	}
 
 	public boolean validateToken(String token) {
+		return validateToken(token, false);
+	}
+
+	public boolean validateToken(String token, boolean isRefreshToken) {
 		try {
-			Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+			parseClaims(token, isRefreshToken);
 			return true;
 		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
 			log.warn("잘못된 JWT 서명: {}", e.getMessage());
@@ -134,17 +140,30 @@ public class JwtProvider {
 	}
 
 	public Claims parseClaims(String token) {
+		return parseClaims(token, false);
+	}
+
+	public Claims parseClaims(String token, boolean isRefreshToken) {
 		try {
-			return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+			return Jwts.parserBuilder().setSigningKey(isRefreshToken ? refreshSecretKey : secretKey).build()
+					.parseClaimsJws(token).getBody();
 		} catch (ExpiredJwtException e) {
 			return e.getClaims();
 		}
 	}
 
 	/** 토큰의 남은 유효 시간(밀리초). 이미 만료된 경우 0 반환. */
+	public long getRefreshTokenExpirationMillis() {
+		return refreshTokenExpirationMillis;
+	}
+
 	public long getRemainingTtlMillis(String token) {
+		return getRemainingTtlMillis(token, false);
+	}
+
+	public long getRemainingTtlMillis(String token, boolean isRefreshToken) {
 		try {
-			Claims claims = parseClaims(token);
+			Claims claims = parseClaims(token, isRefreshToken);
 			long expMillis = claims.getExpiration().getTime();
 			long remaining = expMillis - System.currentTimeMillis();
 			return Math.max(remaining, 0L);
@@ -155,8 +174,12 @@ public class JwtProvider {
 
 	/** 토큰의 발급 시각(epoch millis). iat 클레임이 없으면 0 반환. */
 	public long getIssuedAtMillis(String token) {
+		return getIssuedAtMillis(token, false);
+	}
+
+	public long getIssuedAtMillis(String token, boolean isRefreshToken) {
 		try {
-			Claims claims = parseClaims(token);
+			Claims claims = parseClaims(token, isRefreshToken);
 			Date iat = claims.getIssuedAt();
 			return iat != null ? iat.getTime() : 0L;
 		} catch (Exception e) {
@@ -165,8 +188,12 @@ public class JwtProvider {
 	}
 
 	public String getProviderFromToken(String token) {
+		return getProviderFromToken(token, false);
+	}
+
+	public String getProviderFromToken(String token, boolean isRefreshToken) {
 		try {
-			Claims claims = parseClaims(token);
+			Claims claims = parseClaims(token, isRefreshToken);
 			String provider = claims.get(PROVIDER_KEY, String.class);
 			return provider == null || provider.isBlank() ? "email" : provider;
 		} catch (Exception e) {

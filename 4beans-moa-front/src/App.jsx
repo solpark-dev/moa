@@ -263,7 +263,7 @@ function AppContent() {
     >
       <ScrollToTop />
       <div
-        className="relative w-full max-w-[390px] sm:max-w-[540px] md:max-w-[768px] lg:max-w-[1024px] min-h-screen flex flex-col overflow-x-hidden"
+        className="relative w-full max-w-[390px] min-h-screen flex flex-col overflow-x-hidden"
         style={{
           background: "var(--theme-bg)",
           boxShadow: "0 0 60px rgba(0,0,0,0.12)",

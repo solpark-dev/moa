@@ -4,6 +4,7 @@ import { useMyPage } from "@/hooks/user/useMyPage";
 import { useLoginHistory } from "@/hooks/user/useLoginHistory";
 import { useBackupCodeModal } from "@/hooks/user/useBackupCodeModal";
 import { useOtpStore } from "@/store/user/otpStore";
+import { useAuthStore } from "@/store/authStore";
 import { getMyParties } from "@/api/partyApi";
 import httpClient from "@/api/httpClient";
 import {
@@ -84,6 +85,7 @@ function MenuItem({ icon: Icon, label, onClick, danger, active }) {
 export default function MyPage() {
   const { state, actions } = useMyPage();
   const { user, isAdmin, marketingAgreed, googleConn, kakaoConn, loginProvider } = state;
+  const logout = useAuthStore((s) => s.logout);
 
   const otp = {
     enabled:   useOtpStore((s) => s.enabled),
@@ -149,7 +151,7 @@ export default function MyPage() {
     { icon: Wallet,   label: "내 지갑",        onClick: () => actions.goWallet?.() },
     { icon: Shield,   label: "보안 설정",      onClick: () => setActiveView("security") },
     { icon: Clock,    label: "로그인 기록",    onClick: () => setActiveView("history"), active: activeView === "history" },
-    { icon: UserMinus, label: "회원 탈퇴",     onClick: () => setDeleteUserOpen(true), danger: true },
+    { icon: LogOut,   label: "로그아웃",       onClick: () => logout(), danger: true },
   ];
 
   return (
@@ -292,6 +294,18 @@ export default function MyPage() {
                 onClick={() => actions.navigate("/community/inquiry")}
               />
             </Section>
+
+            {/* Delete account - text only, centered */}
+            <div className="py-6 text-center">
+              <button
+                type="button"
+                onClick={() => setDeleteUserOpen(true)}
+                className="text-[13px] font-medium transition-opacity active:opacity-60"
+                style={{ color: "#ef4444" }}
+              >
+                회원 탈퇴
+              </button>
+            </div>
           </>
         )}
 
