@@ -7,10 +7,12 @@ import java.util.Map;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import com.moa.party.repository.PartyDao;
-import com.moa.product.repository.ProductDao;
+import com.moa.product.service.ProductNameResolver;
 import com.moa.party.domain.Party;
-import com.moa.product.domain.Product;
+
 import com.moa.party.domain.enums.PartyStatus;
 import com.moa.party.domain.enums.PushCodeType;
 import com.moa.push.dto.request.TemplatePushRequest;
@@ -28,10 +30,11 @@ public class PaymentTimeoutScheduler {
 	private final PartyDao partyDao;
 	private final PartyService partyService;
 	private final PushService pushService;
-	private final ProductDao productDao;
+	private final ProductNameResolver productNameResolver;
 	private static final int TIMEOUT_MINUTES = 30;
 
-	@Scheduled(fixedRate = 5 * 60 * 1000)
+	@Scheduled(fixedDelay = 5 * 60 * 1000, initialDelay = 5 * 60 * 1000)
+	@SchedulerLock(name = "payment_timeout_check", lockAtMostFor = "10m", lockAtLeastFor = "1m")
 	public void checkPaymentTimeout() {
 		log.info("결제 타임아웃 체크 시작");
 
@@ -67,22 +70,9 @@ public class PaymentTimeoutScheduler {
 		}
 	}
 
-	private String getProductName(Integer productId) {
-		if (productId == null)
-			return "OTT 서비스";
-
-		try {
-			Product product = productDao.getProduct(productId);
-			return (product != null && product.getProductName() != null) ? product.getProductName() : "OTT 서비스";
-		} catch (Exception e) {
-			log.warn("상품 조회 실패: productId={}", productId);
-			return "OTT 서비스";
-		}
-	}
-
 	private void sendPaymentTimeoutPush(Party party) {
 		try {
-			String productName = getProductName(party.getProductId());
+			String productName = productNameResolver.getProductName(party.getProductId());
 
 			Map<String, String> params = Map.of("productName", productName, "timeoutMinutes",
 					String.valueOf(TIMEOUT_MINUTES));

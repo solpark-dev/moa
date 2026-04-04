@@ -7,14 +7,16 @@ import java.util.Optional;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import com.moa.account.repository.AccountDao;
 import com.moa.openbanking.repository.TransferTransactionMapper;
 import com.moa.party.repository.PartyDao;
-import com.moa.product.repository.ProductDao;
+import com.moa.product.service.ProductNameResolver;
 import com.moa.settlement.repository.SettlementDao;
 import com.moa.account.domain.Account;
 import com.moa.party.domain.Party;
-import com.moa.product.domain.Product;
+
 import com.moa.settlement.domain.Settlement;
 import com.moa.party.domain.enums.PushCodeType;
 import com.moa.openbanking.domain.TransactionStatus;
@@ -39,10 +41,11 @@ public class SettlementTransferScheduler {
 	private final OpenBankingClient openBankingClient;
 	private final PushService pushService;
 	private final PartyDao partyDao;
-	private final ProductDao productDao;
+	private final ProductNameResolver productNameResolver;
 	private final SettlementTransactionExecutor txExecutor;
 
 	@Scheduled(cron = "0 0 10 * * *")
+	@SchedulerLock(name = "settlement_transfer_daily", lockAtMostFor = "2h", lockAtLeastFor = "1m")
 	public void processSettlementTransfers() {
 		log.info("[정산스케줄러] 자동 이체 처리 시작");
 		List<Settlement> pendingSettlements = settlementDao.findByStatus("PENDING");
@@ -151,26 +154,13 @@ public class SettlementTransferScheduler {
 		return processSettlement(settlement);
 	}
 
-	private String getProductName(Integer productId) {
-		if (productId == null)
-			return "OTT 서비스";
-
-		try {
-			Product product = productDao.getProduct(productId);
-			return (product != null && product.getProductName() != null) ? product.getProductName() : "OTT 서비스";
-		} catch (Exception e) {
-			log.warn("상품 조회 실패: productId={}", productId);
-			return "OTT 서비스";
-		}
-	}
-
 	private void sendSettlementCompletedPush(Settlement settlement) {
 		try {
 			Party party = partyDao.findById(settlement.getPartyId()).orElse(null);
 			if (party == null)
 				return;
 
-			String productName = getProductName(party.getProductId());
+			String productName = productNameResolver.getProductName(party.getProductId());
 
 			Map<String, String> params = Map.of("productName", productName, "amount",
 					String.valueOf(settlement.getNetAmount()), "targetMonth", settlement.getSettlementMonth());
@@ -194,7 +184,7 @@ public class SettlementTransferScheduler {
 			if (party == null)
 				return;
 
-			String productName = getProductName(party.getProductId());
+			String productName = productNameResolver.getProductName(party.getProductId());
 
 			Map<String, String> params = Map.of("productName", productName, "amount",
 					String.valueOf(settlement.getNetAmount()), "errorMessage",
@@ -219,7 +209,7 @@ public class SettlementTransferScheduler {
 			if (party == null)
 				return;
 
-			String productName = getProductName(party.getProductId());
+			String productName = productNameResolver.getProductName(party.getProductId());
 
 			Map<String, String> params = Map.of("productName", productName, "amount",
 					String.valueOf(settlement.getNetAmount()));

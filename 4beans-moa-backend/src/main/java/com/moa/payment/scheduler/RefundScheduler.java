@@ -6,12 +6,14 @@ import java.util.Map;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import com.moa.deposit.repository.DepositDao;
 import com.moa.party.repository.PartyDao;
-import com.moa.product.repository.ProductDao;
+import com.moa.product.service.ProductNameResolver;
 import com.moa.deposit.domain.Deposit;
 import com.moa.party.domain.Party;
-import com.moa.product.domain.Product;
+
 import com.moa.payment.domain.RefundRetryHistory;
 import com.moa.party.domain.enums.PushCodeType;
 import com.moa.push.dto.request.TemplatePushRequest;
@@ -30,9 +32,10 @@ public class RefundScheduler {
 	private final PushService pushService;
 	private final DepositDao depositDao;
 	private final PartyDao partyDao;
-	private final ProductDao productDao;
+	private final ProductNameResolver productNameResolver;
 
 	@Scheduled(cron = "0 0 * * * *")
+	@SchedulerLock(name = "refund_retry", lockAtMostFor = "1h", lockAtLeastFor = "1m")
 	public void processRefundRetries() {
 		log.info("===== Refund Retry Scheduler Started =====");
 
@@ -71,19 +74,6 @@ public class RefundScheduler {
 		}
 	}
 
-	private String getProductName(Integer productId) {
-		if (productId == null)
-			return "OTT 서비스";
-
-		try {
-			Product product = productDao.getProduct(productId);
-			return (product != null && product.getProductName() != null) ? product.getProductName() : "OTT 서비스";
-		} catch (Exception e) {
-			log.warn("상품 조회 실패: productId={}", productId);
-			return "OTT 서비스";
-		}
-	}
-
 	private void sendRefundSuccessPush(RefundRetryHistory retry) {
 		try {
 			Deposit deposit = depositDao.findById(retry.getDepositId()).orElse(null);
@@ -94,7 +84,7 @@ public class RefundScheduler {
 			if (party == null)
 				return;
 
-			String productName = getProductName(party.getProductId());
+			String productName = productNameResolver.getProductName(party.getProductId());
 
 			Map<String, String> params = Map.of("productName", productName, "amount", String
 					.valueOf(retry.getRefundAmount() != null ? retry.getRefundAmount() : deposit.getDepositAmount()));

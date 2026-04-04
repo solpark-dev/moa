@@ -8,14 +8,15 @@ import java.util.Map;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import com.moa.party.repository.PartyDao;
 import com.moa.party.repository.PartyMemberDao;
-import com.moa.product.repository.ProductDao;
 import com.moa.party.domain.Party;
 import com.moa.party.domain.PartyMember;
 import com.moa.payment.domain.PaymentRetryHistory;
-import com.moa.product.domain.Product;
 import com.moa.party.domain.enums.PushCodeType;
+import com.moa.product.service.ProductNameResolver;
 import com.moa.push.dto.request.TemplatePushRequest;
 import com.moa.payment.service.PaymentRetryService;
 import com.moa.payment.service.PaymentService;
@@ -34,9 +35,10 @@ public class PaymentScheduler {
 	private final PaymentService paymentService;
 	private final PaymentRetryService retryService;
 	private final PushService pushService;
-	private final ProductDao productDao;
+	private final ProductNameResolver productNameResolver;
 
 	@Scheduled(cron = "0 0 2 * * *")
+	@SchedulerLock(name = "payment_daily", lockAtMostFor = "2h", lockAtLeastFor = "1m")
 	public void runDailyPayments() {
 		log.info("Starting daily payment scheduler...");
 
@@ -168,21 +170,8 @@ public class PaymentScheduler {
 		}
 	}
 
-	private String getProductName(Integer productId) {
-		if (productId == null)
-			return "OTT 서비스";
-
-		try {
-			Product product = productDao.getProduct(productId);
-			return (product != null && product.getProductName() != null) ? product.getProductName() : "OTT 서비스";
-		} catch (Exception e) {
-			log.warn("상품 조회 실패: productId={}", productId);
-			return "OTT 서비스";
-		}
-	}
-
 	private void sendPaymentUpcomingPush(Party party, PartyMember member) {
-		String productName = getProductName(party.getProductId());
+		String productName = productNameResolver.getProductNameByPartyId(party.getPartyId());
 		LocalDate tomorrow = LocalDate.now().plusDays(1);
 
 		Map<String, String> params = Map.of("productName", productName, "amount", String.valueOf(party.getMonthlyFee()),

@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import com.moa.ai.report.service.MonthlyReportService;
 import com.moa.payment.repository.PaymentDao;
 
@@ -32,6 +34,7 @@ public class MonthlyReportScheduler {
     }
 
     @Scheduled(cron = "0 0 9 1 * *")
+    @SchedulerLock(name = "monthly_report_generation", lockAtMostFor = "6h", lockAtLeastFor = "10m")
     public void generateMonthlyReports() {
         String targetMonth = LocalDate.now().minusMonths(1).format(MONTH_FMT);
         log.info("[MonthlyReportScheduler] 시작 — 대상 월: {}", targetMonth);

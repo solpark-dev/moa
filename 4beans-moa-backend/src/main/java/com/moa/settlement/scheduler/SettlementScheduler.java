@@ -9,6 +9,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import com.moa.global.common.event.SettlementCompletedEvent;
 import com.moa.party.repository.PartyDao;
 import com.moa.settlement.repository.SettlementDao;
@@ -33,6 +35,7 @@ public class SettlementScheduler {
 	private static final int RETRY_DELAY_HOURS = 2;
 
 	@Scheduled(cron = "0 0 4 1 * *")
+	@SchedulerLock(name = "settlement_monthly", lockAtMostFor = "3h", lockAtLeastFor = "5m")
 	public void runMonthlySettlement() {
 		log.info("Starting monthly settlement scheduler...");
 		LocalDate now = LocalDate.now();

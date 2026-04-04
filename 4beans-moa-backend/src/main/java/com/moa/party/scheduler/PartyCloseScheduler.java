@@ -7,12 +7,14 @@ import java.util.Map;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 import com.moa.party.repository.PartyDao;
 import com.moa.party.repository.PartyMemberDao;
-import com.moa.product.repository.ProductDao;
+import com.moa.product.service.ProductNameResolver;
 import com.moa.party.domain.Party;
 import com.moa.party.domain.PartyMember;
-import com.moa.product.domain.Product;
+
 import com.moa.party.domain.enums.PushCodeType;
 import com.moa.push.dto.request.TemplatePushRequest;
 import com.moa.party.service.PartyService;
@@ -30,10 +32,11 @@ public class PartyCloseScheduler {
 	private final PartyService partyService;
 
 	private final PushService pushService;
-	private final ProductDao productDao;
+	private final ProductNameResolver productNameResolver;
 	private final PartyMemberDao partyMemberDao;
 
 	@Scheduled(cron = "0 0 3 * * *")
+	@SchedulerLock(name = "party_close_expired", lockAtMostFor = "2h", lockAtLeastFor = "1m")
 	public void closeExpiredParties() {
 		log.info("===== Party Close Scheduler Started =====");
 
@@ -73,22 +76,9 @@ public class PartyCloseScheduler {
 		}
 	}
 
-	private String getProductName(Integer productId) {
-		if (productId == null)
-			return "OTT 서비스";
-
-		try {
-			Product product = productDao.getProduct(productId);
-			return (product != null && product.getProductName() != null) ? product.getProductName() : "OTT 서비스";
-		} catch (Exception e) {
-			log.warn("상품 조회 실패: productId={}", productId);
-			return "OTT 서비스";
-		}
-	}
-
 	private void sendPartyClosedPush(Party party) {
 		try {
-			String productName = getProductName(party.getProductId());
+			String productName = productNameResolver.getProductName(party.getProductId());
 
 			List<PartyMember> members = partyMemberDao.findActiveByPartyId(party.getPartyId());
 
