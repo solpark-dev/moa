@@ -68,7 +68,11 @@ public class PaymentRestController {
      */
     @GetMapping("/{paymentId}")
     public ApiResponse<PaymentDetailResponse> getPaymentDetail(@PathVariable Integer paymentId) {
-        PaymentDetailResponse response = paymentService.getPaymentDetail(paymentId);
+        String userId = getCurrentUserId();
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+        }
+        PaymentDetailResponse response = paymentService.getPaymentDetail(paymentId, userId);
         return ApiResponse.success(response);
     }
 
@@ -110,7 +114,11 @@ public class PaymentRestController {
      */
     @GetMapping("/party/{partyId}")
     public ApiResponse<List<PaymentResponse>> getPartyPayments(@PathVariable Integer partyId) {
-        List<PaymentResponse> response = paymentService.getPartyPayments(partyId);
+        String userId = getCurrentUserId();
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+        }
+        List<PaymentResponse> response = paymentService.getPartyPayments(partyId, userId);
         return ApiResponse.success(response);
     }
 }

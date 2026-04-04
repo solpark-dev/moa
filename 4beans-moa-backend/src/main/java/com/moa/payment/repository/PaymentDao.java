@@ -49,4 +49,7 @@ public interface PaymentDao {
 	List<PaymentResponse> findByUserIdAndTargetMonth(
 			@Param("userId") String userId,
 			@Param("targetMonth") String targetMonth);
+
+	/** Toss Webhook: paymentKey로 상태 업데이트 */
+	int updateByPaymentKey(@Param("paymentKey") String paymentKey, @Param("status") String status);
 }

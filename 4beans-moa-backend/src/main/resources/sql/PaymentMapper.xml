@@ -393,4 +393,11 @@
         ORDER BY PAY.PAYMENT_DATE ASC
     </select>
 
+    <!-- Toss Webhook: paymentKey로 상태 업데이트 -->
+    <update id="updateByPaymentKey">
+        UPDATE PAYMENT
+        SET PAYMENT_STATUS = #{status}
+        WHERE TOSS_PAYMENT_KEY = #{paymentKey}
+    </update>
+
 </mapper>

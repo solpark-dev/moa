@@ -16,12 +16,11 @@ import com.moa.global.common.exception.ErrorCode;
 import com.moa.party.repository.PartyDao;
 import com.moa.party.repository.PartyMemberDao;
 import com.moa.payment.repository.PaymentDao;
-import com.moa.product.repository.ProductDao;
+import com.moa.product.service.ProductNameResolver;
 import com.moa.user.repository.UserCardDao;
 import com.moa.user.repository.UserDao;
 import com.moa.party.domain.Party;
 import com.moa.payment.domain.Payment;
-import com.moa.product.domain.Product;
 import com.moa.user.domain.User;
 import com.moa.user.domain.UserCard;
 import com.moa.party.domain.enums.PartyStatus;
@@ -31,6 +30,7 @@ import com.moa.payment.dto.request.PaymentRequest;
 import com.moa.payment.dto.response.PaymentDetailResponse;
 import com.moa.payment.dto.response.PaymentResponse;
 import com.moa.push.dto.request.TemplatePushRequest;
+import com.moa.payment.service.PaymentExecutionService;
 import com.moa.payment.service.PaymentRetryService;
 import com.moa.payment.service.PaymentService;
 import com.moa.payment.service.TossPaymentService;
@@ -51,10 +51,11 @@ public class PaymentServiceImpl implements PaymentService {
 	private final TossPaymentService tossPaymentService;
 	private final UserCardDao userCardDao;
 	private final PaymentRetryService retryService;
+	private final PaymentExecutionService paymentExecutionService;
 	private final ApplicationEventPublisher eventPublisher;
 
 	private final PushService pushService;
-	private final ProductDao productDao;
+	private final ProductNameResolver productNameResolver;
 	private final UserDao userDao;
 
 	private static final int MAX_RETRY_ATTEMPTS = 4;
@@ -109,9 +110,15 @@ public class PaymentServiceImpl implements PaymentService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PaymentDetailResponse getPaymentDetail(Integer paymentId) {
-		return paymentDao.findDetailById(paymentId)
+	public PaymentDetailResponse getPaymentDetail(Integer paymentId, String userId) {
+		PaymentDetailResponse response = paymentDao.findDetailById(paymentId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
+
+		if (!userId.equals(response.getUserId())) {
+			throw new BusinessException(ErrorCode.FORBIDDEN, "결제 정보를 조회할 권한이 없습니다.");
+		}
+
+		return response;
 	}
 
 	@Override
@@ -122,7 +129,11 @@ public class PaymentServiceImpl implements PaymentService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<PaymentResponse> getPartyPayments(Integer partyId) {
+	public List<PaymentResponse> getPartyPayments(Integer partyId, String userId) {
+		com.moa.party.domain.PartyMember member = partyMemberDao.findByPartyIdAndUserId(partyId, userId).orElse(null);
+		if (member == null) {
+			throw new BusinessException(ErrorCode.FORBIDDEN, "파티 멤버가 아닙니다.");
+		}
 		return paymentDao.findByPartyId(partyId);
 	}
 
@@ -147,121 +158,12 @@ public class PaymentServiceImpl implements PaymentService {
 				.orderId("MONTHLY_" + partyId + "_" + partyMemberId + "_" + System.currentTimeMillis()).build();
 
 		paymentDao.insertPayment(payment);
-		attemptPaymentExecution(payment, 1);
+		paymentExecutionService.executePaymentWithTransaction(payment, 1);
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void attemptPaymentExecution(Payment payment, int attemptNumber) {
-		try {
-			UserCard userCard = userCardDao.findByUserId(payment.getUserId())
-					.orElseThrow(() -> new BusinessException(ErrorCode.BILLING_KEY_NOT_FOUND));
-			String paymentKey = tossPaymentService.payWithBillingKey(userCard.getBillingKey(), payment.getOrderId(),
-					payment.getPaymentAmount(), "MOA 월 구독료 (" + payment.getTargetMonth() + ")", payment.getUserId());
-			payment.setPaymentStatus(PaymentStatus.COMPLETED);
-			payment.setTossPaymentKey(paymentKey);
-			payment.setCardNumber(userCard.getCardNumber());
-			payment.setCardCompany(userCard.getCardCompany());
-			paymentDao.updatePaymentStatus(payment.getPaymentId(), "COMPLETED");
-			retryService.recordSuccess(payment, attemptNumber);
-			eventPublisher
-					.publishEvent(new MonthlyPaymentCompletedEvent(payment.getPartyId(), payment.getPartyMemberId(),
-							payment.getUserId(), payment.getPaymentAmount(), payment.getTargetMonth()));
-
-			sendPaymentSuccessPush(payment, attemptNumber);
-
-		} catch (BusinessException e) {
-			handlePaymentFailure(payment, attemptNumber, e);
-		}
-	}
-
-	private void handlePaymentFailure(Payment payment, int attemptNumber, BusinessException e) {
-		paymentDao.updatePaymentStatus(payment.getPaymentId(), "FAILED");
-		String errorCode = e.getErrorCode().getCode();
-		String errorMessage = e.getMessage();
-
-		if (e instanceof com.moa.global.common.exception.TossPaymentException pe) {
-			errorCode = pe.getTossErrorCode();
-			errorMessage = pe.getMessage();
-		}
-		boolean shouldRetry = attemptNumber < MAX_RETRY_ATTEMPTS;
-
-		if (shouldRetry) {
-			LocalDateTime nextRetry = calculateNextRetryTime(attemptNumber);
-			retryService.recordFailureWithRetry(payment, attemptNumber, errorCode, errorMessage, nextRetry);
-
-			sendPaymentFailedRetryPush(payment, attemptNumber, e.getErrorCode().getCode(), e.getMessage(), nextRetry);
-
-		} else {
-			retryService.recordPermanentFailure(payment, attemptNumber, e);
-			eventPublisher.publishEvent(new MonthlyPaymentFailedEvent(payment.getPartyId(), payment.getPartyMemberId(),
-					payment.getUserId(), payment.getTargetMonth(), e.getMessage()));
-			sendPaymentFinalFailedPush(payment, attemptNumber, e.getMessage());
-			suspendPartyOnPaymentFailure(payment);
-		}
-	}
-
-	private void suspendPartyOnPaymentFailure(Payment payment) {
-		try {
-			Party party = partyDao.findById(payment.getPartyId()).orElse(null);
-			if (party == null) {
-				log.warn("파티를 찾을 수 없음: partyId={}", payment.getPartyId());
-				return;
-			}
-
-			if (party.getPartyStatus() == PartyStatus.SUSPENDED || party.getPartyStatus() == PartyStatus.CLOSED) {
-				log.info("이미 정지/종료된 파티: partyId={}, status={}", payment.getPartyId(), party.getPartyStatus());
-				return;
-			}
-
-			partyDao.updatePartyStatus(payment.getPartyId(), PartyStatus.SUSPENDED);
-			log.warn("파티 일시정지: partyId={}, 사유=4회 결제 실패", payment.getPartyId());
-
-			sendPartySuspendedPushToLeader(party, payment);
-			sendPartySuspendedPushToMember(party, payment);
-
-		} catch (Exception ex) {
-			log.error("파티 일시정지 처리 실패: partyId={}, error={}", payment.getPartyId(), ex.getMessage());
-		}
-	}
-
-	private void sendPartySuspendedPushToLeader(Party party, Payment payment) {
-		try {
-			String productName = getProductName(party.getProductId());
-			String memberNickname = getUserNickname(payment.getUserId());
-
-			Map<String, String> params = Map.of("productName", productName, "memberNickname", memberNickname, "reason",
-					"파티원 결제 4회 연속 실패");
-
-			TemplatePushRequest pushRequest = TemplatePushRequest.builder().receiverId(party.getPartyLeaderId())
-					.pushCode(PushCodeType.PARTY_SUSPENDED.getCode()).params(params)
-					.moduleId(String.valueOf(party.getPartyId()))
-					.moduleType(PushCodeType.PARTY_SUSPENDED.getModuleType()).build();
-
-			pushService.addTemplatePush(pushRequest);
-			log.info("파티 일시정지 알림 발송: leaderId={}", party.getPartyLeaderId());
-		} catch (Exception e) {
-			log.error("푸시 발송 실패: {}", e.getMessage());
-		}
-	}
-
-	private void sendPartySuspendedPushToMember(Party party, Payment payment) {
-		try {
-			String productName = getProductName(party.getProductId());
-
-			Map<String, String> params = Map.of("productName", productName, "reason",
-					"결제 4회 연속 실패로 파티가 일시정지되었습니다. 결제 수단을 확인해주세요.");
-
-			TemplatePushRequest pushRequest = TemplatePushRequest.builder().receiverId(payment.getUserId())
-					.pushCode(PushCodeType.PARTY_SUSPENDED.getCode()).params(params)
-					.moduleId(String.valueOf(party.getPartyId()))
-					.moduleType(PushCodeType.PARTY_SUSPENDED.getModuleType()).build();
-
-			pushService.addTemplatePush(pushRequest);
-			log.info("파티 일시정지 알림 발송: memberId={}", payment.getUserId());
-		} catch (Exception e) {
-			log.error("푸시 발송 실패: {}", e.getMessage());
-		}
+		paymentExecutionService.executePaymentWithTransaction(payment, attemptNumber);
 	}
 
 	@Override
@@ -290,19 +192,6 @@ public class PaymentServiceImpl implements PaymentService {
 		return LocalDateTime.now().plusHours(hoursToAdd);
 	}
 
-	private String getProductName(Integer productId) {
-		if (productId == null)
-			return "OTT 서비스";
-
-		try {
-			Product product = productDao.getProduct(productId);
-			return (product != null && product.getProductName() != null) ? product.getProductName() : "OTT 서비스";
-		} catch (Exception e) {
-			log.warn("상품 조회 실패: productId={}", productId);
-			return "OTT 서비스";
-		}
-	}
-
 	private String getUserNickname(String userId) {
 		if (userId == null)
 			return "파티원";
@@ -321,7 +210,7 @@ public class PaymentServiceImpl implements PaymentService {
 			if (party == null)
 				return;
 
-			String productName = getProductName(party.getProductId());
+			String productName = productNameResolver.getProductName(party.getProductId());
 			String pushCode;
 			Map<String, String> params;
 
@@ -354,7 +243,7 @@ public class PaymentServiceImpl implements PaymentService {
 			if (party == null)
 				return;
 
-			String productName = getProductName(party.getProductId());
+			String productName = productNameResolver.getProductName(party.getProductId());
 
 			String pushCode = determinePushCodeByError(errorCode);
 
@@ -381,7 +270,7 @@ public class PaymentServiceImpl implements PaymentService {
 			if (party == null)
 				return;
 
-			String productName = getProductName(party.getProductId());
+			String productName = productNameResolver.getProductName(party.getProductId());
 
 			Map<String, String> memberParams = Map.of("productName", productName, "attemptNumber",
 					String.valueOf(attemptNumber), "errorMessage",

@@ -43,7 +43,7 @@ public interface PaymentService {
          * @param paymentId 결제 ID
          * @return 결제 상세 정보
          */
-        PaymentDetailResponse getPaymentDetail(Integer paymentId);
+        PaymentDetailResponse getPaymentDetail(Integer paymentId, String userId);
 
         /**
          * 사용자별 결제 내역 조회
@@ -54,12 +54,13 @@ public interface PaymentService {
         List<PaymentResponse> getMyPayments(String userId);
 
         /**
-         * 파티별 결제 내역 조회
+         * 파티별 결제 내역 조회 (멤버 검증 포함)
          *
          * @param partyId 파티 ID
+         * @param userId  요청 사용자 ID
          * @return 결제 목록
          */
-        List<PaymentResponse> getPartyPayments(Integer partyId);
+        List<PaymentResponse> getPartyPayments(Integer partyId, String userId);
 
         /**
          * 중복 결제 확인
