@@ -11,5 +11,5 @@ CREATE TABLE IF NOT EXISTS toss_webhook_log (
     error_message TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_payment_key_event (payment_key, event_type),
-    INDEX idx_unprocessed (processed, error_message)
+    INDEX idx_unprocessed (processed)
 );
