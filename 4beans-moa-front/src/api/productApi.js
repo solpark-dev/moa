@@ -4,7 +4,7 @@ import httpClient from './httpClient';
  * 카테고리 목록 조회
  */
 export const getCategories = () => {
-    return httpClient.get('/product/categorie');
+    return httpClient.get('/product/categories');
 };
 
 /**

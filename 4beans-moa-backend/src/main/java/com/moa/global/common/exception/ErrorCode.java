@@ -76,6 +76,7 @@ public enum ErrorCode {
 	PRODUCT_NOT_FOUND("PR404", "상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	PRODUCT_ID_REQUIRED("V001", "상품 ID는 필수입니다.", HttpStatus.BAD_REQUEST),
 	FILE_EMPTY("F400", "파일이 비어있습니다.", HttpStatus.BAD_REQUEST),
+	INVALID_FILE_TYPE("F401", "허용되지 않는 파일 형식입니다.", HttpStatus.BAD_REQUEST),
 
 	// 유효성 검증
 	START_DATE_REQUIRED("V004", "파티 시작일은 필수입니다.", HttpStatus.BAD_REQUEST),

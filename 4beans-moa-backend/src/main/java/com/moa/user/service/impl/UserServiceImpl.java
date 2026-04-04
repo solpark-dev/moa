@@ -401,7 +401,11 @@ public class UserServiceImpl implements UserService {
 
 			String ext = StringUtils.getFilenameExtension(file.getOriginalFilename());
 			if (ext == null || ext.isBlank()) {
-				ext = "png";
+				throw new BusinessException(ErrorCode.INVALID_FILE_TYPE, "이미지 파일이 아닙니다.");
+			}
+			ext = ext.toLowerCase();
+			if (!List.of("jpg", "jpeg", "png", "gif", "webp").contains(ext)) {
+				throw new BusinessException(ErrorCode.INVALID_FILE_TYPE, "지원하지 않는 이미지 형식입니다.");
 			}
 
 			String newFileName = UUID.randomUUID() + "." + ext;

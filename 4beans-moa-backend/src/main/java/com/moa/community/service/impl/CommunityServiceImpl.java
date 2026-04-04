@@ -1,5 +1,7 @@
 package com.moa.community.service.impl;
 
+import com.moa.global.common.exception.BusinessException;
+import com.moa.global.common.exception.ErrorCode;
 import com.moa.party.domain.enums.PushCodeType;
 import com.moa.community.repository.CommunityDao;
 import com.moa.community.domain.Community;
@@ -172,7 +174,14 @@ public class CommunityServiceImpl implements CommunityService {
 
         if (file != null && !file.isEmpty()) {
             fileOriginal = file.getOriginalFilename();
-            String extension = fileOriginal.substring(fileOriginal.lastIndexOf("."));
+            if (fileOriginal == null || !fileOriginal.contains(".")) {
+                throw new BusinessException(ErrorCode.INVALID_FILE_TYPE);
+            }
+            String extension = fileOriginal.substring(fileOriginal.lastIndexOf(".")).toLowerCase();
+            List<String> allowedExtensions = List.of(".jpg", ".jpeg", ".png", ".gif", ".pdf", ".txt");
+            if (!allowedExtensions.contains(extension)) {
+                throw new BusinessException(ErrorCode.INVALID_FILE_TYPE);
+            }
             fileUuid = UUID.randomUUID().toString() + extension;
             
             try {
