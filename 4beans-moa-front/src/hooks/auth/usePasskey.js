@@ -90,6 +90,13 @@ export function usePasskey() {
         accessTokenExpiresIn: result.accessTokenExpiresIn,
       });
 
+      // 사용자 정보 로드
+      const { default: httpClient } = await import("@/api/httpClient");
+      const me = await httpClient.get("/users/me");
+      if (me?.success && me.data) {
+        useAuthStore.getState().setUser(me.data);
+      }
+
       return { success: true };
     } catch (err) {
       if (err?.name === "NotAllowedError") {

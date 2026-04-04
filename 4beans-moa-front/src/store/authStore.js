@@ -30,6 +30,8 @@ export const purgeLoginPasswords = () => {
 
 // Flag to prevent multiple simultaneous fetchSession calls
 let isFetchingSession = false;
+// Flag to prevent rehydration-triggered fetchSession from running more than once per page load
+let hasRehydrated = false;
 
 export const useAuthStore = create(
   persist(
@@ -48,8 +50,10 @@ export const useAuthStore = create(
        * TOKEN SET
        * ========================= */
       setTokens: ({ accessToken, accessTokenExpiresIn }) => {
+        // 토큰만 메모리에 저장 — fetchSession은 호출하지 않음
+        // (로그인/회원가입 흐름에서는 호출 측에서 직접 /users/me를 처리)
+        // (토큰 갱신 흐름에서는 이미 user 정보가 있으므로 재조회 불필요)
         set({ accessToken });
-        get().fetchSession();
       },
 
       setUser: (user) => set({ user }),
@@ -60,7 +64,9 @@ export const useAuthStore = create(
           accessToken: null,
           loading: false,
         });
-        localStorage.removeItem("auth-storage");
+        // localStorage.removeItem 직접 호출 제거
+        // → 다른 탭의 storage 이벤트로 인한 rehydration 루프 방지
+        // persist 미들웨어가 partialize({ user: null })을 자동으로 저장함
       },
 
       fetchSession: async () => {
@@ -142,11 +148,14 @@ export const useAuthStore = create(
         user: state.user,
       }),
       onRehydrateStorage: () => (state) => {
-        // Zustand rehydration 완료 후 쿠키 기반 세션 복구 시도
-        // fetchSession 내부에서 _hydrated = true 로 설정
-        // 실패해도 _hydrated = true 처리하므로 ProtectedRoute가 영원히 로딩되지 않음
         console.log("[AuthStore] Rehydration complete, triggering session recovery");
         if (state) {
+          // 페이지 로드당 한 번만 실행 — 다른 탭의 storage 이벤트로 인한 재실행 방지
+          if (hasRehydrated) {
+            console.log("[AuthStore] Already rehydrated this page load, skipping");
+            return;
+          }
+          hasRehydrated = true;
           state.fetchSession();
         } else {
           console.warn("[AuthStore] Rehydration state is null, skipping session recovery");
