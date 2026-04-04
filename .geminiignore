@@ -1,0 +1,25 @@
+# Gemini CLI & AI tools ignore list
+
+# Configuration files with sensitive data
+.env
+.env.*
+!.env.example
+application-*.properties
+application.properties
+application-secret.properties
+keystore/
+*.jks
+*.p12
+
+# Database backups/scripts with potential user data
+*.sql
+test-data-*.sql
+**/src/main/resources/data/*.sql
+
+# IDE and system files
+.idea/
+.vscode/
+node_modules/
+target/
+dist/
+build/

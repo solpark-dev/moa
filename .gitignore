@@ -44,6 +44,11 @@ build/
 .env.staging
 application-secret.properties
 
+# example 파일은 GitHub에 커밋 허용 (실제 키 없음)
+!.env.example
+!**/.env.example
+!**/application-secret.properties.example
+
 
 ### 4. SSL / 보안 인증서 ###
 *.p12
@@ -129,3 +134,4 @@ _w.js
 *.txt
 deposit_plan.txt
 admin_dashboard_refactoring_plan_20251219.md
+.aider*

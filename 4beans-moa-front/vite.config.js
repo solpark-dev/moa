@@ -7,6 +7,12 @@ import path from "path";
 export default defineConfig({
   plugins: [react(), tailwindcss(), basicSsl()],
 
+  // 로컬 개발: 외부 secrets 폴더에서 .env 파일 로드 (AI 접근 불가 경로)
+  // - 기본값: D:\Gitcodes\Portfolio\secrects\moa\frontend\ (폴더 안에 .env, .env.local 위치)
+  // - 오버라이드: VITE_ENV_DIR 환경변수로 변경 가능 (GitHub Actions 등)
+  // GitHub Actions 빌드 시: VITE_* 환경변수를 직접 주입하므로 envDir 무관
+  envDir: process.env.VITE_ENV_DIR ?? path.resolve(__dirname, "../../secrects/moa/frontend"),
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
