@@ -68,6 +68,8 @@ import AddFaq from "./pages/community/AddFaq";
 import Inquiry from "./pages/community/Inquiry";
 import InquiryAdmin from "./pages/community/InquiryAdmin";
 import NotFoundPage from "./pages/error/NotFoundPage";
+import TermsPage from "./pages/legal/TermsPage";
+import PrivacyPage from "./pages/legal/PrivacyPage";
 
 import { useAuthStore } from "./store/authStore";
 import { useThemeStore } from "./store/themeStore";
@@ -86,6 +88,8 @@ const NO_NAV_PATHS = [
   "/oauth/callback",
   "/oauth/phone-connect",
   "/payment/billing",
+  "/terms",
+  "/privacy",
 ];
 
 function shouldHideNav(pathname) {
@@ -132,7 +136,7 @@ function AppRoutes() {
       {/* Product */}
       <Route path="/product" element={<GetProductList />} />
       <Route path="/product/:id" element={<GetProduct />} />
-      <Route path="/product/:id/delete" element={<ProtectedRoute element={<DeleteProduct />} />} />
+      <Route path="/product/:id/delete" element={<AdminAuthGuard element={<DeleteProduct />} />} />
       <Route path="/subscriptions" element={<GetProductList />} />
 
       {/* Subscription */}
@@ -168,6 +172,10 @@ function AppRoutes() {
       <Route path="/admin/users/:userId" element={<AdminAuthGuard><AdminUserDetailPage /></AdminAuthGuard>} />
       <Route path="/admin/blacklist/delete" element={<AdminAuthGuard><AdminBlacklistDeletePage /></AdminAuthGuard>} />
       <Route path="/admin/users/:userId/login-history" element={<AdminAuthGuard><AdminLoginHistoryPage /></AdminAuthGuard>} />
+
+      {/* Legal */}
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
 
       {/* 404 Catch-all */}
       <Route path="*" element={<NotFoundPage />} />
@@ -255,7 +263,7 @@ function AppContent() {
     >
       <ScrollToTop />
       <div
-        className="relative w-full max-w-[390px] min-h-screen flex flex-col overflow-x-hidden"
+        className="relative w-full max-w-[390px] sm:max-w-[540px] md:max-w-[768px] lg:max-w-[1024px] min-h-screen flex flex-col overflow-x-hidden"
         style={{
           background: "var(--theme-bg)",
           boxShadow: "0 0 60px rgba(0,0,0,0.12)",
