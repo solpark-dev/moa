@@ -6,10 +6,12 @@ import com.moa.product.dto.ProductDTO;
 import com.moa.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
@@ -21,12 +23,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ProductDTO getProduct(int productId) throws Exception {
         Product product = productDao.getProduct(productId);
         return ProductDTO.fromEntity(product);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getProductList() throws Exception {
         List<Product> productList = productDao.getProductList();
         return productList.stream()
@@ -45,6 +49,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getCategoryList() throws Exception {
         List<Product> categories = productDao.getCategoryList();
         return categories.stream()

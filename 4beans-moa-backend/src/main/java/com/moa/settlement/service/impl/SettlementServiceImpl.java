@@ -138,11 +138,11 @@ public class SettlementServiceImpl implements SettlementService {
 			throw new BusinessException(ErrorCode.ACCOUNT_NOT_VERIFIED);
 		}
 
-		String bankTranId = null;
+		settlementDao.updateSettlementStatus(settlementId, SettlementStatus.IN_PROGRESS.name(), null);
+		settlement.setSettlementStatus(SettlementStatus.IN_PROGRESS);
+
 		try {
-			settlementDao.updateSettlementStatus(settlementId, SettlementStatus.IN_PROGRESS.name(), null);
-			settlement.setSettlementStatus(SettlementStatus.IN_PROGRESS);
-			bankTranId = openBankingService.depositToUser(account.getBankCode(), account.getAccountNumber(),
+			String bankTranId = openBankingService.depositToUser(account.getBankCode(), account.getAccountNumber(),
 					account.getAccountHolder(), settlement.getNetAmount());
 
 			settlementDao.updateSettlementStatus(settlementId, SettlementStatus.COMPLETED.name(), bankTranId);
@@ -150,8 +150,7 @@ public class SettlementServiceImpl implements SettlementService {
 			settlement.setBankTranId(bankTranId);
 
 		} catch (Exception e) {
-			String finalBankTranId = bankTranId != null ? bankTranId : null;
-			settlementDao.updateSettlementStatus(settlementId, SettlementStatus.FAILED.name(), finalBankTranId);
+			settlementDao.updateSettlementStatus(settlementId, SettlementStatus.FAILED.name(), null);
 			settlement.setSettlementStatus(SettlementStatus.FAILED);
 
 			throw new BusinessException(ErrorCode.SETTLEMENT_FAILED);

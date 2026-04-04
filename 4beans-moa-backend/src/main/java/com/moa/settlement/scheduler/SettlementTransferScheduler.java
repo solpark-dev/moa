@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.moa.account.repository.AccountDao;
 import com.moa.openbanking.repository.TransferTransactionMapper;
@@ -41,6 +40,7 @@ public class SettlementTransferScheduler {
 	private final PushService pushService;
 	private final PartyDao partyDao;
 	private final ProductDao productDao;
+	private final SettlementTransactionExecutor txExecutor;
 
 	@Scheduled(cron = "0 0 10 * * *")
 	public void processSettlementTransfers() {
@@ -75,7 +75,8 @@ public class SettlementTransferScheduler {
 		log.info("[정산스케줄러] 처리 완료 - 성공: {}, 실패: {}, 건너뜀: {}", successCount, failCount, skipCount);
 	}
 
-	@Transactional
+	// @Transactional 제거: 은행 API 호출은 트랜잭션 밖에서 실행해야 한다.
+	// DB 상태 변경은 SettlementTransactionExecutor를 통해 즉시 커밋한다.
 	public boolean processSettlement(Settlement settlement) {
 		log.info("[정산처리] 시작 - settlementId: {}, 파티장: {}, 금액: {}", settlement.getSettlementId(),
 				settlement.getPartyLeaderId(), settlement.getNetAmount());
@@ -84,9 +85,7 @@ public class SettlementTransferScheduler {
 
 		if (accountOpt.isEmpty()) {
 			log.warn("[정산처리] 계좌 미등록 - 파티장: {}", settlement.getPartyLeaderId());
-
 			sendAccountRequiredPush(settlement);
-
 			return false;
 		}
 
@@ -98,12 +97,26 @@ public class SettlementTransferScheduler {
 			return false;
 		}
 
-		settlementDao.updateStatus(settlement.getSettlementId(), "IN_PROGRESS");
+		// 1단계: IN_PROGRESS 상태를 즉시 커밋 (은행 API 호출 전)
+		txExecutor.markInProgress(settlement.getSettlementId());
 
+		// 2단계: 트랜잭션 밖에서 은행 API 호출
+		return executeBankTransfer(settlement, account);
+	}
+
+	private boolean executeBankTransfer(Settlement settlement, Account account) {
 		TransferDepositRequest request = TransferDepositRequest.builder().fintechUseNum(account.getFintechUseNum())
 				.tranAmt(settlement.getNetAmount()).printContent("MOA정산").reqClientName("MOA").build();
 
-		TransferDepositResponse response = openBankingClient.transferDeposit(request);
+		TransferDepositResponse response;
+		try {
+			response = openBankingClient.transferDeposit(request);
+		} catch (Exception e) {
+			log.error("[정산처리] 은행 API 호출 실패 - settlementId: {}", settlement.getSettlementId(), e);
+			txExecutor.markFailed(settlement.getSettlementId());
+			sendSettlementFailedPush(settlement, "은행 API 호출 실패: " + e.getMessage());
+			return false;
+		}
 
 		TransferTransaction transaction = TransferTransaction.builder().settlementId(settlement.getSettlementId())
 				.bankTranId(response.getBankTranId()).fintechUseNum(account.getFintechUseNum())
@@ -113,24 +126,22 @@ public class SettlementTransferScheduler {
 				.build();
 
 		transactionMapper.insert(transaction);
+
 		if ("A0000".equals(response.getRspCode())) {
-			settlementDao.updateStatus(settlement.getSettlementId(), "COMPLETED");
-			settlementDao.updateBankTranId(settlement.getSettlementId(), response.getBankTranId());
+			// 3단계: 성공 시 COMPLETED 상태와 거래ID를 즉시 커밋
+			txExecutor.markCompleted(settlement.getSettlementId(), response.getBankTranId());
 			log.info("[정산처리] 성공 - settlementId: {}, 거래ID: {}", settlement.getSettlementId(), response.getBankTranId());
-
 			sendSettlementCompletedPush(settlement);
-
 			return true;
 		} else {
-			settlementDao.updateStatus(settlement.getSettlementId(), "FAILED");
+			// 3단계: 실패 시 FAILED 상태를 즉시 커밋
+			txExecutor.markFailed(settlement.getSettlementId());
 			log.error("[정산처리] 실패 - settlementId: {}, 에러: {}", settlement.getSettlementId(), response.getRspMessage());
-
 			sendSettlementFailedPush(settlement, response.getRspMessage());
 			return false;
 		}
 	}
 
-	@Transactional
 	public boolean processSettlementManually(Integer settlementId) {
 		Settlement settlement = settlementDao.findById(settlementId).orElse(null);
 		if (settlement == null) {
