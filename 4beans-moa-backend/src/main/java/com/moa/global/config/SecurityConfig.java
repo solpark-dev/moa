@@ -81,8 +81,7 @@ public class SecurityConfig {
 								"/api/auth/magic-link/send",
 								"/api/auth/magic-link/verify",
 								"/api/passkey/authenticate/options",
-								"/api/passkey/authenticate",
-								"/api/community/**")
+								"/api/passkey/authenticate")
 				.permitAll()
 				.requestMatchers(
 								"/api/oauth/kakao/callback",

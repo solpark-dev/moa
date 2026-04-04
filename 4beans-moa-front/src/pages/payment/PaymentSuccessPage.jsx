@@ -110,12 +110,10 @@ export default function PaymentSuccessPage() {
                 // 이미 처리된 결제인 경우 성공으로 간주하고 진행
                 if (error.response && error.response.data && error.response.data.code === "ALREADY_PROCESSED_PAYMENT") {
                     console.warn("Already processed payment, proceeding as success.");
-                    localStorage.removeItem("pendingPayment");
-
                     const storedPayment = JSON.parse(localStorage.getItem("pendingPayment"));
+                    localStorage.removeItem("pendingPayment");
                     if (storedPayment) {
                         const { type, partyId } = storedPayment;
-                        localStorage.removeItem("pendingPayment");
                         if (type === "CREATE_PARTY") {
                             navigate(`/party/create?step=4&partyId=${partyId}`);
                         } else if (type === "JOIN_PARTY") {

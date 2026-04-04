@@ -23,11 +23,10 @@ export default function MagicLinkCallbackPage() {
     try {
       const res = await verifyMagicLink(token);
       const data = res.data?.data || res.data;
-      await setTokens(
-        data.accessToken,
-        data.refreshToken,
-        data.accessTokenExpiresIn
-      );
+      await setTokens({
+        accessToken: data.accessToken,
+        accessTokenExpiresIn: data.accessTokenExpiresIn,
+      });
       setState(STATE.SUCCESS);
       setTimeout(() => navigate("/"), 1500);
     } catch (err) {
