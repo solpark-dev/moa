@@ -13,10 +13,9 @@ import com.moa.global.common.exception.BusinessException;
 import com.moa.global.common.exception.ErrorCode;
 import com.moa.deposit.repository.DepositDao;
 import com.moa.party.repository.PartyDao;
-import com.moa.product.repository.ProductDao;
+import com.moa.product.service.ProductNameResolver;
 import com.moa.deposit.domain.Deposit;
 import com.moa.party.domain.Party;
-import com.moa.product.domain.Product;
 import com.moa.party.domain.enums.DepositStatus;
 import com.moa.party.domain.enums.PushCodeType;
 import com.moa.deposit.dto.response.DepositResponse;
@@ -38,13 +37,7 @@ public class DepositServiceImpl implements DepositService {
 
     private final DepositDao depositDao;
     private final PartyDao partyDao;
-    private final TossPaymentService tossPaymentService;
-    private final ApplicationEventPublisher eventPublisher;
-    private final com.moa.payment.repository.RefundRetryHistoryDao refundRetryHistoryDao;
-    private final RefundRetryService refundRetryService;
-
-    private final PushService pushService;
-    private final ProductDao productDao;
+    private final ProductNameResolver productNameResolver;
 
 	// 기존 PaymentRequest를 받는 createDeposit 메소드를 이 새로운 메소드로 대체
     @Override
@@ -199,16 +192,7 @@ public class DepositServiceImpl implements DepositService {
     }
 
     private String getProductName(Integer productId) {
-        if (productId == null) return "OTT 서비스";
-        
-        try {
-            Product product = productDao.getProduct(productId);
-            return (product != null && product.getProductName() != null) 
-                ? product.getProductName() : "OTT 서비스";
-        } catch (Exception e) {
-            log.warn("상품 조회 실패: productId={}", productId);
-            return "OTT 서비스";
-        }
+        return productNameResolver.getProductName(productId);
     }
 
     private void sendDepositRefundedPush(Deposit deposit) {

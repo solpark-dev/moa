@@ -13,11 +13,10 @@ import com.moa.global.common.event.UserDeletedEvent;
 import com.moa.deposit.repository.DepositDao;
 import com.moa.party.repository.PartyDao;
 import com.moa.party.repository.PartyMemberDao;
-import com.moa.product.repository.ProductDao;
+import com.moa.product.service.ProductNameResolver;
 import com.moa.deposit.domain.Deposit;
 import com.moa.party.domain.Party;
 import com.moa.party.domain.PartyMember;
-import com.moa.product.domain.Product;
 import com.moa.party.domain.enums.DepositStatus;
 import com.moa.party.domain.enums.MemberStatus;
 import com.moa.party.domain.enums.PartyStatus;
@@ -42,7 +41,7 @@ public class UserDeletionEventListener {
 	private final DepositService depositService;
 	private final RefundRetryService refundRetryService;
 	private final PushService pushService;
-	private final ProductDao productDao;
+	private final ProductNameResolver productNameResolver;
 
 	@EventListener
 	@Async
@@ -262,14 +261,7 @@ public class UserDeletionEventListener {
 	}
 
 	private String getProductName(Integer productId) {
-		if (productId == null)
-			return "OTT 서비스";
-		try {
-			Product product = productDao.getProduct(productId);
-			return (product != null && product.getProductName() != null) ? product.getProductName() : "OTT 서비스";
-		} catch (Exception e) {
-			return "OTT 서비스";
-		}
+		return productNameResolver.getProductName(productId);
 	}
 
 	private void sendPartyDisbandedPush(String receiverId, Party party, String reason) {

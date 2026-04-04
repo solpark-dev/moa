@@ -17,4 +17,7 @@ public interface FraudAlertDao {
 
     /** 특정 유저의 알림 이력 */
     List<FraudAlert> findByUserId(@Param("userId") String userId);
+
+    /** 알림 처리 상태 변경 */
+    void updateStatus(@Param("alertId") Long alertId, @Param("status") String status, @Param("memo") String memo);
 }

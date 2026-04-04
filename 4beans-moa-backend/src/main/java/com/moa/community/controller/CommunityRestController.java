@@ -95,10 +95,10 @@ public class CommunityRestController {
     
     @GetMapping("/inquiry/my")
     public ResponseEntity<PageResponse<InquiryResponse>> getMyInquiryList(
-            @RequestParam String userId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(communityService.getMyInquiryList(userId, page, size));
+        return ResponseEntity.ok(communityService.getMyInquiryList(userDetails.getUsername(), page, size));
     }
     
     @GetMapping("/inquiry")

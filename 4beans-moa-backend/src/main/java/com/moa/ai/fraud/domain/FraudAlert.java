@@ -24,4 +24,6 @@ public class FraudAlert {
     private String reasons;      // JSON 배열 문자열
     private String aiAnalysis;   // LLM 원본 응답
     private LocalDateTime createdAt;
+    private String status;       // PENDING | RESOLVED | DISMISSED
+    private String memo;         // 관리자 처리 메모
 }

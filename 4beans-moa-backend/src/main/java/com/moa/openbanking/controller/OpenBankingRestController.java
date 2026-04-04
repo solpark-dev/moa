@@ -2,6 +2,7 @@ package com.moa.openbanking.controller;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(value = "/api/openbanking", produces = "application/json; charset=UTF-8")
 @RequiredArgsConstructor
 public class OpenBankingRestController {
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     private final OpenBankingService openBankingService;
 
@@ -81,10 +85,10 @@ public class OpenBankingRestController {
             openBankingService.processCallback(userId, code);
 
             // 프론트엔드 1원 인증 페이지로 리다이렉트
-            return "redirect:http://localhost:5173/user/account-verify";
+            return "redirect:" + frontendUrl + "/user/account-verify";
         } catch (Exception e) {
             log.error("OpenBanking callback error", e);
-            return "redirect:http://localhost:5173/user/my-wallet?error=openbanking_failed";
+            return "redirect:" + frontendUrl + "/user/my-wallet?error=openbanking_failed";
         }
     }
 

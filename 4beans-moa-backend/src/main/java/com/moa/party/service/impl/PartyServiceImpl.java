@@ -15,12 +15,15 @@ import com.moa.global.common.util.AESUtil; // Import AESUtil
 import com.moa.party.repository.PartyDao;
 import com.moa.party.repository.PartyMemberDao;
 import com.moa.product.repository.ProductDao;
+import com.moa.product.service.ProductNameResolver;
 import com.moa.user.repository.UserDao;
 import com.moa.user.repository.UserCardDao;
 import com.moa.deposit.domain.Deposit;
 import com.moa.party.domain.Party;
 import com.moa.party.domain.PartyMember;
+import com.moa.party.domain.RefundPolicy;
 import com.moa.product.domain.Product;
+import com.moa.product.service.ProductNameResolver;
 import com.moa.user.domain.User;
 import com.moa.user.domain.UserCard;
 import com.moa.party.domain.enums.MemberStatus;
@@ -48,6 +51,7 @@ public class PartyServiceImpl implements PartyService {
 	private final PartyDao partyDao;
 	private final PartyMemberDao partyMemberDao;
 	private final ProductDao productDao;
+	private final ProductNameResolver productNameResolver;
 	private final DepositService depositService;
 	private final PaymentService paymentService;
 	private final PushService pushService;
@@ -57,12 +61,14 @@ public class PartyServiceImpl implements PartyService {
 	private final UserCardDao userCardDao;
 
 	public PartyServiceImpl(PartyDao partyDao, PartyMemberDao partyMemberDao, ProductDao productDao,
+			ProductNameResolver productNameResolver,
 			DepositService depositService, PaymentService paymentService, PushService pushService,
 			com.moa.payment.service.TossPaymentService tossPaymentService,
 			com.moa.payment.service.RefundRetryService refundRetryService, UserDao userDao, UserCardDao userCardDao) {
 		this.partyDao = partyDao;
 		this.partyMemberDao = partyMemberDao;
 		this.productDao = productDao;
+		this.productNameResolver = productNameResolver;
 		this.depositService = depositService;
 		this.paymentService = paymentService;
 		this.pushService = pushService;
@@ -517,25 +523,12 @@ public class PartyServiceImpl implements PartyService {
 		}
 	}
 
-	private String getProductName(Integer productId) {
-		if (productId == null)
-			return "OTT 서비스";
-
-		try {
-			Product product = productDao.getProduct(productId);
-			return (product != null && product.getProductName() != null) ? product.getProductName() : "OTT 서비스";
-		} catch (Exception e) {
-			log.warn("상품 조회 실패: productId={}", productId);
-			return "OTT 서비스";
-		}
-	}
-
 	// ========== 파티 가입 푸시 ==========
 
 	private void sendPartyJoinPush(String userId, String nickname, Party party) {
 		TemplatePushRequest pushRequest = TemplatePushRequest.builder().receiverId(userId)
 				.pushCode(PushCodeType.PARTY_JOIN.getCode())
-				.params(Map.of("nickname", nickname, "productName", getProductName(party.getProductId()),
+				.params(Map.of("nickname", nickname, "productName", productNameResolver.getProductName(party.getProductId()),
 						"currentCount", String.valueOf(party.getCurrentMembers()), "maxCount",
 						String.valueOf(party.getMaxMembers())))
 				.moduleId(String.valueOf(party.getPartyId())).moduleType(PushCodeType.PARTY_JOIN.getModuleType())
@@ -547,7 +540,7 @@ public class PartyServiceImpl implements PartyService {
 
 	private void sendPartyMemberJoinPushToLeader(String newMemberUserId, Party party) {
 		String nickname = getUserNickname(newMemberUserId);
-		String productName = getProductName(party.getProductId());
+		String productName = productNameResolver.getProductName(party.getProductId());
 
 		TemplatePushRequest pushRequest = TemplatePushRequest.builder().receiverId(party.getPartyLeaderId())
 				.pushCode(PushCodeType.PARTY_MEMBER_JOIN.getCode())
@@ -564,7 +557,7 @@ public class PartyServiceImpl implements PartyService {
 
 	private void sendPartyStartPushToAllMembers(Integer partyId, Party party) {
 		List<PartyMemberResponse> members = partyMemberDao.findMembersByPartyId(partyId);
-		String productName = getProductName(party.getProductId());
+		String productName = productNameResolver.getProductName(party.getProductId());
 
 		for (PartyMemberResponse member : members) {
 			TemplatePushRequest pushRequest = TemplatePushRequest.builder().receiverId(member.getUserId())
@@ -580,7 +573,7 @@ public class PartyServiceImpl implements PartyService {
 
 	private void sendPartyWithdrawPush(String userId, Party party) {
 		String nickname = getUserNickname(userId);
-		String productName = getProductName(party.getProductId());
+		String productName = productNameResolver.getProductName(party.getProductId());
 
 		TemplatePushRequest pushRequest = TemplatePushRequest.builder().receiverId(userId)
 				.pushCode(PushCodeType.PARTY_WITHDRAW.getCode())
@@ -594,7 +587,7 @@ public class PartyServiceImpl implements PartyService {
 
 	private void sendPartyMemberWithdrawPushToLeader(String withdrawUserId, Party party) {
 		String nickname = getUserNickname(withdrawUserId);
-		String productName = getProductName(party.getProductId());
+		String productName = productNameResolver.getProductName(party.getProductId());
 
 		TemplatePushRequest pushRequest = TemplatePushRequest.builder().receiverId(party.getPartyLeaderId())
 				.pushCode(PushCodeType.PARTY_MEMBER_WITHDRAW.getCode())

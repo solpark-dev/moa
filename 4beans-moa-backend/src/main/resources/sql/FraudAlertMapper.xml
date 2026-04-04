@@ -15,6 +15,8 @@
         <result property="reasons"     column="REASONS"/>
         <result property="aiAnalysis"  column="AI_ANALYSIS"/>
         <result property="createdAt"   column="CREATED_AT"/>
+        <result property="status"      column="STATUS"/>
+        <result property="memo"        column="MEMO"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.moa.ai.fraud.domain.FraudAlert"
@@ -36,5 +38,13 @@
         WHERE USER_ID = #{userId}
         ORDER BY CREATED_AT DESC
     </select>
+
+    <update id="updateStatus">
+        UPDATE AI_FRAUD_ALERT
+        SET STATUS = #{status},
+            MEMO = #{memo},
+            UPDATED_AT = NOW()
+        WHERE ALERT_ID = #{alertId}
+    </update>
 
 </mapper>
