@@ -1,0 +1,165 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # 수동 트리거 허용
+
+env:
+  EC2_USER: ec2-user
+
+jobs:
+  # ────────────────────────────────────────────────────────────
+  # JOB 1: 프론트엔드 빌드 (Vite 환경변수를 빌드 타임에 주입)
+  # ────────────────────────────────────────────────────────────
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 4beans-moa-front/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./4beans-moa-front
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ./4beans-moa-front
+        run: npm run build
+        env:
+          VITE_KAKAO_JAVASCRIPT_KEY: ${{ secrets.VITE_KAKAO_JAVASCRIPT_KEY }}
+          VITE_KAKAO_REDIRECT_URI: ${{ secrets.VITE_KAKAO_REDIRECT_URI }}
+          VITE_TOSS_CLIENT_KEY: ${{ secrets.VITE_TOSS_CLIENT_KEY }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+
+      - name: Upload frontend build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: 4beans-moa-front/dist/
+          retention-days: 1
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 2: EC2에 배포
+  # ────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: build-frontend
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Download frontend build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: 4beans-moa-front/dist/
+
+      # ── EC2에 .env 파일 생성 (시크릿을 SSH로 주입) ──────────
+      - name: Create .env on EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            mkdir -p ~/moa-secrets
+            chmod 700 ~/moa-secrets
+
+            cat > ~/moa-secrets/.env << 'ENVEOF'
+            SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/moa?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+            SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
+            SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
+            MYSQL_DATABASE=moa
+            MYSQL_USER=${{ secrets.DB_USERNAME }}
+            MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }}
+            MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_ACCESS_TOKEN_EXPIRATION_MILLIS=1800000
+            JWT_REFRESH_TOKEN_EXPIRATION_MILLIS=1209600000
+            RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+            OAUTH_KAKAO_CLIENT_ID=${{ secrets.OAUTH_KAKAO_CLIENT_ID }}
+            OAUTH_KAKAO_CLIENT_SECRET=${{ secrets.OAUTH_KAKAO_CLIENT_SECRET }}
+            OAUTH_GOOGLE_CLIENT_ID=${{ secrets.OAUTH_GOOGLE_CLIENT_ID }}
+            OAUTH_GOOGLE_CLIENT_SECRET=${{ secrets.OAUTH_GOOGLE_CLIENT_SECRET }}
+            PORTONE_IMP_KEY=${{ secrets.PORTONE_IMP_KEY }}
+            PORTONE_IMP_SECRET=${{ secrets.PORTONE_IMP_SECRET }}
+            PORTONE_IMP_CODE=${{ secrets.PORTONE_IMP_CODE }}
+            TOSS_CLIENT_API_KEY=${{ secrets.TOSS_CLIENT_API_KEY }}
+            TOSS_SECRET_API_KEY=${{ secrets.TOSS_SECRET_API_KEY }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            AI_API_KEY=${{ secrets.AI_API_KEY }}
+            SPRING_DATA_REDIS_HOST=redis
+            SPRING_DATA_REDIS_PORT=6379
+            ENVEOF
+
+            chmod 600 ~/moa-secrets/.env
+            echo "✅ .env 파일 생성 완료"
+
+      # ── 소스 및 빌드 결과물 EC2로 전송 ─────────────────────
+      - name: Copy project files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.prod.yml,4beans-moa-backend/,4beans-moa-front/dist/,nginx/"
+          target: ~/moa/
+          rm: false
+
+      # ── EC2에서 Docker Compose로 배포 실행 ──────────────────
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/moa
+
+            echo "🔨 백엔드 이미지 빌드 및 컨테이너 시작..."
+            docker compose -f docker-compose.prod.yml \
+              --env-file ~/moa-secrets/.env \
+              up -d --build --remove-orphans
+
+            echo "📋 실행 중인 컨테이너 상태:"
+            docker compose -f docker-compose.prod.yml ps
+
+            echo "🏥 헬스체크 대기 (30초)..."
+            sleep 30
+            docker compose -f docker-compose.prod.yml ps
+
+            echo "✅ 배포 완료"
+
+      # ── 배포 결과 확인 ───────────────────────────────────────
+      - name: Verify deployment
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "=== 헬스체크 ==="
+            curl -sf http://localhost:8080/actuator/health \
+              && echo "✅ 백엔드 헬스체크 통과" \
+              || echo "⚠️  백엔드 헬스체크 실패 — 로그를 확인하세요"
+
+            echo ""
+            echo "=== 최근 백엔드 로그 ==="
+            docker compose -f ~/moa/docker-compose.prod.yml logs --tail=20 backend
