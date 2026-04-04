@@ -145,13 +145,19 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public PasswordResetTokenResponse startPasswordReset(PasswordResetStartRequest request) {
+	public void startPasswordReset(PasswordResetStartRequest request) {
 		User user = userDao.findByUserId(request.getUserId())
 				.orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
 		String token = UUID.randomUUID().toString();
 		userDao.savePasswordResetToken(user.getUserId(), token);
-		return PasswordResetTokenResponse.builder().token(token).build();
+
+		try {
+			emailService.sendPasswordResetEmail(user.getUserId(), token);
+		} catch (Exception e) {
+			log.error("비밀번호 재설정 이메일 발송 실패: userId={}", user.getUserId(), e);
+			throw new BusinessException(ErrorCode.BUSINESS_ERROR, "이메일 발송에 실패했습니다.");
+		}
 	}
 
 	@Override

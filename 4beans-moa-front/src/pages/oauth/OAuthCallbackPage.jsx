@@ -6,7 +6,6 @@ export default function OAuthCallbackPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
-  const setTokens = useAuthStore((s) => s.setTokens);
   const fetchSession = useAuthStore((s) => s.fetchSession);
 
   useEffect(() => {
@@ -15,20 +14,6 @@ export default function OAuthCallbackPage() {
       const provider = params.get("provider");
 
       if (status === "LOGIN") {
-        const accessToken = params.get("accessToken");
-        const refreshToken = params.get("refreshToken");
-        const expiresInRaw = params.get("expiresIn");
-
-        if (accessToken) {
-          setTokens({
-            accessToken,
-            refreshToken,
-            accessTokenExpiresIn: Number(expiresInRaw),
-          });
-          navigate("/", { replace: true });
-          return;
-        }
-
         await fetchSession();
         navigate("/", { replace: true });
         return;
@@ -82,7 +67,7 @@ export default function OAuthCallbackPage() {
     };
 
     run();
-  }, [params, navigate, setTokens, fetchSession]);
+  }, [params, navigate, fetchSession]);
 
   return null;
 }

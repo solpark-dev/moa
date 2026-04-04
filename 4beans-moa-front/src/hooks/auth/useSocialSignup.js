@@ -16,6 +16,7 @@ export const useSocialSignup = () => {
 
   const nicknameRef = useRef(null);
   const phoneRef = useRef(null);
+  const ciRef = useRef(null);
 
   const provider = searchParams.get("provider");
   const providerUserId = searchParams.get("providerUserId");
@@ -87,7 +88,7 @@ export const useSocialSignup = () => {
         const { phone, ci } = verify.data;
 
         setField("phone", phone);
-        sessionStorage.setItem("PASS_CI", ci);
+        ciRef.current = ci;
         setErrorMessage("phone", "본인인증 성공!", false);
       });
     } catch {
@@ -103,7 +104,7 @@ export const useSocialSignup = () => {
 
     if (!form.phone) return alert("본인인증을 진행해주세요.");
 
-    const ci = sessionStorage.getItem("PASS_CI");
+    const ci = ciRef.current;
     if (!ci) return alert("본인인증 정보가 없습니다.");
 
     const payload = {

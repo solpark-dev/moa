@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -44,7 +45,41 @@ public class SecurityConfig {
 
 		http
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				.csrf(csrf -> csrf.disable())
+				.csrf(csrf -> csrf
+						.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+						.csrfTokenRequestHandler(new org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler())
+						.ignoringRequestMatchers(
+								"/api/signup/**",
+								"/api/auth/login",
+								"/api/auth/login/otp-verify",
+								"/api/auth/login/backup-verify",
+								"/api/auth/refresh",
+								"/api/auth/verify-email",
+								"/api/auth/resend-verification",
+								"/api/auth/unlock",
+								"/api/auth/restore",
+								"/api/auth/exists-by-email",
+								"/api/auth/reset-password/send",
+								"/api/auth/reset-password/verify",
+								"/api/auth/reset-password/confirm",
+								"/api/auth/magic-link/send",
+								"/api/auth/magic-link/verify",
+								"/api/passkey/authenticate/options",
+								"/api/passkey/authenticate",
+								"/api/oauth/kakao/callback",
+								"/api/oauth/google/callback",
+								"/api/oauth/kakao/auth",
+								"/api/oauth/google/auth",
+								"/api/users/join",
+								"/api/users/check",
+								"/api/users/pass/**",
+								"/api/users/resetPwd/**",
+								"/api/users/exists-by-phone",
+								"/api/oauth/connect-by-phone",
+								"/api/users/check-nickname",
+								"/api/chatbot/**",
+								"/api/push/subscribe",
+								"/actuator/health"))
 				.formLogin(login -> login.disable())
 				.httpBasic(basic -> basic.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -110,6 +145,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.POST, "/api/signup/pass/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/signup/pass/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/users/check-nickname").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/v1/payments/webhook").permitAll()
 
 						.requestMatchers(HttpMethod.POST, "/api/community/notice/**").hasAuthority("ADMIN")
 						.requestMatchers(HttpMethod.PUT, "/api/community/notice/**").hasAuthority("ADMIN")

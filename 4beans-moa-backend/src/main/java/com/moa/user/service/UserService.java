@@ -31,7 +31,7 @@ public interface UserService {
 
 	void validatePasswordConfirm(String password, String passwordConfirm);
 
-	PasswordResetTokenResponse startPasswordReset(PasswordResetStartRequest request);
+	void startPasswordReset(PasswordResetStartRequest request);
 
 	void resetPassword(PasswordResetRequest request);
 

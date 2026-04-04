@@ -8,4 +8,6 @@ public interface EmailService {
 	void sendResetPasswordOtp(String email, String otp);
 
 	void sendMagicLink(String email, String magicUrl);
+
+	void sendPasswordResetEmail(String email, String resetToken);
 }

@@ -133,18 +133,21 @@ public class OAuthRestController {
 
 		    loginHistoryService.recordSuccess(oauth.getUserId(), "KAKAO", null, null);
 
+		    HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+		    boolean isHttps = req.isSecure() || "https".equalsIgnoreCase(req.getHeader("X-Forwarded-Proto"));
+
 		    ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", token.getAccessToken())
 		            .httpOnly(true)
-		            .secure(true)
-		            .sameSite("None")
+		            .secure(isHttps)
+		            .sameSite(isHttps ? "None" : "Lax")
 		            .path("/")
 		            .maxAge(Math.max(0, (token.getAccessTokenExpiresIn() - System.currentTimeMillis()) / 1000))
 		            .build();
 
 		    ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", token.getRefreshToken())
 		            .httpOnly(true)
-		            .secure(true)
-		            .sameSite("None")
+		            .secure(isHttps)
+		            .sameSite(isHttps ? "None" : "Lax")
 		            .path("/")
 		            .maxAge(60 * 60 * 24 * 14)
 		            .build();
@@ -238,13 +241,16 @@ public class OAuthRestController {
 
 		    loginHistoryService.recordSuccess(exists.getUserId(), "GOOGLE", null, null);
 
+		    HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+		    boolean isHttps = req.isSecure() || "https".equalsIgnoreCase(req.getHeader("X-Forwarded-Proto"));
+
 		    return ResponseEntity.status(HttpStatus.FOUND)
 		            .header(HttpHeaders.LOCATION, redirectBase + "?status=LOGIN")
 		            .header(HttpHeaders.SET_COOKIE,
 		                    ResponseCookie.from("ACCESS_TOKEN", jwt.getAccessToken())
 		                            .httpOnly(true)
-		                            .secure(true)
-		                            .sameSite("None")
+		                            .secure(isHttps)
+		                            .sameSite(isHttps ? "None" : "Lax")
 		                            .path("/")
 		                            .maxAge(Math.max(0, (jwt.getAccessTokenExpiresIn() - System.currentTimeMillis()) / 1000))
 		                            .build()
@@ -252,8 +258,8 @@ public class OAuthRestController {
 		            .header(HttpHeaders.SET_COOKIE,
 		                    ResponseCookie.from("REFRESH_TOKEN", jwt.getRefreshToken())
 		                            .httpOnly(true)
-		                            .secure(true)
-		                            .sameSite("None")
+		                            .secure(isHttps)
+		                            .sameSite(isHttps ? "None" : "Lax")
 		                            .path("/")
 		                            .maxAge(60 * 60 * 24 * 14)
 		                            .build()

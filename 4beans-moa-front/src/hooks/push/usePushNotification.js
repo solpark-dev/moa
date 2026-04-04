@@ -150,12 +150,11 @@ export const usePushNotification = () => {
   }, [fetchUnreadCount, accessToken, user]);
 
   useEffect(() => {
-    if (!accessToken || !user || isAdmin) return;
+    if (!user || isAdmin) return;
 
     if (esRef.current) return;
 
-    const url = `/api/push/subscribe?token=${encodeURIComponent(accessToken)}`;
-    const es = new EventSource(url);
+    const es = new EventSource("/api/push/subscribe", { withCredentials: true });
     esRef.current = es;
 
     const onUnread = (e) => {

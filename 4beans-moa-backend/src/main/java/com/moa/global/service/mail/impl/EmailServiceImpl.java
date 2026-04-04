@@ -205,6 +205,77 @@ public class EmailServiceImpl implements EmailService {
 		}
 	}
 
+	@Override
+	public void sendPasswordResetEmail(String email, String resetToken) {
+		String from = fromName + " <" + fromAddress + ">";
+		String resetUrl = "https://moa.4beans.kr/reset-password?token=" + java.net.URLEncoder.encode(resetToken, StandardCharsets.UTF_8);
+		String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+
+		String htmlContent = """
+				<!DOCTYPE html>
+				<html lang="ko">
+				<head>
+					<meta charset="UTF-8">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				</head>
+				<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+					<table width="100%%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+						<tr>
+							<td align="center">
+								<table width="100%%" cellpadding="0" cellspacing="0" style="max-width: 480px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+									<tr>
+										<td style="padding: 32px 32px 24px; text-align: center; border-bottom: 1px solid #f0f0f0;">
+											<h1 style="margin: 0; color: #1e293b; font-size: 20px; font-weight: 700;">비밀번호 재설정</h1>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding: 32px;">
+											<p style="margin: 0 0 24px; color: #64748b; font-size: 15px; line-height: 1.6;">
+												아래 버튼으로 비밀번호를 재설정하세요.
+											</p>
+											<div style="text-align: center; margin-bottom: 24px;">
+												<a href="%s" style="display: inline-block; background: linear-gradient(135deg, #635bff 0%%, #5851e8 100%%); color: #ffffff; padding: 16px 40px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: 700;">비밀번호 재설정</a>
+											</div>
+											<p style="margin: 0 0 8px; color: #94a3b8; font-size: 13px; text-align: center;">
+												발송 시각: %s
+											</p>
+											<p style="margin: 16px 0 0; color: #ef4444; font-size: 13px; text-align: center;">
+												⏰ 링크 유효시간: 30분
+											</p>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding: 24px 32px; background-color: #f8fafc; border-radius: 0 0 16px 16px; border-top: 1px solid #f0f0f0;">
+											<p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center; line-height: 1.6;">
+												※ 본인이 요청하지 않았다면 이 이메일을 무시하세요.<br>
+												※ 링크는 30분 후 만료됩니다.
+											</p>
+										</td>
+									</tr>
+								</table>
+								<p style="margin: 24px 0 0; color: #94a3b8; font-size: 12px; text-align: center;">
+									© 2026 MOA. All rights reserved.
+								</p>
+							</td>
+						</tr>
+					</table>
+				</body>
+				</html>
+				""".formatted(escapeHtml(resetUrl), currentTime);
+
+		try {
+			CreateEmailOptions params = CreateEmailOptions.builder()
+					.from(from).to(email)
+					.subject("[MOA] 비밀번호 재설정 링크")
+					.html(htmlContent).build();
+			resend.emails().send(params);
+			log.info("비밀번호 재설정 이메일 발송 완료: {}", email);
+		} catch (Exception e) {
+			log.error("비밀번호 재설정 이메일 발송 실패: {}", email, e);
+			throw new IllegalStateException("비밀번호 재설정 이메일 발송 실패", e);
+		}
+	}
+
 	private String loadClasspathTemplate(String path) {
 		String normalized = path == null ? "" : path.trim();
 		if (normalized.startsWith("classpath:"))

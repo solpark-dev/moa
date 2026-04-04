@@ -113,7 +113,23 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public TokenResponse refresh(String refreshToken) {
 		try {
-			return jwtProvider.refresh(refreshToken);
+			if (tokenBlacklistService.isTokenBlacklisted(refreshToken)) {
+				throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그아웃된 토큰입니다.");
+			}
+
+			String userId = jwtProvider.getUserIdFromToken(refreshToken);
+			if (tokenBlacklistService.getBanTimestamp(userId) > 0) {
+				throw new BusinessException(ErrorCode.UNAUTHORIZED, "밴된 계정입니다.");
+			}
+
+			TokenResponse newTokens = jwtProvider.refresh(refreshToken);
+
+			long remaining = jwtProvider.getRemainingTtlMillis(refreshToken);
+			tokenBlacklistService.blacklistToken(refreshToken, remaining);
+
+			return newTokens;
+		} catch (BusinessException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new BusinessException(ErrorCode.UNAUTHORIZED, "리프레시 토큰이 유효하지 않습니다.");
 		}
