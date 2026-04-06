@@ -12,11 +12,9 @@ export default defineConfig({
     drop: ["console", "debugger"],
   },
 
-  // 로컬 개발: 외부 secrets 폴더에서 .env 파일 로드 (AI 접근 불가 경로)
-  // - 기본값: D:\Gitcodes\Portfolio\secrects\moa\frontend\ (폴더 안에 .env, .env.local 위치)
-  // - 오버라이드: VITE_ENV_DIR 환경변수로 변경 가능 (GitHub Actions 등)
+  // 로컬 개발: 프로젝트 루트의 .env 파일을 자동으로 로드
   // GitHub Actions 빌드 시: VITE_* 환경변수를 직접 주입하므로 envDir 무관
-  envDir: process.env.VITE_ENV_DIR ?? path.resolve(__dirname, "../../secrects/moa/frontend"),
+  envDir: process.env.VITE_ENV_DIR ?? path.resolve(__dirname, "."),
 
   resolve: {
     alias: {

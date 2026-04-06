@@ -91,6 +91,7 @@ jobs:
             MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }}
             MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
             JWT_ACCESS_TOKEN_EXPIRATION_MILLIS=1800000
             JWT_REFRESH_TOKEN_EXPIRATION_MILLIS=1209600000
             RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
@@ -105,6 +106,8 @@ jobs:
             TOSS_SECRET_API_KEY=${{ secrets.TOSS_SECRET_API_KEY }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             AI_API_KEY=${{ secrets.AI_API_KEY }}
+            APP_SECURITY_AES_KEY=${{ secrets.APP_SECURITY_AES_KEY }}
+            TOSS_WEBHOOK_SECRET=${{ secrets.TOSS_WEBHOOK_SECRET }}
             SPRING_DATA_REDIS_HOST=redis
             SPRING_DATA_REDIS_PORT=6379
             ENVEOF

@@ -36,7 +36,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - ../../../secrets/moa/.env   # D:\Gitcodes\secrets\moa\.env (로컬 개발용)
+      - .env
     volumes:
       - uploads_data:/opt/moa/uploads
     depends_on:
