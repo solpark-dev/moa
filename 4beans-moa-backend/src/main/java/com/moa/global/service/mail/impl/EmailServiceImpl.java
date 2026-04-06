@@ -166,8 +166,7 @@ public class EmailServiceImpl implements EmailService {
 			resend.emails().send(params);
 			log.info("[이메일] 계좌 인증 이메일 발송 완료 - 수신자: {}", email);
 		} catch (Exception e) {
-			log.error("[이메일] 계좌 인증 이메일 발송 실패 - 수신자: {}, 오류: {}", email, e.getMessage());
-			e.printStackTrace();
+			log.error("[이메일] 계좌 인증 이메일 발송 실패 - 수신자: {}", email, e);
 		}
 	}
 

@@ -5,6 +5,7 @@ import java.util.Base64;
 import java.util.List;
 
 import javax.crypto.Mac;
+import java.security.MessageDigest;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,8 @@ import com.moa.payment.domain.TossWebhookLog;
 import com.moa.payment.repository.PaymentDao;
 import com.moa.payment.repository.TossWebhookLogDao;
 import com.moa.payment.service.TossWebhookService;
+
+import jakarta.annotation.PostConstruct;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +38,16 @@ public class TossWebhookServiceImpl implements TossWebhookService {
 	@Value("${toss.webhook-secret:}")
 	private String webhookSecret;
 
+	@PostConstruct
+	public void validateWebhookSecret() {
+		if (webhookSecret == null || webhookSecret.isBlank()) {
+			throw new IllegalStateException("toss.webhook-secret is required. Webhook signature verification cannot be skipped in production.");
+		}
+	}
+
 	@Override
 	public void handleWebhook(String payload, String signature) {
-		if (webhookSecret != null && !webhookSecret.isBlank()) {
-			verifySignature(payload, signature);
-		}
+		verifySignature(payload, signature);
 
 		try {
 			JsonNode root = objectMapper.readTree(payload);
@@ -142,9 +150,9 @@ public class TossWebhookServiceImpl implements TossWebhookService {
 			Mac mac = Mac.getInstance("HmacSHA256");
 			mac.init(new SecretKeySpec(webhookSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
 			byte[] rawHmac = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
-			String expected = Base64.getEncoder().encodeToString(rawHmac);
+			byte[] expectedBytes = Base64.getEncoder().encode(rawHmac);
 
-			if (!expected.equals(signature)) {
+			if (!MessageDigest.isEqual(expectedBytes, signature.getBytes(StandardCharsets.UTF_8))) {
 				throw new BusinessException(ErrorCode.UNAUTHORIZED, "웹훅 서명 검증 실패");
 			}
 		} catch (BusinessException e) {

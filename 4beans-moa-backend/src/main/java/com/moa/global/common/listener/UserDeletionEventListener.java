@@ -14,6 +14,10 @@ import com.moa.deposit.repository.DepositDao;
 import com.moa.party.repository.PartyDao;
 import com.moa.party.repository.PartyMemberDao;
 import com.moa.product.service.ProductNameResolver;
+import com.moa.user.repository.OAuthAccountDao;
+import com.moa.user.repository.UserCardDao;
+import com.moa.user.repository.UserDao;
+import com.moa.account.repository.AccountDao;
 import com.moa.deposit.domain.Deposit;
 import com.moa.party.domain.Party;
 import com.moa.party.domain.PartyMember;
@@ -42,6 +46,10 @@ public class UserDeletionEventListener {
 	private final RefundRetryService refundRetryService;
 	private final PushService pushService;
 	private final ProductNameResolver productNameResolver;
+	private final OAuthAccountDao oAuthAccountDao;
+	private final UserCardDao userCardDao;
+	private final UserDao userDao;
+	private final AccountDao accountDao;
 
 	@EventListener
 	@Async
@@ -56,6 +64,7 @@ public class UserDeletionEventListener {
 		try {
 			handleLeaderParties(userId, deleteReason);
 			handleMemberParties(userId, deleteReason);
+			cleanupUserData(userId);
 
 			log.info("===== 사용자 삭제 이벤트 처리 완료 =====");
 
@@ -297,6 +306,37 @@ public class UserDeletionEventListener {
 			log.info("파티원 탈퇴 알림 발송: leaderId={}", leaderId);
 		} catch (Exception e) {
 			log.error("푸시 발송 실패: {}", e.getMessage());
+		}
+	}
+
+	private void cleanupUserData(String userId) {
+		try {
+			userDao.updateOtpSettings(userId, null, false);
+			log.info("OTP 설정 해제: userId={}", userId);
+		} catch (Exception e) {
+			log.warn("OTP 설정 해제 실패: userId={}, error={}", userId, e.getMessage());
+		}
+
+		try {
+			userCardDao.deleteUserCard(userId);
+			log.info("카드 정보 삭제: userId={}", userId);
+		} catch (Exception e) {
+			log.warn("카드 정보 삭제 실패: userId={}, error={}", userId, e.getMessage());
+		}
+
+		try {
+			accountDao.deleteByUserId(userId);
+			log.info("오픈뱅킹 계좌 삭제: userId={}", userId);
+		} catch (Exception e) {
+			log.warn("오픈뱅킹 계좌 삭제 실패: userId={}, error={}", userId, e.getMessage());
+		}
+
+		try {
+			oAuthAccountDao.getOAuthAccountList(userId).forEach(oa ->
+				oAuthAccountDao.updateOAuthRelease(oa.getOauthId()));
+			log.info("OAuth 연결 해제: userId={}", userId);
+		} catch (Exception e) {
+			log.warn("OAuth 연결 해제 실패: userId={}, error={}", userId, e.getMessage());
 		}
 	}
 }

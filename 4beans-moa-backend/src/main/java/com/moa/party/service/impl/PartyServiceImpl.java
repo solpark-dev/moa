@@ -85,6 +85,7 @@ public class PartyServiceImpl implements PartyService {
 		try {
 			product = productDao.getProduct(request.getProductId());
 		} catch (Exception e) {
+			log.warn("Product lookup failed for productId={}, using default. Error: {}", request.getProductId(), e.getMessage());
 		}
 		if (product == null) {
 			product = new Product();
