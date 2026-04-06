@@ -1,5 +1,3 @@
-import React from "react";
-
 export function LoginHistoryCard({ loginHistory, onBack }) {
   const items =
     loginHistory?.items ||

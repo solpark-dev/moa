@@ -47,9 +47,8 @@ export function DeleteUserDialog({ open, onOpenChange }) {
 
     setLoading(true);
     try {
-      const res = await withdrawUser({ deleteReason, deleteDetail });
-      const success = res?.success || (await withdrawUser({ reason: deleteReason, detail: deleteDetail }))?.success;
-      if (success) {
+      const res = await withdrawUser({ deleteType: deleteReason, deleteDetail });
+      if (res?.success) {
         toast.success("탈퇴가 완료되었습니다.");
         logout?.();
         window.location.href = "/";

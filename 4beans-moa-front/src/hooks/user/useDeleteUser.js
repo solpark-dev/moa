@@ -34,17 +34,9 @@ export default function useDeleteUser() {
     const ok = window.confirm("정말 탈퇴할까요? 탈퇴 후에는 복구할 수 없습니다.");
     if (!ok) return;
 
-    const tryRequest = async (payload) => {
-      const res = await withdrawUser(payload);
-      if (res?.success) return true;
-      if (res?.error?.message) throw new Error(res.error.message);
-      throw new Error("탈퇴 처리에 실패했습니다.");
-    };
-
-    try {
-      await tryRequest({ deleteReason, deleteDetail });
-    } catch {
-      await tryRequest({ reason: deleteReason, detail: deleteDetail });
+    const res = await withdrawUser({ deleteType: deleteReason, deleteDetail });
+    if (!res?.success) {
+      throw new Error(res?.error?.message || "탈퇴 처리에 실패했습니다.");
     }
 
     alert("탈퇴가 완료되었습니다.");
