@@ -2,6 +2,8 @@ package com.moa.user.controller;
 
 import java.util.Map;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +18,8 @@ import com.moa.user.dto.response.CommonCheckResponse;
 import com.moa.global.service.passauth.PassAuthService;
 import com.moa.user.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -34,13 +38,34 @@ public class SignupRestController {
 
 
 	@PostMapping("/add")
-	public ApiResponse<?> add(@RequestBody @Valid UserCreateRequest request) {
+	public ApiResponse<?> add(@RequestBody @Valid UserCreateRequest request,
+			HttpServletRequest req, HttpServletResponse response) {
 
 		boolean isSocial = request.getProvider() != null && !request.getProvider().isBlank()
 				&& request.getProviderUserId() != null && !request.getProviderUserId().isBlank();
 
 		if (isSocial) {
-			return ApiResponse.success(userService.addUserAndLogin(request));
+			Map<String, Object> result = userService.addUserAndLogin(request);
+
+			boolean isHttps = req.isSecure() || "https".equalsIgnoreCase(req.getHeader("X-Forwarded-Proto"));
+			String origin = req.getHeader("Origin");
+			if (origin != null && origin.startsWith("http://")) isHttps = false;
+
+			long accessMaxAge = Math.max(0,
+					((Long) result.get("accessTokenExpiresIn") - System.currentTimeMillis()) / 1000);
+
+			ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", (String) result.get("accessToken"))
+					.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax")
+					.path("/").maxAge(accessMaxAge).build();
+
+			ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", (String) result.get("refreshToken"))
+					.httpOnly(true).secure(isHttps).sameSite(isHttps ? "None" : "Lax")
+					.path("/").maxAge(60 * 60 * 24 * 14).build();
+
+			response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+			response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+			return ApiResponse.success(Map.of("signupType", "SOCIAL", "user", result.get("user")));
 		}
 
 		return ApiResponse.success(Map.of("signupType", "NORMAL", "user", userService.addUser(request)));

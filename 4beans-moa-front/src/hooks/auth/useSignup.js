@@ -17,14 +17,14 @@ const REGEX = {
   NICKNAME: /^[A-Za-z0-9\uAC00-\uD7A3]{2,10}$/,
   PHONE: /^010\d{8}$/,
   PASSWORD:
-    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()])[A-Za-z\d!@#$%^&*()]{8,20}$/,
+    /^(?=.*[A-Za-z])(?:(?=.*\d)|(?=.*[^A-Za-z0-9])).{8,20}$/,
 };
 
 export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
   const navigate = useNavigate();
   const { form, errors, setField, setErrorMessage, reset } = useSignupStore();
   const isSocial = mode === "social";
-  const { setTokens, setUser } = useAuthStore();
+  const { setUser } = useAuthStore();
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
   const passwordCheckRef = useRef(null);
@@ -189,16 +189,11 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
     if (form.phone && errors.phone.isError)
       return alert(errors.phone.message || "휴대폰 번호를 확인해주세요.");
 
-    const socialEmail = socialInfo?.email || form.email;
-    if (isSocial && !socialEmail) {
-      return alert("소셜 이메일 정보를 확인할 수 없습니다.");
-    }
-
     const payload = isSocial
       ? {
           provider: socialInfo.provider,
           providerUserId: socialInfo.providerUserId,
-          userId: socialInfo.email,
+          email: socialInfo.email || form.email || null,
           nickname: form.nickname,
           phone: form.phone || undefined,
           agreeMarketing: form.agreeMarketing,
@@ -220,13 +215,6 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
 
       const { signupType } = res.data || {};
       if (signupType === "SOCIAL") {
-        const { accessToken, accessTokenExpiresIn, expiresIn } = res.data;
-
-        setTokens({
-          accessToken,
-          accessTokenExpiresIn: accessTokenExpiresIn ?? expiresIn,
-        });
-
         if (form.profileImage) {
           const formData = new FormData();
           formData.append("file", form.profileImage);
@@ -259,7 +247,7 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
         alert(
           "인증 메일이 발송되었습니다.\n이메일을 확인하여 인증을 완료해 주세요."
         );
-        navigate("/", { replace: true });
+        navigate("/email-verified?pending=true", { replace: true });
         return;
       }
 
