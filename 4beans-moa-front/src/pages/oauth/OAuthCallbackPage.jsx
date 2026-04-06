@@ -14,7 +14,7 @@ export default function OAuthCallbackPage() {
       const provider = params.get("provider");
 
       if (status === "LOGIN") {
-        await fetchSession();
+        await fetchSession(true);
         navigate("/", { replace: true });
         return;
       }

@@ -69,7 +69,11 @@ export const useAuthStore = create(
         // persist 미들웨어가 partialize({ user: null })을 자동으로 저장함
       },
 
-      fetchSession: async () => {
+      fetchSession: async (force = false) => {
+        if (force) {
+          isFetchingSession = false;
+          hasRehydrated = false;
+        }
         // Prevent multiple simultaneous calls
         if (isFetchingSession) {
           console.log("[AuthStore] fetchSession already in progress, skipping");
