@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -179,9 +180,11 @@ public class AuthRestController {
 
 	@PostMapping("/logout")
 	public ApiResponse<Void> logout(@RequestHeader(value = "Authorization", required = false) String accessToken,
-			@RequestHeader(value = "Refresh-Token", required = false) String refreshToken, HttpServletRequest request,
-			HttpServletResponse response) {
-		authService.logout(accessToken, refreshToken);
+			@RequestHeader(value = "Refresh-Token", required = false) String refreshToken,
+			@CookieValue(value = "REFRESH_TOKEN", required = false) String refreshCookie,
+			HttpServletRequest request, HttpServletResponse response) {
+		String effectiveRefreshToken = refreshToken != null && !refreshToken.isBlank() ? refreshToken : refreshCookie;
+		authService.logout(accessToken, effectiveRefreshToken);
 
 		boolean isHttps = "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto")) || request.isSecure();
 		String origin = request.getHeader("Origin");
@@ -190,11 +193,11 @@ public class AuthRestController {
 		ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", "").httpOnly(true).secure(isHttps)
 				.sameSite(isHttps ? "None" : "Lax").path("/").maxAge(0).build();
 
-		ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", "").httpOnly(true).secure(isHttps)
+		ResponseCookie clearRefreshCookie = ResponseCookie.from("REFRESH_TOKEN", "").httpOnly(true).secure(isHttps)
 				.sameSite(isHttps ? "None" : "Lax").path("/").maxAge(0).build();
 
 		response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
-		response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+		response.addHeader(HttpHeaders.SET_COOKIE, clearRefreshCookie.toString());
 
 		return ApiResponse.success(null);
 	}

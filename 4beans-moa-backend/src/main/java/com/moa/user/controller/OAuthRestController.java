@@ -101,9 +101,9 @@ public class OAuthRestController {
 		Map<String, Object> kakaoAccount = (Map<String, Object>) profile.get("kakao_account");
 		String email = kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
 
-		if (email == null || email.isBlank()) {
-			throw new BusinessException(ErrorCode.BAD_REQUEST, "카카오 이메일 제공에 동의해야 합니다.");
-		}
+		Map<String, Object> kakaoProfile = (Map<String, Object>) profile.get("properties");
+		String nickname = kakaoProfile != null ? (String) kakaoProfile.get("nickname") : null;
+		String profileImage = kakaoProfile != null ? (String) kakaoProfile.get("profile_image") : null;
 
 		String redirectBase = frontendUrl + "/oauth/callback";
 
@@ -159,8 +159,17 @@ public class OAuthRestController {
 		            .build();
 		}
 
-		return redirect(redirectBase + "?status=NEED_REGISTER" + "&provider=kakao" + "&providerUserId=" + providerUserId
-				+ "&email=" + URLEncoder.encode(email, StandardCharsets.UTF_8));
+		StringBuilder needRegisterUrl = new StringBuilder(redirectBase)
+				.append("?status=NEED_REGISTER")
+				.append("&provider=kakao")
+				.append("&providerUserId=").append(providerUserId);
+		if (nickname != null) {
+			needRegisterUrl.append("&nickname=").append(URLEncoder.encode(nickname, StandardCharsets.UTF_8));
+		}
+		if (email != null && !email.isBlank()) {
+			needRegisterUrl.append("&email=").append(URLEncoder.encode(email, StandardCharsets.UTF_8));
+		}
+		return redirect(needRegisterUrl.toString());
 	}
 
 	private ResponseEntity<Void> redirect(String url) {

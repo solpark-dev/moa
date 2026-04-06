@@ -25,6 +25,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.moa.global.auth.filter.JwtAuthenticationFilter;
 import com.moa.global.auth.handler.JwtAccessDeniedHandler;
 import com.moa.global.auth.handler.JwtAuthenticationEntryPoint;
+import com.moa.global.auth.provider.JwtProvider;
+import com.moa.global.auth.service.TokenBlacklistService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,7 +37,13 @@ public class SecurityConfig {
 
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final JwtProvider jwtProvider;
+	private final TokenBlacklistService tokenBlacklistService;
+
+	@Bean
+	public JwtAuthenticationFilter jwtAuthenticationFilter() {
+		return new JwtAuthenticationFilter(jwtProvider, tokenBlacklistService);
+	}
 
 	@Value("${app.cors.allowed-origins}")
 	private String allowedOrigins;
@@ -161,7 +169,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/api/parties/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/subscriptions/products").permitAll()
 
-						.requestMatchers("/api/oauth/**").authenticated()
+						.requestMatchers("/api/oauth/**").permitAll()
 
 						.requestMatchers("/api/users/me").authenticated()
 
@@ -176,7 +184,7 @@ public class SecurityConfig {
 						.requestMatchers("/api/auth/logout").authenticated()
 
 						.anyRequest().authenticated())
-						.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+						.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

@@ -2,8 +2,10 @@ package com.moa.user.service.impl;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,9 +26,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OtpServiceImpl implements OtpService {
 
+	private static final String OTP_SETUP_PREFIX = "otp:setup:";
+	private static final String OTP_VERIFY_FAIL_PREFIX = "otp:verify:fail:";
+	private static final long OTP_VERIFY_TTL_SECONDS = 600;
+	private static final int OTP_VERIFY_MAX_ATTEMPTS = 10;
+
 	private final UserDao userDao;
 	private final SecretGenerator secretGenerator;
 	private final CodeVerifier codeVerifier;
+	private final StringRedisTemplate redis;
 
 	@Value("${app.otp.issuer:MOA}")
 	private String issuer;
@@ -36,7 +44,7 @@ public class OtpServiceImpl implements OtpService {
 	public OtpSetupResponse setup() {
 		String userId = getCurrentUserId();
 		String secret = secretGenerator.generate();
-		userDao.updateOtpSettings(userId, secret, false);
+		redis.opsForValue().set(OTP_SETUP_PREFIX + userId, secret, OTP_VERIFY_TTL_SECONDS, TimeUnit.SECONDS);
 		String otpAuthUrl = buildOtpAuthUrl(userId, secret);
 		Boolean enabled = userDao.isOtpEnabled(userId);
 		boolean alreadyEnabled = enabled != null && enabled;
@@ -47,15 +55,27 @@ public class OtpServiceImpl implements OtpService {
 	@Transactional
 	public void verify(OtpVerifyRequest request) {
 		String userId = getCurrentUserId();
-		String secret = userDao.findOtpSecret(userId);
+		String secret = redis.opsForValue().get(OTP_SETUP_PREFIX + userId);
+		if (secret == null) {
+			secret = userDao.findOtpSecret(userId);
+		}
 		if (secret == null) {
 			throw new BusinessException(ErrorCode.BAD_REQUEST, "OTP가 설정되지 않았습니다.");
 		}
+
+		checkRateLimit(userId);
+
 		boolean valid = codeVerifier.isValidCode(secret, request.getCode());
 		if (!valid) {
+			incrementFailCount(userId);
 			throw new BusinessException(ErrorCode.BAD_REQUEST, "잘못된 OTP 코드입니다.");
 		}
-		userDao.updateOtpSettings(userId, secret, true);
+
+		if (redis.hasKey(OTP_SETUP_PREFIX + userId)) {
+			userDao.updateOtpSettings(userId, secret, true);
+			redis.delete(OTP_SETUP_PREFIX + userId);
+		}
+		clearFailCount(userId);
 	}
 
 	@Override
@@ -75,6 +95,26 @@ public class OtpServiceImpl implements OtpService {
 		if (!valid) {
 			throw new BusinessException(ErrorCode.BAD_REQUEST, "잘못된 OTP 코드입니다.");
 		}
+	}
+
+	private void checkRateLimit(String userId) {
+		String key = OTP_VERIFY_FAIL_PREFIX + userId;
+		String count = redis.opsForValue().get(key);
+		if (count != null && Integer.parseInt(count) >= OTP_VERIFY_MAX_ATTEMPTS) {
+			throw new BusinessException(ErrorCode.RATE_LIMIT_EXCEEDED, "OTP 검증 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.");
+		}
+	}
+
+	private void incrementFailCount(String userId) {
+		String key = OTP_VERIFY_FAIL_PREFIX + userId;
+		Long count = redis.opsForValue().increment(key);
+		if (count != null && count == 1) {
+			redis.expire(key, OTP_VERIFY_TTL_SECONDS, TimeUnit.SECONDS);
+		}
+	}
+
+	private void clearFailCount(String userId) {
+		redis.delete(OTP_VERIFY_FAIL_PREFIX + userId);
 	}
 
 	private String getCurrentUserId() {

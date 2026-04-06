@@ -144,11 +144,18 @@ public class JwtProvider {
 	}
 
 	public Claims parseClaims(String token, boolean isRefreshToken) {
+		return Jwts.parserBuilder().setSigningKey(isRefreshToken ? refreshSecretKey : secretKey).build()
+				.parseClaimsJws(token).getBody();
+	}
+
+	public boolean isTokenExpired(String token, boolean isRefreshToken) {
 		try {
-			return Jwts.parserBuilder().setSigningKey(isRefreshToken ? refreshSecretKey : secretKey).build()
-					.parseClaimsJws(token).getBody();
+			parseClaims(token, isRefreshToken);
+			return false;
 		} catch (ExpiredJwtException e) {
-			return e.getClaims();
+			return true;
+		} catch (Exception e) {
+			return true;
 		}
 	}
 

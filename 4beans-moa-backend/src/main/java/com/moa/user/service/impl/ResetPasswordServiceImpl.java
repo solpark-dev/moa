@@ -99,20 +99,32 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
             throw new BusinessException(ErrorCode.VALIDATION_ERROR, "비밀번호 확인이 일치하지 않습니다.");
         }
 
-        if (newPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "비밀번호는 8자 이상이어야 합니다.");
-        }
+        validatePasswordRule(newPassword);
 
         String userId = redis.opsForValue().get(TOKEN_PREFIX + resetToken);
         if (userId == null) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "재설정 토큰이 만료되었거나 유효하지 않습니다.");
         }
 
-        // 토큰 즉시 소멸 (1회성)
         redis.delete(TOKEN_PREFIX + resetToken);
 
         String encoded = passwordEncoder.encode(newPassword);
         userDao.updatePassword(userId, encoded);
+    }
+
+    private void validatePasswordRule(String password) {
+        if (password == null || password.length() < 8 || password.length() > 20) {
+            throw new BusinessException(ErrorCode.VALIDATION_ERROR, "비밀번호는 8~20자여야 합니다.");
+        }
+        boolean hasLetter = false;
+        boolean hasDigitOrSpecial = false;
+        for (char c : password.toCharArray()) {
+            if (Character.isLetter(c)) hasLetter = true;
+            if (Character.isDigit(c) || !Character.isLetterOrDigit(c)) hasDigitOrSpecial = true;
+        }
+        if (!hasLetter || !hasDigitOrSpecial) {
+            throw new BusinessException(ErrorCode.VALIDATION_ERROR, "비밀번호는 영문과 숫자 또는 특수문자를 포함해야 합니다.");
+        }
     }
 
     private String generateOtp() {

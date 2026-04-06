@@ -1,10 +1,11 @@
 package com.moa.user.service.impl;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -38,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+	private static final String OTP_SESSION_PREFIX = "otp:session:";
 	private static final long OTP_TOKEN_TTL_MILLIS = 5 * 60 * 1000L;
 
 	private final UserDao userDao;
@@ -49,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
 	private final OtpService otpService;
 	private final BackupCodeService backupCodeService;
 	private final LoginHistoryService loginHistoryService;
+	private final StringRedisTemplate redis;
 
 	public LoginResponse login(LoginRequest request) {
 
@@ -106,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
 
 		TokenResponse token = jwtProvider.generateToken(authentication);
 
-		return LoginResponse.builder().otpRequired(false).accessToken(token.getAccessToken())
+		return LoginResponse.builder().userId(user.getUserId()).otpRequired(false).accessToken(token.getAccessToken())
 				.refreshToken(token.getRefreshToken()).accessTokenExpiresIn(token.getAccessTokenExpiresIn()).build();
 	}
 
@@ -117,14 +120,18 @@ public class AuthServiceImpl implements AuthService {
 				throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그아웃된 토큰입니다.");
 			}
 
+			if (jwtProvider.isTokenExpired(refreshToken, true)) {
+				throw new BusinessException(ErrorCode.UNAUTHORIZED, "만료된 리프레시 토큰입니다.");
+			}
+
 			String userId = jwtProvider.parseClaims(refreshToken, true).getSubject();
 			if (tokenBlacklistService.getBanTimestamp(userId) > 0) {
 				throw new BusinessException(ErrorCode.UNAUTHORIZED, "밴된 계정입니다.");
 			}
 
-			TokenResponse newTokens = jwtProvider.refresh(refreshToken);
-
 			tokenBlacklistService.blacklistToken(refreshToken, jwtProvider.getRefreshTokenExpirationMillis());
+
+			TokenResponse newTokens = jwtProvider.refresh(refreshToken);
 
 			return newTokens;
 		} catch (BusinessException e) {
@@ -214,29 +221,18 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	private String createOtpToken(String userId) {
-		long now = System.currentTimeMillis();
-		String value = userId + ":" + now;
-		return Base64.getUrlEncoder().withoutPadding().encodeToString(value.getBytes(StandardCharsets.UTF_8));
+		String token = UUID.randomUUID().toString();
+		redis.opsForValue().set(OTP_SESSION_PREFIX + token, userId, OTP_TOKEN_TTL_MILLIS, TimeUnit.MILLISECONDS);
+		return token;
 	}
 
 	private String extractUserIdFromOtpToken(String otpToken) {
-		try {
-			String decoded = new String(Base64.getUrlDecoder().decode(otpToken), StandardCharsets.UTF_8);
-			String[] parts = decoded.split(":");
-			if (parts.length != 2) {
-				throw new IllegalArgumentException();
-			}
-			long issuedAt = Long.parseLong(parts[1]);
-			long now = System.currentTimeMillis();
-			if (now - issuedAt > OTP_TOKEN_TTL_MILLIS) {
-				throw new BusinessException(ErrorCode.UNAUTHORIZED, "OTP 세션이 만료되었습니다.");
-			}
-			return parts[0];
-		} catch (BusinessException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new BusinessException(ErrorCode.UNAUTHORIZED, "OTP 토큰이 유효하지 않습니다.");
+		String userId = redis.opsForValue().get(OTP_SESSION_PREFIX + otpToken);
+		if (userId == null) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED, "OTP 세션이 만료되었거나 유효하지 않습니다.");
 		}
+		redis.delete(OTP_SESSION_PREFIX + otpToken);
+		return userId;
 	}
 
 	@Override
