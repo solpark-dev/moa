@@ -25,6 +25,9 @@ public class UserAddValidator {
 		this.userDao = userDao;
 	}
 
+	private static final Pattern EMAIL_PATTERN =
+			Pattern.compile("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+
 	/*
 	 * ======================== 일반 회원가입 검증 ========================
 	 */
@@ -34,6 +37,7 @@ public class UserAddValidator {
 		validatePasswordConfirm(request.getPassword(), request.getPasswordConfirm());
 
 		validateNicknameCommon(request.getNickname());
+		validateEmailFormat(request.getUserId());
 		validateEmailDuplicate(request.getUserId());
 		validateNicknameDuplicate(request.getNickname());
 
@@ -54,6 +58,13 @@ public class UserAddValidator {
 
 		validateNicknameCommon(request.getNickname());
 		validateNicknameDuplicate(request.getNickname());
+
+		// 소셜 이메일이 제공된 경우 중복 검증 (userId 검증은 수행하지 않음)
+		if (request.getEmail() != null && !request.getEmail().isBlank()) {
+			if (userDao.existsByEmail(request.getEmail()) > 0) {
+				throw new BusinessException(ErrorCode.CONFLICT, "이미 사용중인 이메일입니다.");
+			}
+		}
 
 		if (request.getPhone() != null && !request.getPhone().isBlank()) {
 			validatePhoneDuplicate(request.getPhone());
@@ -89,11 +100,20 @@ public class UserAddValidator {
 		}
 	}
 
+	private void validateEmailFormat(String userId) {
+		if (userId == null || userId.isBlank()) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR, "아이디(이메일)를 입력해 주세요.");
+		}
+		if (!EMAIL_PATTERN.matcher(userId).matches()) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR, "이메일 형식이 올바르지 않습니다.");
+		}
+	}
+
 	private void validateEmailDuplicate(String userId) {
 		if (userId == null || userId.isBlank()) {
 			throw new BusinessException(ErrorCode.VALIDATION_ERROR, "아이디(이메일)를 입력해 주세요.");
 		}
-		if (userDao.existsByUserId(userId) > 0) {
+		if (userDao.existsByEmail(userId) > 0) {
 			throw new BusinessException(ErrorCode.CONFLICT, "이미 사용중인 이메일입니다.");
 		}
 	}

@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.github.f4b6a3.ulid.UlidCreator;
 import com.moa.global.auth.provider.JwtProvider;
 import com.moa.global.common.event.UserDeletedEvent;
 import com.moa.global.common.exception.BusinessException;
@@ -139,6 +140,12 @@ public class UserServiceImpl implements UserService {
 
 		ensureNotBlocked(user);
 
+		if (request.getCurrentPassword() != null && !request.getCurrentPassword().isBlank()) {
+			if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+				throw new BusinessException(ErrorCode.INVALID_CURRENT_PASSWORD, "현재 비밀번호이 일치하지 않습니다.");
+			}
+		}
+
 		userDao.updatePassword(userId, passwordEncoder.encode(request.getNewPassword()));
 		userDao.resetLoginFailCount(userId);
 	}
@@ -146,7 +153,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public void startPasswordReset(PasswordResetStartRequest request) {
-		User user = userDao.findByUserId(request.getUserId())
+		User user = userDao.findByEmail(request.getUserId())
 				.orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
 		String token = UUID.randomUUID().toString();
@@ -189,9 +196,15 @@ public class UserServiceImpl implements UserService {
 			userAddValidator.validateForSignup(request);
 		}
 
-		String userId = request.getUserId().toLowerCase();
+		// 신규 가입자는 ULID로 USER_ID 생성 (시간순 정렬 보장, InnoDB 인덱스 단편화 방지)
+		String userId = UlidCreator.getMonotonicUlid().toString();
 
-		if (userDao.existsByUserId(userId) > 0) {
+		// 이메일: 일반 가입은 userId 필드, 소셜 가입은 email 필드 (없으면 null)
+		String email = isSocial
+				? (request.getEmail() != null && !request.getEmail().isBlank() ? request.getEmail().toLowerCase() : null)
+				: (request.getUserId() != null ? request.getUserId().toLowerCase() : null);
+
+		if (email != null && userDao.existsByEmail(email) > 0) {
 			throw new BusinessException(ErrorCode.DUPLICATED_USER, "이미 가입된 이메일입니다.");
 		}
 
@@ -203,7 +216,7 @@ public class UserServiceImpl implements UserService {
 		String encodedPassword = isSocial ? passwordEncoder.encode(UUID.randomUUID().toString())
 				: passwordEncoder.encode(request.getPassword());
 
-		User user = User.builder().userId(userId).password(encodedPassword).nickname(request.getNickname())
+		User user = User.builder().userId(userId).email(email).password(encodedPassword).nickname(request.getNickname())
 				.phone(request.getPhone()).role("USER").status(isSocial ? UserStatus.ACTIVE : UserStatus.PENDING)
 				.provider(isSocial ? request.getProvider() : null).build();
 

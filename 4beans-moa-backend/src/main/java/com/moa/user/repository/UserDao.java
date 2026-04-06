@@ -37,6 +37,10 @@ public interface UserDao {
 
 	int existsByUserId(@Param("userId") String userId);
 
+	Optional<User> findByEmail(@Param("email") String email);
+
+	int existsByEmail(@Param("email") String email);
+
 	int existsByNickname(@Param("nickname") String nickname);
 
 	int existsByNicknameExceptMe(@Param("nickname") String nickname, @Param("userId") String userId);

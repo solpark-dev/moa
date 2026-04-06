@@ -17,6 +17,7 @@ import lombok.Setter;
 public class UserResponse {
 
 	private String userId;
+	private String email;
 	private String nickname;
 	private String phone;
 	private String profileImage;
@@ -74,6 +75,7 @@ public class UserResponse {
 
 	    return UserResponse.builder()
 	            .userId(user.getUserId())
+	            .email(user.getEmail())
 	            .nickname(user.getNickname())
 	            .phone(user.getPhone())
 	            .profileImage(user.getProfileImage())

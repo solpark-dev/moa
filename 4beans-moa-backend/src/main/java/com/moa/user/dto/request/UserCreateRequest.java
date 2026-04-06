@@ -15,8 +15,11 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserCreateRequest {
 
-	@NotBlank(message = "아이디(이메일)를 입력해 주세요.")
+	// 일반 가입: 이메일 입력값 (하위 호환). 소셜 가입 시 서버에서 ULID 생성하므로 불필요
 	private String userId;
+
+	// 소셜 가입: OAuth에서 받은 이메일 전달용 (nullable)
+	private String email;
 
 	private String password;
 
