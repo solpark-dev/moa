@@ -1,4 +1,3 @@
-import React from 'react';
 import { useThemeStore } from '@/store/themeStore';
 
 // 테마별 문의 상태 뱃지 스타일

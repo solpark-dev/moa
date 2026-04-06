@@ -23,8 +23,6 @@ import {
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import NotificationPopover from "@/components/push/NotificationPopover";
@@ -66,13 +64,11 @@ function NavPill({ to, icon: Icon, children, active, theme = "light" }) {
 export default function HeaderView({
   user,
   isAdmin,
-  isAdminMode,
   profileImageUrl,
   userInitial,
   displayNickname,
   displayEmail,
   logout,
-  handleAdminSwitch,
 }) {
   const location = useLocation();
   const { theme: currentTheme } = useThemeStore();
@@ -313,27 +309,6 @@ export default function HeaderView({
         <div className="flex items-center gap-3 justify-end shrink-0">
           {user ? (
             <>
-              {user?.role === "ADMIN" && (
-                <Sticker className="hidden lg:flex items-center gap-2 rounded-2xl px-3 py-2">
-                  <Switch
-                    id="admin-mode"
-                    checked={isAdminMode}
-                    onCheckedChange={handleAdminSwitch}
-                    className={`${
-                      currentTheme === "dark"
-                        ? "data-[state=checked]:bg-[#635bff] data-[state=unchecked]:bg-gray-600"
-                        : "data-[state=checked]:bg-black data-[state=unchecked]:bg-slate-300"
-                    }`}
-                  />
-                  <Label
-                    htmlFor="admin-mode"
-                    className={`text-[11px] font-black cursor-pointer tracking-[0.18em] uppercase ${themeStyle.stickerText}`}
-                  >
-                    {isAdminMode ? "SUP" : "MGR"}
-                  </Label>
-                </Sticker>
-              )}
-
               <Sticker className="rounded-2xl p-1.5">
                 <NotificationPopover />
               </Sticker>
@@ -515,36 +490,6 @@ export default function HeaderView({
                           </div>
                         </div>
                       </DropdownMenuLabel>
-                    )}
-                    {user?.role === "ADMIN" && (
-                      <div className="lg:hidden mb-3">
-                        <Sticker className="rounded-2xl px-3 py-3">
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="flex flex-col">
-                              <span
-                                className={`text-xs font-black tracking-[0.18em] uppercase ${themeStyle.dropdownItemText}`}
-                              >
-                                ADMIN MODE
-                              </span>
-                              <span
-                                className={`text-[11px] font-bold ${themeStyle.dropdownItemSubtext}`}
-                              >
-                                {isAdminMode ? "SUP" : "MGR"}
-                              </span>
-                            </div>
-                            <Switch
-                              id="admin-mode-dd"
-                              checked={isAdminMode}
-                              onCheckedChange={handleAdminSwitch}
-                              className={`${
-                                currentTheme === "dark"
-                                  ? "data-[state=checked]:bg-[#635bff] data-[state=unchecked]:bg-gray-600"
-                                  : "data-[state=checked]:bg-black data-[state=unchecked]:bg-slate-300"
-                              }`}
-                            />
-                          </div>
-                        </Sticker>
-                      </div>
                     )}
 
                     {renderMobileNavItems()}

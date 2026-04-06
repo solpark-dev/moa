@@ -1,4 +1,3 @@
-import React from 'react';
 import InquiryStatusBadge from './InquiryStatusBadge';
 import { formatDate, getCategoryName } from '../../utils/communityUtils';
 import { useThemeStore } from '@/store/themeStore';

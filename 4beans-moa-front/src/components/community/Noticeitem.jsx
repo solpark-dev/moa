@@ -1,4 +1,3 @@
-import React from 'react';
 import { NeoCard } from '@/components/common/neo';
 import { useThemeStore } from '@/store/themeStore';
 

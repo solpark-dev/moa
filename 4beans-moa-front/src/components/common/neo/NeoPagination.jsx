@@ -1,4 +1,3 @@
-import React from 'react';
 import { useThemeStore } from '@/store/themeStore';
 
 // 테마별 페이지네이션 스타일

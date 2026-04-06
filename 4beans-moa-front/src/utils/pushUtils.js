@@ -27,22 +27,3 @@ export const getPushIcon = (pushCode) => {
     }
     return iconMap[pushCode] || '🔔'
 }
-
-export const getPushCodeLabel = (pushCode) => {
-    const labelMap = {
-        'PAYMENT_SUCCESS': '결제 완료',
-        'PAYMENT_FAIL': '결제 실패',
-        'PARTY_JOIN': '파티 가입',
-        'PARTY_WITHDRAW': '파티 탈퇴',
-        'PARTY_START': '파티 시작',
-        'PARTY_END': '파티 종료',
-        'SETTLEMENT_MONTHLY': '월간 정산',
-        'DEPOSIT_PAID': '보증금 납부',
-        'DEPOSIT_REFUND': '보증금 환불',
-        'INQUIRY_ANSWER': '문의 답변',
-        'PAYMENT_RETRY': '결제 재시도',
-        'PAYMENT_RETRY_SUCCESS': '재시도 성공',
-        'PAYMENT_RETRY_FINAL_FAIL': '최종 실패'
-    }
-    return labelMap[pushCode] || pushCode
-}
